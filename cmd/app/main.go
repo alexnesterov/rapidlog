@@ -5,9 +5,17 @@ import (
 	"net/http"
 
 	"github.com/alexnesterov/dotline/internal/adapter/httpapi"
+	"github.com/alexnesterov/dotline/internal/config"
 )
 
 func main() {
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	http.HandleFunc("/", httpapi.Greet)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+
+	log.Printf("%s is starting on port %s", cfg.App.Name, cfg.HTTP.Port)
+	log.Fatal(http.ListenAndServe(":"+cfg.HTTP.Port, nil))
 }

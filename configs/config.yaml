@@ -1,0 +1,8 @@
+app:
+  name: "DotLine"
+
+http:
+  port: 7540
+  read_timeout: 5s
+  write_timeout: 10s
+  idle_timeout: 15s
