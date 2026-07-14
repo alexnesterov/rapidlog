@@ -37,7 +37,7 @@ func Load() (*Config, error) {
 	viper.AutomaticEnv()
 
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	viper.SetEnvPrefix("DOTLINE")
+	viper.SetEnvPrefix("dotline")
 
 	setDefaults()
 
