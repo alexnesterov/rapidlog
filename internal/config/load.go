@@ -11,13 +11,13 @@ import (
 
 var ErrEmptyAppName = errors.New("empty app name")
 
-func setDefaults() {
-	viper.SetDefault("app.name", "dotline")
+func setDefaults(v *viper.Viper) {
+	v.SetDefault("app.name", "dotline")
 
-	viper.SetDefault("http.port", 8080)
-	viper.SetDefault("http.read_timeout", 5*time.Second)
-	viper.SetDefault("http.write_timeout", 10*time.Second)
-	viper.SetDefault("http.idle_timeout", 15*time.Second)
+	v.SetDefault("http.port", 8080)
+	v.SetDefault("http.read_timeout", 5*time.Second)
+	v.SetDefault("http.write_timeout", 10*time.Second)
+	v.SetDefault("http.idle_timeout", 15*time.Second)
 }
 
 func validate(cfg *Config) error {
@@ -28,20 +28,22 @@ func validate(cfg *Config) error {
 }
 
 func Load() (*Config, error) {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
+	v := viper.New()
 
-	viper.AddConfigPath("configs")
-	viper.AddConfigPath(".")
+	v.SetConfigName("config")
+	v.SetConfigType("yaml")
 
-	viper.AutomaticEnv()
+	v.AddConfigPath("configs")
+	v.AddConfigPath(".")
 
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	viper.SetEnvPrefix("dotline")
+	v.AutomaticEnv()
 
-	setDefaults()
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.SetEnvPrefix("dotline")
 
-	if err := viper.ReadInConfig(); err != nil {
+	setDefaults(v)
+
+	if err := v.ReadInConfig(); err != nil {
 		var notFoundError viper.ConfigFileNotFoundError
 		if !errors.As(err, &notFoundError) {
 			return nil, fmt.Errorf("config: read file: %w", err)
@@ -49,7 +51,7 @@ func Load() (*Config, error) {
 	}
 
 	var cfg Config
-	if err := viper.Unmarshal(&cfg); err != nil {
+	if err := v.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("config: unmarshal: %w", err)
 	}
 
