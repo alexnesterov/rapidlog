@@ -9,7 +9,9 @@ import (
 )
 
 func Greet(w http.ResponseWriter, r *http.Request) {
-	if _, err := fmt.Fprintf(w, "Hello World! %s", time.Now()); err != nil {
+	today := time.Now().Format("02.01 Mon 06")
+
+	if _, err := fmt.Fprintf(w, "%s\nHello World!", today); err != nil {
 		log.Println(err)
 	}
 }
