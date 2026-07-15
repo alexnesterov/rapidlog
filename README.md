@@ -5,7 +5,7 @@
 ## Запуск
 
 ```sh
-go run ./cmd/app
+go run ./cmd/api
 ```
 
 Сервер стартует на `:1508`.
@@ -13,7 +13,7 @@ go run ./cmd/app
 ## Структура
 
 ```text
-cmd/app                            — точка входа
+cmd/api                            — точка входа
 internal/adapter/httpapi           — HTTP-хендлеры
 internal/config                    — конфигурация приложения
 internal/domain/entity             — доменные сущности

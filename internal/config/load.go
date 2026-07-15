@@ -12,7 +12,7 @@ import (
 var ErrEmptyAppName = errors.New("empty app name")
 
 func setDefaults(v *viper.Viper) {
-	v.SetDefault("app.name", "dotline")
+	v.SetDefault("app.name", "rapidlog")
 
 	v.SetDefault("http.port", 8080)
 	v.SetDefault("http.read_timeout", 5*time.Second)
@@ -39,7 +39,7 @@ func Load() (*Config, error) {
 	v.AutomaticEnv()
 
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	v.SetEnvPrefix("dotline")
+	v.SetEnvPrefix("rapidlog")
 
 	setDefaults(v)
 

@@ -48,7 +48,7 @@ func TestLoad_Defaults(t *testing.T) {
 	cfg, err := Load()
 	require.NoError(t, err)
 
-	assert.Equal(t, "dotline", cfg.App.Name)
+	assert.Equal(t, "rapidlog", cfg.App.Name)
 	assert.Equal(t, "8080", cfg.HTTP.Port)
 	assert.Equal(t, 5*time.Second, cfg.HTTP.ReadTimeout)
 	assert.Equal(t, 10*time.Second, cfg.HTTP.WriteTimeout)
