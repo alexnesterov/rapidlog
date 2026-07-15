@@ -1,0 +1,243 @@
+# API — проектирование
+
+Слоистая архитектура: `handler → service → repository (interface)`.
+PostgreSQL (`pgx`) — единственное место записи (service layer). RabbitMQ —
+side-effects (уведомления, аудит), не основной путь записи.
+
+---
+
+## 1. Сущности
+
+### Collection
+
+По аналогии с Bullet Journal: каждый bullet живёт в какой-то
+коллекции — произвольном именованном списке.
+
+| Поле | Тип | Описание |
+| --- | --- | --- |
+| id | UUID | |
+| topic | string | обязательное, ≤100 символов |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+**Операции:** Create, List, Get, Update, Delete.
+
+### Bullet
+
+| Поле | Тип | Описание |
+| --- | --- | --- |
+| id | UUID | |
+| collection_id | UUID | коллекция-владелец (FK → Collection) |
+| title | string | обязательное, ≤200 символов |
+| date | date (ISO 8601, `YYYY-MM-DD`) | дата выполнения |
+| status | string | `OPEN` \| `DONE` |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+**Операции:** Create, List (поиск/пагинация), Get, Update, Delete,
+Done (пометить выполненной; запись не удаляется — удаление только
+через отдельный Delete по решению пользователя).
+
+> Повторяющиеся записи (`repeat`) сознательно вынесены за скобки текущей
+> версии — bullet всегда одноразовый. Можно добавить позже отдельным
+> полем без ломающих изменений контракта.
+
+---
+
+## 2. Общий формат ответов
+
+**Успех** — сама сущность или объект-обёртка для списков.
+
+**Ошибка:**
+
+```json
+{
+  "error": {
+    "code": "validation_error",
+    "message": "title is required"
+  }
+}
+```
+
+| Код | Когда |
+| --- | --- |
+| 200 | успешный GET/PUT/POST без создания ресурса |
+| 201 | ресурс создан |
+| 204 | успешное удаление, тело пустое |
+| 400 | некорректный запрос (невалидный JSON) |
+| 404 | ресурс не найден |
+| 409 | конфликт (удаление непустой коллекции) |
+| 422 | семантическая ошибка валидации |
+| 500 | внутренняя ошибка |
+
+---
+
+## 3. Эндпоинты
+
+### Collections
+
+#### POST /api/collections
+
+```json
+// request
+{ "topic": "Идеи для проекта" }
+```
+
+```json
+// response 201
+{
+  "id": "uuid", "topic": "Идеи для проекта",
+  "created_at": "...", "updated_at": "..."
+}
+```
+
+#### GET /api/collections?limit=20&offset=0
+
+- `limit` — по умолчанию 20, максимум 100
+- `offset` — по умолчанию 0
+
+```json
+// response 200
+{
+  "collections": [ /* Collection[] */ ],
+  "total": 5, "limit": 20, "offset": 0
+}
+```
+
+#### GET /api/collections/{id}
+
+Ответ 200 — Collection, либо `404`.
+
+#### PUT /api/collections/{id}
+
+```json
+// request — полная замена
+{ "topic": "Идеи для проекта" }
+```
+
+Ответ 200 — обновлённая Collection.
+
+#### DELETE /api/collections/{id}
+
+Ответ `204`, либо `404` — если коллекция не существует. Если внутри
+есть bullets — `409`, сначала перенеси или удали их. Источник истины —
+`FK bullets.collection_id REFERENCES collections(id) ON DELETE
+RESTRICT` в схеме Postgres, а не
+предварительная проверка в service-слое: под конкурентной нагрузкой
+check-then-delete даёт гонку (bullet может быть создан между проверкой
+и удалением). `409` в этом эндпоинте — это маппинг ошибки нарушения
+FK-констрейнта (`23503`) на HTTP-код, а не отдельная бизнес-проверка.
+
+### Bullets
+
+#### POST /api/bullets
+
+```json
+// request
+{
+  "collection_id": "uuid", "title": "Оплатить хостинг",
+  "date": "2026-07-20"
+}
+```
+
+Если `date` не передан — по умолчанию сегодня.
+
+```json
+// response 201
+{
+  "id": "uuid", "collection_id": "uuid", "title": "Оплатить хостинг",
+  "date": "2026-07-20", "status": "OPEN",
+  "created_at": "...", "updated_at": "..."
+}
+```
+
+Побочный эффект: публикуется событие `bullet.created` (см. раздел 4).
+
+#### GET /api/bullets?search=&collection_id=&limit=20&offset=0
+
+- `search` — поиск по title (опционально)
+- `collection_id` — фильтр по коллекции (опционально)
+- `limit` — по умолчанию 20, максимум 100
+- `offset` — по умолчанию 0
+
+```json
+// response 200
+{ "bullets": [ /* Bullet[] */ ], "total": 42, "limit": 20, "offset": 0 }
+```
+
+#### GET /api/bullets/{id}
+
+Ответ 200 — Bullet, либо `404`.
+
+#### PUT /api/bullets/{id}
+
+```json
+// request — полная замена
+{
+  "collection_id": "uuid", "title": "...", "date": "2026-08-01",
+  "status": "OPEN"
+}
+```
+
+Ответ 200 — обновлённый Bullet. `PUT` — это полная замена состояния,
+поэтому `status` обязателен в теле: смена `collection_id` переносит
+bullet в другую коллекцию (миграция на завтра), а смена `status` с
+`DONE` на `OPEN` — это и есть reopen, отдельного эндпоинта для него
+нет. В отличие от `POST /done`, `PUT` не публикует `bullet.completed`
+— это чисто CRUD-замена, без бизнес-события.
+
+#### DELETE /api/bullets/{id}
+
+Ответ `204`, либо `404` — если bullet с таким `id` не существует.
+Публикует `bullet.deleted` только при реальном удалении.
+
+#### POST /api/bullets/{id}/done
+
+Логика: `status` bullet переводится в `DONE`, запись не удаляется —
+удалить её пользователь может отдельно через `DELETE`. Идемпотентно:
+если bullet уже `DONE`, повторный вызов — `200` без изменений и без
+повторной публикации `bullet.completed`.
+
+```json
+// response 200
+{
+  "id": "uuid", "title": "Оплатить хостинг", "status": "DONE",
+  "created_at": "...", "updated_at": "..."
+}
+```
+
+Публикует `bullet.completed`.
+
+### Health
+
+**GET /health** → `200 { "status": "ok" }` — для Docker/orchestrator
+healthcheck.
+
+---
+
+## 4. Асинхронные события (RabbitMQ)
+
+Exchange: `bullet_events` (topic).
+
+- **`bullet.created`** — после успешного `POST /api/bullets`.
+  Payload: `{bullet_id, collection_id, title, date}`.
+- **`bullet.completed`** — после `POST /api/bullets/{id}/done`.
+  Payload: `{bullet_id, collection_id, title, completed_at}`.
+- **`bullet.deleted`** — после `DELETE /api/bullets/{id}`.
+  Payload: `{bullet_id, collection_id, deleted_at}`.
+
+Consumer (планируется отдельным воркером): отправка уведомлений, запись в
+audit-log. Service слой публикует событие уже после успешной записи в
+Postgres — паттерн "transactional write + async notification" (без
+outbox на этом этапе, риск dual-write принят как допустимый для
+pet-проекта).
+
+---
+
+## 5. Поток создания bullet (кратко)
+
+```text
+Client → HTTP handler → service.CreateBullet()
+  1. repository.Insert() → Postgres (синхронно, ответ клиенту)
+  2. publisher.Publish("bullet.created") → RabbitMQ (best-effort)
+```
