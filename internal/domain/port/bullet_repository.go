@@ -1,7 +1,7 @@
 package port
 
 import (
-	"github.com/alexnesterov/dotline/internal/domain/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
 	"github.com/google/uuid"
 )
 

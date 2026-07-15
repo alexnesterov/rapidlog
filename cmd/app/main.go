@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/alexnesterov/dotline/internal/adapter/httpapi"
-	"github.com/alexnesterov/dotline/internal/config"
+	"github.com/alexnesterov/rapidlog-api/internal/adapter/httpapi"
+	"github.com/alexnesterov/rapidlog-api/internal/config"
 )
 
 func main() {

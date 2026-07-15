@@ -1,4 +1,4 @@
-module github.com/alexnesterov/dotline
+module github.com/alexnesterov/rapidlog-api
 
 go 1.25.3
 

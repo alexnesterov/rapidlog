@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/alexnesterov/dotline/internal/domain/entity"
-	"github.com/alexnesterov/dotline/internal/domain/port"
+	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/domain/port"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
