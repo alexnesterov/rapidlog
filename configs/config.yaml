@@ -2,7 +2,7 @@ app:
   name: "RapidLog"
 
 http:
-  port: 
+  port: 1508
   read_timeout: 5s
   write_timeout: 10s
   idle_timeout: 15s
