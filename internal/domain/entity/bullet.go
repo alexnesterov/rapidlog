@@ -1,16 +1,24 @@
 package entity
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Status string
 
 const (
-	Open Status = "OPEN"
-	Done Status = "DONE"
+	StatusOpen Status = "OPEN"
+	StatusDone Status = "DONE"
 )
 
 type Bullet struct {
-	ID     uuid.UUID
-	Title  string
-	Status Status
+	ID           uuid.UUID
+	CollectionID uuid.UUID
+	Title        string
+	Date         time.Time
+	Status       Status
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
