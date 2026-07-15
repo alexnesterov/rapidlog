@@ -4,12 +4,27 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
 func main() {
-	res, err := http.Get("http://localhost:1508/")
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		"http://localhost:1508/",
+		nil,
+	)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Ошибка формирования запроса:", err)
+		return
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Ошибка отправки запроса:", err)
 		return
 	}
 	defer func() { _ = res.Body.Close() }()
