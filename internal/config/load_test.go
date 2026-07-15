@@ -29,7 +29,7 @@ func TestValidate(t *testing.T) {
 			name: "valid config",
 			cfg: &Config{
 				App: AppConfig{
-					Name: "DOTLINE",
+					Name: "RAPIDLOG",
 				},
 			},
 			want: nil,
