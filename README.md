@@ -1,4 +1,4 @@
-# DotLine
+# RapidLog
 
 Простой HTTP-сервер на Go.
 
