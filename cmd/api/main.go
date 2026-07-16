@@ -14,8 +14,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	http.HandleFunc("/", httpapi.Greet)
+	router := http.NewServeMux()
+
+	router.HandleFunc("/", httpapi.Greet)
 
 	log.Printf("%s is starting on port %s", cfg.App.Name, cfg.HTTP.Port)
-	log.Fatal(http.ListenAndServe(":"+cfg.HTTP.Port, nil))
+	log.Fatal(http.ListenAndServe(":"+cfg.HTTP.Port, router))
 }
