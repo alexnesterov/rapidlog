@@ -60,7 +60,7 @@ func TestCreateBullet(t *testing.T) {
 	handler := http.HandlerFunc(bulletHandler.CreateBullet)
 
 	res := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/bullets", body)
+	req := httptest.NewRequest(http.MethodPost, "/api/bullets", body)
 	req.Header.Set("Content-Type", "application/json")
 
 	handler.ServeHTTP(res, req)
@@ -84,7 +84,7 @@ func TestCreateBullet_InvalidJSON(t *testing.T) {
 	handler := http.HandlerFunc(bulletHandler.CreateBullet)
 
 	res := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/bullets", body)
+	req := httptest.NewRequest(http.MethodPost, "/api/bullets", body)
 	req.Header.Set("Content-Type", "application/json")
 
 	handler.ServeHTTP(res, req)
@@ -107,7 +107,7 @@ func TestCreateBullet_ServiceError(t *testing.T) {
 	handler := http.HandlerFunc(bulletHandler.CreateBullet)
 
 	res := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/bullets", body)
+	req := httptest.NewRequest(http.MethodPost, "/api/bullets", body)
 	req.Header.Set("Content-Type", "application/json")
 
 	handler.ServeHTTP(res, req)
