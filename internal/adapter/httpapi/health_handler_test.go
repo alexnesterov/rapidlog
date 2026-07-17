@@ -6,17 +6,16 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestHealth(t *testing.T) {
-	handler := http.HandlerFunc(Health)
-
+	req := httptest.NewRequest(http.MethodGet, "/health", nil)
 	res := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/health", nil)
 
-	handler.ServeHTTP(res, req)
+	HealthHandler(res, req)
 
+	require.Equal(t, http.StatusOK, res.Code)
 	assert.Equal(t, "application/json", res.Header().Get("Content-Type"))
-	assert.Equal(t, http.StatusOK, res.Code)
 	assert.JSONEq(t, `{"status": "ok"}`, res.Body.String())
 }

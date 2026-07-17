@@ -48,7 +48,7 @@ func TestCreateBullet(t *testing.T) {
 	}
 
 	var got port.CreateBulletRequest
-	bulletHandler := &BulletHandler{
+	handler := &BulletHandler{
 		BulletService: &fakeBulletService{
 			createFn: func(req port.CreateBulletRequest) (*entity.Bullet, error) {
 				got = req
@@ -57,17 +57,14 @@ func TestCreateBullet(t *testing.T) {
 		},
 	}
 
-	handler := http.HandlerFunc(bulletHandler.CreateBullet)
-
-	res := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "/api/bullets", body)
-	req.Header.Set("Content-Type", "application/json")
+	res := httptest.NewRecorder()
 
-	handler.ServeHTTP(res, req)
+	handler.CreateBullet(res, req)
 
+	require.Equal(t, http.StatusCreated, res.Code)
 	assert.Equal(t, "application/json", res.Header().Get("Content-Type"))
 	assert.Equal(t, "Заголовок", got.Title)
-	assert.Equal(t, http.StatusCreated, res.Code)
 
 	wantJSON, err := json.Marshal(want)
 	require.NoError(t, err)
@@ -77,26 +74,23 @@ func TestCreateBullet(t *testing.T) {
 func TestCreateBullet_InvalidJSON(t *testing.T) {
 	body := strings.NewReader("не json")
 
-	bulletHandler := &BulletHandler{
+	handler := &BulletHandler{
 		BulletService: &fakeBulletService{},
 	}
 
-	handler := http.HandlerFunc(bulletHandler.CreateBullet)
-
-	res := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "/api/bullets", body)
-	req.Header.Set("Content-Type", "application/json")
+	res := httptest.NewRecorder()
 
-	handler.ServeHTTP(res, req)
+	handler.CreateBullet(res, req)
 
+	require.Equal(t, http.StatusBadRequest, res.Code)
 	assert.Equal(t, "application/json", res.Header().Get("Content-Type"))
-	assert.Equal(t, http.StatusBadRequest, res.Code)
 }
 
 func TestCreateBullet_ServiceError(t *testing.T) {
 	body := strings.NewReader(`{"title": "Заголовок"}`)
 
-	bulletHandler := &BulletHandler{
+	handler := &BulletHandler{
 		BulletService: &fakeBulletService{
 			createFn: func(req port.CreateBulletRequest) (*entity.Bullet, error) {
 				return nil, errors.New("service error")
@@ -104,13 +98,10 @@ func TestCreateBullet_ServiceError(t *testing.T) {
 		},
 	}
 
-	handler := http.HandlerFunc(bulletHandler.CreateBullet)
-
-	res := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "/api/bullets", body)
-	req.Header.Set("Content-Type", "application/json")
+	res := httptest.NewRecorder()
 
-	handler.ServeHTTP(res, req)
+	handler.CreateBullet(res, req)
 
-	assert.Equal(t, http.StatusInternalServerError, res.Code)
+	require.Equal(t, http.StatusInternalServerError, res.Code)
 }

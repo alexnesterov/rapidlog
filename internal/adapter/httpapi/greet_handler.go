@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func Greet(w http.ResponseWriter, r *http.Request) {
+func GreetHandler(w http.ResponseWriter, r *http.Request) {
 	result := &strings.Builder{}
 
 	today := time.Now().Format("02.01 Mon 06")
