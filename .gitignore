@@ -17,3 +17,6 @@ go.work.sum
 
 # OS
 .DS_Store
+
+# Playground
+/cmd/play

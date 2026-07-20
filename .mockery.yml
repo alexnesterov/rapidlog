@@ -1,0 +1,14 @@
+all: false
+dir: '{{.InterfaceDir}}/mocks'
+filename: 'mock_{{.InterfaceFile | base | trimSuffix ".go"}}.go'
+force-file-write: false
+formatter: goimports
+log-level: info
+structname: '{{.Mock}}{{.InterfaceName}}'
+pkgname: mocks
+recursive: false
+template: testify
+packages:
+  github.com/alexnesterov/rapidlog-api/internal/domain/port:
+    config:
+      all: true
