@@ -2,8 +2,10 @@ package httpapi
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
+	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/port"
 )
 
@@ -22,6 +24,11 @@ func (h *BulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 
 	createdBullet, err := h.BulletService.CreateBullet(req)
 	if err != nil {
+		var validationErr *entity.ValidationError
+		if errors.As(err, &validationErr) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

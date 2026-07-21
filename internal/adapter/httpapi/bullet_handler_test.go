@@ -61,6 +61,17 @@ func TestCreateBullet(t *testing.T) {
 			},
 			wantStatus: http.StatusInternalServerError,
 		},
+		{
+			name: "validation error",
+			body: `{"title": ""}`,
+			setupMock: func(m *mocks.MockBulletService) {
+				m.EXPECT().
+					CreateBullet(port.CreateBulletRequest{Title: ""}).
+					Return(nil, &entity.ValidationError{Err: entity.ErrTitleRequired}).
+					Once()
+			},
+			wantStatus: http.StatusBadRequest,
+		},
 	}
 
 	for _, tc := range cases {
