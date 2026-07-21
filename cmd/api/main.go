@@ -16,7 +16,6 @@ func main() {
 
 	router := http.NewServeMux()
 
-	router.HandleFunc("/", httpapi.GreetHandler)
 	router.HandleFunc("/health", httpapi.HealthHandler)
 
 	log.Printf("%s is starting on port %s", cfg.App.Name, cfg.HTTP.Port)
