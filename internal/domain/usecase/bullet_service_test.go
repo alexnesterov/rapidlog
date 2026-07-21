@@ -17,39 +17,51 @@ func TestCreateBullet(t *testing.T) {
 	var errRepo = errors.New("repo error")
 
 	cases := []struct {
-		name    string
-		req     port.CreateBulletRequest
-		repoErr error
-		want    *entity.Bullet
-		wantErr error
+		name      string
+		req       port.CreateBulletRequest
+		setupMock func(m *mocks.MockBulletRepository)
+		want      *entity.Bullet
+		wantErr   error
 	}{
 		{
-			name:    "success",
-			req:     port.CreateBulletRequest{Title: "Заголовок"},
-			repoErr: nil,
+			name: "success",
+			req:  port.CreateBulletRequest{Title: "Заголовок"},
+			setupMock: func(m *mocks.MockBulletRepository) {
+				m.EXPECT().
+					Create(mock.AnythingOfType("*entity.Bullet")).
+					Return(nil).
+					Once()
+			},
 			want:    &entity.Bullet{Title: "Заголовок"},
 			wantErr: nil,
 		},
 		{
-			name:    "repo error",
-			req:     port.CreateBulletRequest{Title: "Заголовок"},
-			repoErr: errRepo,
+			name: "repo error",
+			req:  port.CreateBulletRequest{Title: "Заголовок"},
+			setupMock: func(m *mocks.MockBulletRepository) {
+				m.EXPECT().
+					Create(mock.AnythingOfType("*entity.Bullet")).
+					Return(errRepo).
+					Once()
+			},
 			want:    nil,
 			wantErr: errRepo,
+		},
+		{
+			name:      "empty title",
+			req:       port.CreateBulletRequest{Title: ""},
+			setupMock: func(m *mocks.MockBulletRepository) {},
+			want:      nil,
+			wantErr:   entity.ErrTitleRequired,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			mockRepo := mocks.NewMockBulletRepository(t)
-
-			mockRepo.EXPECT().
-				Create(mock.AnythingOfType("*entity.Bullet")).
-				Return(tc.repoErr).
-				Once()
-
+			mockBulletRepo := mocks.NewMockBulletRepository(t)
+			tc.setupMock(mockBulletRepo)
 			uc := &BulletService{
-				BulletRepo: mockRepo,
+				BulletRepo: mockBulletRepo,
 			}
 
 			got, err := uc.CreateBullet(tc.req)

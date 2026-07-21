@@ -16,6 +16,10 @@ func (s *BulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bull
 		Title: req.Title,
 	}
 
+	if err := bullet.Validate(); err != nil {
+		return nil, err
+	}
+
 	if err := s.BulletRepo.Create(bullet); err != nil {
 		return nil, err
 	}
