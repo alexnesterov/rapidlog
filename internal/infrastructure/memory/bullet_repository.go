@@ -38,4 +38,16 @@ func (r *bulletMemory) Read(id uuid.UUID) (*entity.Bullet, error) {
 	return bullet, nil
 }
 
+func (r *bulletMemory) List() ([]*entity.Bullet, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	bullets := make([]*entity.Bullet, 0, len(r.data))
+	for _, bullet := range r.data {
+		bullets = append(bullets, bullet)
+	}
+
+	return bullets, nil
+}
+
 // var _ port.BulletRepository = &bulletMemory{}

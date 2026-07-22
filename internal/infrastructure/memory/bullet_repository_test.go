@@ -47,3 +47,40 @@ func TestBulletMemory_Read_NotFound(t *testing.T) {
 	assert.Nil(t, got)
 	assert.ErrorIs(t, err, port.ErrNotFound)
 }
+
+func TestBulletMemory_List(t *testing.T) {
+	b1 := &entity.Bullet{ID: uuid.New(), Title: "Первый"}
+	b2 := &entity.Bullet{ID: uuid.New(), Title: "Второй"}
+
+	cases := []struct {
+		name string
+		seed []*entity.Bullet
+		want []*entity.Bullet
+	}{
+		{
+			name: "with items",
+			seed: []*entity.Bullet{b1, b2},
+			want: []*entity.Bullet{b1, b2},
+		},
+		{
+			name: "empty",
+			seed: []*entity.Bullet{},
+			want: []*entity.Bullet{},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			repo := NewMemoryBulletRepository()
+
+			for _, b := range tc.seed {
+				require.NoError(t, repo.Create(b))
+			}
+
+			got, err := repo.List()
+			require.NoError(t, err)
+			assert.NotNil(t, got)
+			assert.ElementsMatch(t, tc.want, got)
+		})
+	}
+}
