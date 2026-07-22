@@ -50,6 +50,10 @@ func TestBullet_Validate(t *testing.T) {
 
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
+
+				var validationErr *ValidationError
+				assert.ErrorAs(t, err, &validationErr)
+
 				return
 			}
 

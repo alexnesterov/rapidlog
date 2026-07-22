@@ -30,11 +30,11 @@ type Bullet struct {
 
 func (b *Bullet) Validate() error {
 	if b.Title == "" {
-		return ErrTitleRequired
+		return &ValidationError{Err: ErrTitleRequired}
 	}
 
 	if utf8.RuneCountInString(b.Title) > 200 {
-		return ErrTitleTooLong
+		return &ValidationError{Err: ErrTitleTooLong}
 	}
 
 	return nil
