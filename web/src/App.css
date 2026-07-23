@@ -160,7 +160,11 @@
 
 .scribble__mark {
   flex-shrink: 0;
-  font-size: 20px;
+  width: 14px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 400;
   line-height: 1;
   color: var(--accent);
   transform: translateY(1px) scale(1);
@@ -169,7 +173,14 @@
     color 0.2s ease;
 }
 
-.scribble:focus-within .scribble__mark {
+.scribble__mark--active {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.scribble:focus-within .scribble__mark--active {
   color: var(--accent-strong);
   transform: translateY(1px) scale(1.2);
 }

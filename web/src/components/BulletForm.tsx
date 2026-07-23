@@ -34,10 +34,12 @@ export function BulletForm({ onCreated }: BulletFormProps) {
     }
   }
 
+  const hasText = title.trim().length > 0;
+
   return (
     <form className="scribble" onSubmit={handleSubmit}>
-      <span className="scribble__mark" aria-hidden="true">
-        •
+      <span className={`scribble__mark ${hasText ? "scribble__mark--active" : ""}`} aria-hidden="true">
+        {hasText ? "•" : "+"}
       </span>
       <input
         ref={inputRef}
