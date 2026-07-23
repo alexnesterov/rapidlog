@@ -27,8 +27,8 @@ export function DaySection({ date, bullets, isToday, onCreated, animationDelay }
           </span>
         )}
       </header>
-      {isToday && <BulletForm onCreated={onCreated} />}
       <BulletList bullets={bullets} />
+      {isToday && <BulletForm onCreated={onCreated} />}
     </section>
   );
 }

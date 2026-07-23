@@ -28,7 +28,7 @@ function groupByDate(bullets: Bullet[]): DayGroup[] {
 
   return [...byDate.entries()]
     .sort((a, b) => b[0].localeCompare(a[0]))
-    .map(([date, dayBullets]) => ({ date, bullets: dayBullets }));
+    .map(([date, dayBullets]) => ({ date, bullets: [...dayBullets].reverse() }));
 }
 
 function App() {
