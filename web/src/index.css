@@ -7,9 +7,6 @@
   --accent-strong: #a85f18;
   --done: #7a8a6f;
   --danger: #b3432f;
-  --card: #ffffff;
-  --card-border: rgba(21, 19, 22, 0.1);
-  --shadow: 0 1px 2px rgba(21, 19, 22, 0.04), 0 8px 24px rgba(21, 19, 22, 0.06);
 
   --font-display: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -30,9 +27,6 @@
     --accent-strong: #f0b45c;
     --done: #8fae7d;
     --danger: #e07a5f;
-    --card: #201d25;
-    --card-border: rgba(247, 243, 234, 0.08);
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
   }
 }
 

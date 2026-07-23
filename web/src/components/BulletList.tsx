@@ -1,41 +1,27 @@
 import type { Bullet } from "../types/bullet";
-import { StatusBadge } from "./StatusBadge";
 
 interface BulletListProps {
   bullets: Bullet[];
-  loading: boolean;
-  error: string | null;
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" });
-}
-
-export function BulletList({ bullets, loading, error }: BulletListProps) {
-  if (loading) {
-    return <p className="bullet-list__state">загружаю…</p>;
-  }
-
-  if (error) {
-    return <p className="bullet-list__state bullet-list__state--error">{error}</p>;
-  }
-
+export function BulletList({ bullets }: BulletListProps) {
   if (bullets.length === 0) {
-    return <p className="bullet-list__state">пока пусто — добавь первую запись</p>;
+    return <p className="log-state">страница пуста — запиши первую мысль</p>;
   }
 
   return (
-    <ul className="bullet-list">
-      {bullets.map((bullet) => (
-        <li className={`bullet-item ${bullet.status === "DONE" ? "is-done" : ""}`} key={bullet.id}>
-          <span className="bullet-item__title">{bullet.title}</span>
-          <span className="bullet-item__meta">
-            <time className="bullet-item__date">{formatDate(bullet.date)}</time>
-            <StatusBadge status={bullet.status} />
-          </span>
-        </li>
-      ))}
+    <ul className="log-lines">
+      {bullets.map((bullet) => {
+        const done = bullet.status === "DONE";
+        return (
+          <li className={`log-line ${done ? "is-done" : ""}`} key={bullet.id}>
+            <span className="log-line__mark" aria-hidden="true">
+              {done ? "X" : "•"}
+            </span>
+            <span className="log-line__title">{bullet.title}</span>
+          </li>
+        );
+      })}
     </ul>
   );
 }

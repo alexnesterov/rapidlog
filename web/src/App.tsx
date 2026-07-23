@@ -1,9 +1,35 @@
 import { useCallback, useEffect, useState } from "react";
 import { listBullets } from "./api/bulletsApi";
 import type { Bullet } from "./types/bullet";
-import { BulletForm } from "./components/BulletForm";
-import { BulletList } from "./components/BulletList";
+import { todayIsoDate } from "./lib/date";
+import { DaySection } from "./components/DaySection";
 import "./App.css";
+
+interface DayGroup {
+  date: string;
+  bullets: Bullet[];
+}
+
+function groupByDate(bullets: Bullet[]): DayGroup[] {
+  const byDate = new Map<string, Bullet[]>();
+  for (const bullet of bullets) {
+    const group = byDate.get(bullet.date);
+    if (group) {
+      group.push(bullet);
+    } else {
+      byDate.set(bullet.date, [bullet]);
+    }
+  }
+
+  const today = todayIsoDate();
+  if (!byDate.has(today)) {
+    byDate.set(today, []);
+  }
+
+  return [...byDate.entries()]
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .map(([date, dayBullets]) => ({ date, bullets: dayBullets }));
+}
 
 function App() {
   const [bullets, setBullets] = useState<Bullet[]>([]);
@@ -23,6 +49,8 @@ function App() {
     reload();
   }, [reload]);
 
+  const today = todayIsoDate();
+  const days = groupByDate(bullets);
   const openCount = bullets.filter((b) => b.status === "OPEN").length;
 
   return (
@@ -36,10 +64,21 @@ function App() {
         </p>
       </header>
 
-      <main className="page__main">
-        <BulletForm onCreated={reload} />
-        <BulletList bullets={bullets} loading={loading} error={error} />
-      </main>
+      {error && <p className="log-state log-state--error">{error}</p>}
+
+      {!loading && !error && (
+        <div className="days">
+          {days.map((day) => (
+            <DaySection
+              key={day.date}
+              date={day.date}
+              bullets={day.bullets}
+              isToday={day.date === today}
+              onCreated={reload}
+            />
+          ))}
+        </div>
+      )}
 
       <footer className="page__footer">данные не сохраняются — демо-режим на моках</footer>
     </div>

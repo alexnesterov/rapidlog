@@ -1,4 +1,5 @@
 import { mockBullets } from "./mockData";
+import { todayIsoDate } from "../lib/date";
 import {
   ApiError,
   type Bullet,
@@ -11,10 +12,6 @@ const MOCK_LATENCY_MS = 300;
 
 function delay<T>(value: T): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(value), MOCK_LATENCY_MS));
-}
-
-function todayIsoDate(): string {
-  return new Date().toISOString().slice(0, 10);
 }
 
 function validateTitle(title: string): void {
