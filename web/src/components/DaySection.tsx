@@ -9,13 +9,14 @@ interface DaySectionProps {
   bullets: Bullet[];
   isToday: boolean;
   onCreated: () => void;
+  animationDelay: number;
 }
 
-export function DaySection({ date, bullets, isToday, onCreated }: DaySectionProps) {
+export function DaySection({ date, bullets, isToday, onCreated, animationDelay }: DaySectionProps) {
   const doneCount = bullets.filter((b) => b.status === "DONE").length;
 
   return (
-    <section className="day">
+    <section className="day" style={{ animationDelay: `${animationDelay}ms` }}>
       <header className="day__head">
         <span className="day__head-month">{month(date)}</span>
         <span className="day__head-day">{dayNumber(date)}</span>

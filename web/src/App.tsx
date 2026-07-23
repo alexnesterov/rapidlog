@@ -68,13 +68,14 @@ function App() {
 
       {!loading && !error && (
         <div className="days">
-          {days.map((day) => (
+          {days.map((day, index) => (
             <DaySection
               key={day.date}
               date={day.date}
               bullets={day.bullets}
               isToday={day.date === today}
               onCreated={reload}
+              animationDelay={index * 70}
             />
           ))}
         </div>
