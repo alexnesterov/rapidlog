@@ -2,10 +2,10 @@ import type { Bullet } from "../types/bullet";
 
 interface BulletListProps {
   bullets: Bullet[];
-  onToggle: (bullet: Bullet) => void;
+  onComplete: (bullet: Bullet) => void;
 }
 
-export function BulletList({ bullets, onToggle }: BulletListProps) {
+export function BulletList({ bullets, onComplete }: BulletListProps) {
   if (bullets.length === 0) {
     return <p className="log-state">страница пуста — запиши первую мысль</p>;
   }
@@ -16,14 +16,20 @@ export function BulletList({ bullets, onToggle }: BulletListProps) {
         const done = bullet.status === "DONE";
         return (
           <li className={`log-line ${done ? "is-done" : ""}`} key={bullet.id}>
-            <button
-              type="button"
-              className="log-line__mark"
-              onClick={() => onToggle(bullet)}
-              aria-label={done ? "Вернуть в открытые" : "Отметить выполненным"}
-            >
-              {done ? "X" : "•"}
-            </button>
+            {done ? (
+              <span className="log-line__mark" aria-hidden="true">
+                X
+              </span>
+            ) : (
+              <button
+                type="button"
+                className="log-line__mark"
+                onClick={() => onComplete(bullet)}
+                aria-label="Отметить выполненным"
+              >
+                •
+              </button>
+            )}
             <span className="log-line__title">{bullet.title}</span>
           </li>
         );

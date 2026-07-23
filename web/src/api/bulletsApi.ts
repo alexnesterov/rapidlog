@@ -3,7 +3,6 @@ import { todayIsoDate } from "../lib/date";
 import {
   ApiError,
   type Bullet,
-  type BulletStatus,
   type CreateBulletRequest,
   type ListBulletsParams,
   type ListBulletsResponse,
@@ -63,14 +62,14 @@ export async function createBullet(req: CreateBulletRequest): Promise<Bullet> {
   return delay(bullet);
 }
 
-export async function setBulletStatus(id: string, status: BulletStatus): Promise<Bullet> {
+export async function markBulletDone(id: string): Promise<Bullet> {
   const bullet = mockBullets.find((b) => b.id === id);
   if (!bullet) {
     throw new ApiError("not_found", "bullet not found");
   }
 
-  if (bullet.status !== status) {
-    bullet.status = status;
+  if (bullet.status !== "DONE") {
+    bullet.status = "DONE";
     bullet.updated_at = new Date().toISOString();
   }
 

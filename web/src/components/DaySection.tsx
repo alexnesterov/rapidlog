@@ -9,11 +9,11 @@ interface DaySectionProps {
   bullets: Bullet[];
   isToday: boolean;
   onCreated: () => void;
-  onToggle: (bullet: Bullet) => void;
+  onComplete: (bullet: Bullet) => void;
   animationDelay: number;
 }
 
-export function DaySection({ date, bullets, isToday, onCreated, onToggle, animationDelay }: DaySectionProps) {
+export function DaySection({ date, bullets, isToday, onCreated, onComplete, animationDelay }: DaySectionProps) {
   const doneCount = bullets.filter((b) => b.status === "DONE").length;
 
   return (
@@ -28,7 +28,7 @@ export function DaySection({ date, bullets, isToday, onCreated, onToggle, animat
           </span>
         )}
       </header>
-      <BulletList bullets={bullets} onToggle={onToggle} />
+      <BulletList bullets={bullets} onComplete={onComplete} />
       {isToday && <BulletForm onCreated={onCreated} />}
     </section>
   );

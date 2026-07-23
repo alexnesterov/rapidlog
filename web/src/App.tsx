@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { listBullets, setBulletStatus } from "./api/bulletsApi";
+import { listBullets, markBulletDone } from "./api/bulletsApi";
 import type { Bullet } from "./types/bullet";
 import { todayIsoDate } from "./lib/date";
 import { DaySection } from "./components/DaySection";
@@ -53,10 +53,9 @@ function App() {
     reload();
   }, [reload]);
 
-  const toggleBullet = useCallback(
+  const completeBullet = useCallback(
     (bullet: Bullet) => {
-      const nextStatus = bullet.status === "DONE" ? "OPEN" : "DONE";
-      setBulletStatus(bullet.id, nextStatus)
+      markBulletDone(bullet.id)
         .then(reload)
         .catch(() => setError("не удалось обновить запись"));
     },
@@ -89,7 +88,7 @@ function App() {
               bullets={day.bullets}
               isToday={day.date === today}
               onCreated={reload}
-              onToggle={toggleBullet}
+              onComplete={completeBullet}
               animationDelay={index * 70}
             />
           ))}
