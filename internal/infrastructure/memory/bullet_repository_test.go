@@ -40,12 +40,41 @@ func TestBulletMemory_ConcurrentAccess(t *testing.T) {
 	wg.Wait()
 }
 
+func TestBulletMemory_Create_StoresCopy(t *testing.T) {
+	repo := NewMemoryBulletRepository()
+
+	bullet := &entity.Bullet{ID: uuid.New(), Title: "Заголовок"}
+	require.NoError(t, repo.Create(bullet))
+
+	bullet.Title = "Изменено"
+
+	got, err := repo.Read(bullet.ID)
+	require.NoError(t, err)
+	assert.Equal(t, "Заголовок", got.Title)
+}
+
 func TestBulletMemory_Read_NotFound(t *testing.T) {
 	repo := NewMemoryBulletRepository()
 
 	got, err := repo.Read(uuid.New())
 	assert.Nil(t, got)
 	assert.ErrorIs(t, err, port.ErrNotFound)
+}
+
+func TestBulletMemory_Read_ReturnsCopy(t *testing.T) {
+	repo := NewMemoryBulletRepository()
+
+	bullet := &entity.Bullet{ID: uuid.New(), Title: "Заголовок"}
+	require.NoError(t, repo.Create(bullet))
+
+	got, err := repo.Read(bullet.ID)
+	require.NoError(t, err)
+
+	got.Title = "Изменено"
+
+	again, err := repo.Read(bullet.ID)
+	require.NoError(t, err)
+	assert.Equal(t, "Заголовок", again.Title)
 }
 
 func TestBulletMemory_List(t *testing.T) {
@@ -83,4 +112,20 @@ func TestBulletMemory_List(t *testing.T) {
 			assert.ElementsMatch(t, tc.want, got)
 		})
 	}
+}
+
+func TestBulletMemory_List_ReturnsCopies(t *testing.T) {
+	repo := NewMemoryBulletRepository()
+
+	bullet := &entity.Bullet{ID: uuid.New(), Title: "Заголовок"}
+	require.NoError(t, repo.Create(bullet))
+
+	got, err := repo.List()
+	require.NoError(t, err)
+
+	got[0].Title = "Изменено"
+
+	again, err := repo.List()
+	require.NoError(t, err)
+	assert.Equal(t, "Заголовок", again[0].Title)
 }

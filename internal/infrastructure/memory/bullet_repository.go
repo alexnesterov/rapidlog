@@ -22,7 +22,10 @@ func NewMemoryBulletRepository() *bulletMemory {
 func (r *bulletMemory) Create(bullet *entity.Bullet) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	r.data[bullet.ID] = bullet
+
+	bulletCopy := *bullet
+	r.data[bullet.ID] = &bulletCopy
+
 	return nil
 }
 
@@ -35,7 +38,8 @@ func (r *bulletMemory) Read(id uuid.UUID) (*entity.Bullet, error) {
 		return nil, port.ErrNotFound
 	}
 
-	return bullet, nil
+	bulletCopy := *bullet
+	return &bulletCopy, nil
 }
 
 func (r *bulletMemory) List() ([]*entity.Bullet, error) {
@@ -44,7 +48,8 @@ func (r *bulletMemory) List() ([]*entity.Bullet, error) {
 
 	bullets := make([]*entity.Bullet, 0, len(r.data))
 	for _, bullet := range r.data {
-		bullets = append(bullets, bullet)
+		bulletCopy := *bullet
+		bullets = append(bullets, &bulletCopy)
 	}
 
 	return bullets, nil
