@@ -136,11 +136,26 @@
 
 .scribble {
   position: relative;
+  z-index: 0;
   display: flex;
   align-items: baseline;
   gap: 10px;
   padding: 10px 2px;
-  border-bottom: 1px dashed var(--paper-line);
+}
+
+.scribble::before {
+  content: "";
+  position: absolute;
+  inset: 4px -6px;
+  z-index: -1;
+  background: var(--accent);
+  opacity: 0;
+  border-radius: 4px;
+  transition: opacity 0.25s ease;
+}
+
+.scribble:focus-within::before {
+  opacity: 0.12;
 }
 
 .scribble__mark {
@@ -148,7 +163,15 @@
   font-size: 20px;
   line-height: 1;
   color: var(--accent);
-  transform: translateY(1px);
+  transform: translateY(1px) scale(1);
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.scribble:focus-within .scribble__mark {
+  color: var(--accent-strong);
+  transform: translateY(1px) scale(1.2);
 }
 
 .scribble__input {
