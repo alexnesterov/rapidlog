@@ -64,7 +64,6 @@ function App() {
 
   const today = todayIsoDate();
   const days = groupByDate(bullets);
-  const openCount = bullets.filter((b) => b.status === "OPEN").length;
 
   return (
     <div className="page">
@@ -72,9 +71,7 @@ function App() {
         <h1>
           Rapid<span className="page__accent">Log</span>
         </h1>
-        <p className="page__subtitle">
-          {loading ? "синхронизация…" : `${openCount} открыто из ${bullets.length}`}
-        </p>
+        {loading && <p className="page__subtitle">синхронизация…</p>}
       </header>
 
       {error && <p className="log-state log-state--error">{error}</p>}

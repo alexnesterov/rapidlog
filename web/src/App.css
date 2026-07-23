@@ -125,13 +125,6 @@
   color: var(--ink-soft);
 }
 
-.day__head-stat {
-  margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--ink-soft);
-}
-
 /* capture line — reads as the next line on the page, not a form widget */
 
 .scribble {
