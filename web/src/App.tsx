@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { listBullets } from "./api/bulletsApi";
+import { listBullets, setBulletStatus } from "./api/bulletsApi";
 import type { Bullet } from "./types/bullet";
 import { todayIsoDate } from "./lib/date";
 import { DaySection } from "./components/DaySection";
@@ -53,6 +53,16 @@ function App() {
     reload();
   }, [reload]);
 
+  const toggleBullet = useCallback(
+    (bullet: Bullet) => {
+      const nextStatus = bullet.status === "DONE" ? "OPEN" : "DONE";
+      setBulletStatus(bullet.id, nextStatus)
+        .then(reload)
+        .catch(() => setError("не удалось обновить запись"));
+    },
+    [reload],
+  );
+
   const today = todayIsoDate();
   const days = groupByDate(bullets);
   const openCount = bullets.filter((b) => b.status === "OPEN").length;
@@ -79,6 +89,7 @@ function App() {
               bullets={day.bullets}
               isToday={day.date === today}
               onCreated={reload}
+              onToggle={toggleBullet}
               animationDelay={index * 70}
             />
           ))}
