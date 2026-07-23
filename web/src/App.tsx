@@ -35,6 +35,7 @@ function App() {
   const [bullets, setBullets] = useState<Bullet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialized, setInitialized] = useState(false);
 
   const reload = useCallback(() => {
     setLoading(true);
@@ -42,7 +43,10 @@ function App() {
     listBullets()
       .then((res) => setBullets(res.bullets))
       .catch(() => setError("не удалось загрузить записи"))
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        setInitialized(true);
+      });
   }, []);
 
   useEffect(() => {
@@ -66,7 +70,7 @@ function App() {
 
       {error && <p className="log-state log-state--error">{error}</p>}
 
-      {!loading && !error && (
+      {initialized && !error && (
         <div className="days">
           {days.map((day, index) => (
             <DaySection
