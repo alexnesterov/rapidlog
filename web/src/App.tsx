@@ -65,18 +65,30 @@ function App() {
   const today = todayIsoDate();
   const days = groupByDate(bullets);
 
+  if (!initialized) {
+    return (
+      <div className="splash">
+        <div className="splash__mark" aria-hidden="true">
+          <span className="splash__dot" />
+        </div>
+        <div className="splash__spinner" aria-hidden="true" />
+      </div>
+    );
+  }
+
   return (
     <div className="page">
       <header className="page__header">
         <h1>
           Rapid<span className="page__accent">Log</span>
         </h1>
-        {loading && <p className="page__subtitle">синхронизация…</p>}
       </header>
+
+      {loading && <div className="sync-indicator" aria-hidden="true" />}
 
       {error && <p className="log-state log-state--error">{error}</p>}
 
-      {initialized && !error && (
+      {!error && (
         <div className="days">
           {days.map((day, index) => (
             <DaySection
