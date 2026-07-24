@@ -7,7 +7,6 @@ package mocks
 import (
 	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/port"
-	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -100,57 +99,6 @@ func (_c *MockBulletService_CreateBullet_Call) RunAndReturn(run func(req port.Cr
 	return _c
 }
 
-// DeleteBullet provides a mock function for the type MockBulletService
-func (_mock *MockBulletService) DeleteBullet(id uuid.UUID) error {
-	ret := _mock.Called(id)
-
-	if len(ret) == 0 {
-		panic("no return value specified for DeleteBullet")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(uuid.UUID) error); ok {
-		r0 = returnFunc(id)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// MockBulletService_DeleteBullet_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteBullet'
-type MockBulletService_DeleteBullet_Call struct {
-	*mock.Call
-}
-
-// DeleteBullet is a helper method to define mock.On call
-//   - id uuid.UUID
-func (_e *MockBulletService_Expecter) DeleteBullet(id any) *MockBulletService_DeleteBullet_Call {
-	return &MockBulletService_DeleteBullet_Call{Call: _e.mock.On("DeleteBullet", id)}
-}
-
-func (_c *MockBulletService_DeleteBullet_Call) Run(run func(id uuid.UUID)) *MockBulletService_DeleteBullet_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 uuid.UUID
-		if args[0] != nil {
-			arg0 = args[0].(uuid.UUID)
-		}
-		run(
-			arg0,
-		)
-	})
-	return _c
-}
-
-func (_c *MockBulletService_DeleteBullet_Call) Return(err error) *MockBulletService_DeleteBullet_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *MockBulletService_DeleteBullet_Call) RunAndReturn(run func(id uuid.UUID) error) *MockBulletService_DeleteBullet_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // ListBullets provides a mock function for the type MockBulletService
 func (_mock *MockBulletService) ListBullets() ([]*entity.Bullet, error) {
 	ret := _mock.Called()
@@ -202,130 +150,6 @@ func (_c *MockBulletService_ListBullets_Call) Return(bullets []*entity.Bullet, e
 }
 
 func (_c *MockBulletService_ListBullets_Call) RunAndReturn(run func() ([]*entity.Bullet, error)) *MockBulletService_ListBullets_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// ReadBullet provides a mock function for the type MockBulletService
-func (_mock *MockBulletService) ReadBullet(id uuid.UUID) (*entity.Bullet, error) {
-	ret := _mock.Called(id)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ReadBullet")
-	}
-
-	var r0 *entity.Bullet
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(uuid.UUID) (*entity.Bullet, error)); ok {
-		return returnFunc(id)
-	}
-	if returnFunc, ok := ret.Get(0).(func(uuid.UUID) *entity.Bullet); ok {
-		r0 = returnFunc(id)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entity.Bullet)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = returnFunc(id)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockBulletService_ReadBullet_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ReadBullet'
-type MockBulletService_ReadBullet_Call struct {
-	*mock.Call
-}
-
-// ReadBullet is a helper method to define mock.On call
-//   - id uuid.UUID
-func (_e *MockBulletService_Expecter) ReadBullet(id any) *MockBulletService_ReadBullet_Call {
-	return &MockBulletService_ReadBullet_Call{Call: _e.mock.On("ReadBullet", id)}
-}
-
-func (_c *MockBulletService_ReadBullet_Call) Run(run func(id uuid.UUID)) *MockBulletService_ReadBullet_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 uuid.UUID
-		if args[0] != nil {
-			arg0 = args[0].(uuid.UUID)
-		}
-		run(
-			arg0,
-		)
-	})
-	return _c
-}
-
-func (_c *MockBulletService_ReadBullet_Call) Return(bullet *entity.Bullet, err error) *MockBulletService_ReadBullet_Call {
-	_c.Call.Return(bullet, err)
-	return _c
-}
-
-func (_c *MockBulletService_ReadBullet_Call) RunAndReturn(run func(id uuid.UUID) (*entity.Bullet, error)) *MockBulletService_ReadBullet_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateBullet provides a mock function for the type MockBulletService
-func (_mock *MockBulletService) UpdateBullet(req port.UpdateBulletRequest) (*entity.Bullet, error) {
-	ret := _mock.Called(req)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateBullet")
-	}
-
-	var r0 *entity.Bullet
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(port.UpdateBulletRequest) (*entity.Bullet, error)); ok {
-		return returnFunc(req)
-	}
-	if returnFunc, ok := ret.Get(0).(func(port.UpdateBulletRequest) *entity.Bullet); ok {
-		r0 = returnFunc(req)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entity.Bullet)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(port.UpdateBulletRequest) error); ok {
-		r1 = returnFunc(req)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockBulletService_UpdateBullet_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateBullet'
-type MockBulletService_UpdateBullet_Call struct {
-	*mock.Call
-}
-
-// UpdateBullet is a helper method to define mock.On call
-//   - req port.UpdateBulletRequest
-func (_e *MockBulletService_Expecter) UpdateBullet(req any) *MockBulletService_UpdateBullet_Call {
-	return &MockBulletService_UpdateBullet_Call{Call: _e.mock.On("UpdateBullet", req)}
-}
-
-func (_c *MockBulletService_UpdateBullet_Call) Run(run func(req port.UpdateBulletRequest)) *MockBulletService_UpdateBullet_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 port.UpdateBulletRequest
-		if args[0] != nil {
-			arg0 = args[0].(port.UpdateBulletRequest)
-		}
-		run(
-			arg0,
-		)
-	})
-	return _c
-}
-
-func (_c *MockBulletService_UpdateBullet_Call) Return(bullet *entity.Bullet, err error) *MockBulletService_UpdateBullet_Call {
-	_c.Call.Return(bullet, err)
-	return _c
-}
-
-func (_c *MockBulletService_UpdateBullet_Call) RunAndReturn(run func(req port.UpdateBulletRequest) (*entity.Bullet, error)) *MockBulletService_UpdateBullet_Call {
 	_c.Call.Return(run)
 	return _c
 }

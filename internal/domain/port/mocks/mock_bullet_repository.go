@@ -88,57 +88,6 @@ func (_c *MockBulletRepository_Create_Call) RunAndReturn(run func(bullet *entity
 	return _c
 }
 
-// Delete provides a mock function for the type MockBulletRepository
-func (_mock *MockBulletRepository) Delete(id uuid.UUID) error {
-	ret := _mock.Called(id)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Delete")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(uuid.UUID) error); ok {
-		r0 = returnFunc(id)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// MockBulletRepository_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
-type MockBulletRepository_Delete_Call struct {
-	*mock.Call
-}
-
-// Delete is a helper method to define mock.On call
-//   - id uuid.UUID
-func (_e *MockBulletRepository_Expecter) Delete(id any) *MockBulletRepository_Delete_Call {
-	return &MockBulletRepository_Delete_Call{Call: _e.mock.On("Delete", id)}
-}
-
-func (_c *MockBulletRepository_Delete_Call) Run(run func(id uuid.UUID)) *MockBulletRepository_Delete_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 uuid.UUID
-		if args[0] != nil {
-			arg0 = args[0].(uuid.UUID)
-		}
-		run(
-			arg0,
-		)
-	})
-	return _c
-}
-
-func (_c *MockBulletRepository_Delete_Call) Return(err error) *MockBulletRepository_Delete_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *MockBulletRepository_Delete_Call) RunAndReturn(run func(id uuid.UUID) error) *MockBulletRepository_Delete_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // List provides a mock function for the type MockBulletRepository
 func (_mock *MockBulletRepository) List() ([]*entity.Bullet, error) {
 	ret := _mock.Called()
@@ -252,57 +201,6 @@ func (_c *MockBulletRepository_Read_Call) Return(bullet *entity.Bullet, err erro
 }
 
 func (_c *MockBulletRepository_Read_Call) RunAndReturn(run func(id uuid.UUID) (*entity.Bullet, error)) *MockBulletRepository_Read_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Update provides a mock function for the type MockBulletRepository
-func (_mock *MockBulletRepository) Update(bullet *entity.Bullet) error {
-	ret := _mock.Called(bullet)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Update")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(*entity.Bullet) error); ok {
-		r0 = returnFunc(bullet)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// MockBulletRepository_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
-type MockBulletRepository_Update_Call struct {
-	*mock.Call
-}
-
-// Update is a helper method to define mock.On call
-//   - bullet *entity.Bullet
-func (_e *MockBulletRepository_Expecter) Update(bullet any) *MockBulletRepository_Update_Call {
-	return &MockBulletRepository_Update_Call{Call: _e.mock.On("Update", bullet)}
-}
-
-func (_c *MockBulletRepository_Update_Call) Run(run func(bullet *entity.Bullet)) *MockBulletRepository_Update_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *entity.Bullet
-		if args[0] != nil {
-			arg0 = args[0].(*entity.Bullet)
-		}
-		run(
-			arg0,
-		)
-	})
-	return _c
-}
-
-func (_c *MockBulletRepository_Update_Call) Return(err error) *MockBulletRepository_Update_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *MockBulletRepository_Update_Call) RunAndReturn(run func(bullet *entity.Bullet) error) *MockBulletRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

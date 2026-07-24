@@ -44,16 +44,4 @@ func (s *bulletService) ListBullets() ([]*entity.Bullet, error) {
 	return nil, nil
 }
 
-func (s *bulletService) ReadBullet(id uuid.UUID) (*entity.Bullet, error) {
-	return nil, nil
-}
-
-func (s *bulletService) UpdateBullet(req port.UpdateBulletRequest) (*entity.Bullet, error) {
-	return nil, nil
-}
-
-func (s *bulletService) DeleteBullet(id uuid.UUID) error {
-	return nil
-}
-
 var _ port.BulletService = &bulletService{}

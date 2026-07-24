@@ -27,12 +27,4 @@ func (r *bulletPostgresql) Read(id uuid.UUID) (*entity.Bullet, error) {
 	return nil, nil
 }
 
-func (r *bulletPostgresql) Update(bullet *entity.Bullet) error {
-	return nil
-}
-
-func (r *bulletPostgresql) Delete(id uuid.UUID) error {
-	return nil
-}
-
 var _ port.BulletRepository = &bulletPostgresql{}
