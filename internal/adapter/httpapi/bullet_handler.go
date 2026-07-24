@@ -10,7 +10,13 @@ import (
 )
 
 type BulletHandler struct {
-	BulletService port.BulletService
+	usecase port.BulletService
+}
+
+func NewBulletHandler(uc port.BulletService) *BulletHandler {
+	return &BulletHandler{
+		usecase: uc,
+	}
 }
 
 func (h *BulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +28,7 @@ func (h *BulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createdBullet, err := h.BulletService.CreateBullet(req)
+	createdBullet, err := h.usecase.CreateBullet(req)
 	if err != nil {
 		var validationErr *entity.ValidationError
 		if errors.As(err, &validationErr) {

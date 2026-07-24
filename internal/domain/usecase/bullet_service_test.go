@@ -60,9 +60,7 @@ func TestCreateBullet(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mockBulletRepo := mocks.NewMockBulletRepository(t)
 			tc.setupMock(mockBulletRepo)
-			uc := &BulletService{
-				BulletRepo: mockBulletRepo,
-			}
+			uc := NewBulletService(mockBulletRepo)
 
 			got, err := uc.CreateBullet(tc.req)
 			if tc.wantErr != nil {
@@ -77,6 +75,9 @@ func TestCreateBullet(t *testing.T) {
 
 			assert.Equal(t, tc.want.Title, got.Title)
 			assert.NotEqual(t, uuid.Nil, got.ID)
+			assert.Equal(t, entity.StatusOpen, got.Status)
+			assert.False(t, got.CreatedAt.IsZero())
+			assert.False(t, got.UpdatedAt.IsZero())
 		})
 	}
 }

@@ -19,11 +19,11 @@ const (
 )
 
 type Bullet struct {
-	ID        uuid.UUID
-	Title     string
-	Status    BulletStatus
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        uuid.UUID    `json:"id"`
+	Title     string       `json:"title"`
+	Status    BulletStatus `json:"status"`
+	CreatedAt time.Time    `json:"created_at"`
+	UpdatedAt time.Time    `json:"updated_at"`
 }
 
 func (b *Bullet) Validate() error {

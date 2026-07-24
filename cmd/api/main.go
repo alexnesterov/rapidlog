@@ -6,6 +6,8 @@ import (
 
 	"github.com/alexnesterov/rapidlog-api/internal/adapter/httpapi"
 	"github.com/alexnesterov/rapidlog-api/internal/config"
+	"github.com/alexnesterov/rapidlog-api/internal/domain/usecase"
+	"github.com/alexnesterov/rapidlog-api/internal/infrastructure/memory"
 )
 
 func main() {
@@ -17,6 +19,12 @@ func main() {
 	router := http.NewServeMux()
 
 	router.HandleFunc("/health", httpapi.HealthHandler)
+
+	bulletRepository := memory.NewMemoryBulletRepository()
+	bulletService := usecase.NewBulletService(bulletRepository)
+	bulletHandler := httpapi.NewBulletHandler(bulletService)
+
+	router.HandleFunc("POST /api/bullets", bulletHandler.CreateBullet)
 
 	log.Printf("%s is starting on port %s", cfg.App.Name, cfg.HTTP.Port)
 	log.Fatal(http.ListenAndServe(":"+cfg.HTTP.Port, router))

@@ -78,9 +78,7 @@ func TestCreateBullet(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mockBulletService := mocks.NewMockBulletService(t)
 			tc.setupMock(mockBulletService)
-			bulletHandler := &BulletHandler{
-				BulletService: mockBulletService,
-			}
+			bulletHandler := NewBulletHandler(mockBulletService)
 
 			req := httptest.NewRequest(http.MethodPost, "/api/bullets", bytes.NewBufferString(tc.body))
 			res := httptest.NewRecorder()

@@ -1,26 +1,39 @@
 package usecase
 
 import (
+	"time"
+
 	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/port"
 	"github.com/google/uuid"
 )
 
 type BulletService struct {
-	BulletRepo port.BulletRepository
+	repo port.BulletRepository
+}
+
+func NewBulletService(r port.BulletRepository) *BulletService {
+	return &BulletService{
+		repo: r,
+	}
 }
 
 func (s *BulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bullet, error) {
+	now := time.Now()
+
 	bullet := &entity.Bullet{
-		ID:    uuid.New(),
-		Title: req.Title,
+		ID:        uuid.New(),
+		Title:     req.Title,
+		Status:    entity.StatusOpen,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
 	if err := bullet.Validate(); err != nil {
 		return nil, err
 	}
 
-	if err := s.BulletRepo.Create(bullet); err != nil {
+	if err := s.repo.Create(bullet); err != nil {
 		return nil, err
 	}
 
