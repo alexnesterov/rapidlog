@@ -11,18 +11,18 @@ import (
 var ErrTitleRequired = errors.New("title is required")
 var ErrTitleTooLong = errors.New("title is too long")
 
-type Status string
+type BulletStatus string
 
 const (
-	StatusOpen Status = "OPEN"
-	StatusDone Status = "DONE"
+	StatusOpen BulletStatus = "OPEN"
+	StatusDone BulletStatus = "DONE"
 )
 
 type Bullet struct {
 	ID        uuid.UUID
 	Title     string
 	Date      time.Time
-	Status    Status
+	Status    BulletStatus
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

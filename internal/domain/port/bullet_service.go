@@ -12,7 +12,7 @@ type CreateBulletRequest struct {
 type UpdateBulletRequest struct {
 	ID     uuid.UUID
 	Title  string
-	Status entity.Status
+	Status entity.BulletStatus
 }
 
 type BulletService interface {
