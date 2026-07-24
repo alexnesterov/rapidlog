@@ -19,13 +19,12 @@ const (
 )
 
 type Bullet struct {
-	ID           uuid.UUID
-	CollectionID uuid.UUID
-	Title        string
-	Date         time.Time
-	Status       Status
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID        uuid.UUID
+	Title     string
+	Date      time.Time
+	Status    Status
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (b *Bullet) Validate() error {

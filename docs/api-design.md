@@ -8,20 +8,6 @@ side-effects (уведомления, аудит), не основной пут�
 
 ## 1. Сущности
 
-### Collection
-
-По аналогии с Bullet Journal: каждый bullet живёт в какой-то
-коллекции — произвольном именованном списке.
-
-| Поле | Тип | Описание |
-| --- | --- | --- |
-| id | UUID | |
-| topic | string | обязательное, ≤100 символов |
-| created_at | timestamp | |
-| updated_at | timestamp | |
-
-**Операции:** Create, List, Get, Update, Delete.
-
 ### Bullet
 
 | Поле | Тип | Описание |
@@ -38,9 +24,22 @@ side-effects (уведомления, аудит), не основной пут�
 Done (пометить выполненной; запись не удаляется — удаление только
 через отдельный Delete по решению пользователя).
 
-> Повторяющиеся записи (`repeat`) сознательно вынесены за скобки текущей
-> версии — bullet всегда одноразовый. Можно добавить позже отдельным
-> полем без ломающих изменений контракта.
+### Collection
+
+> Реализация отложена: сначала MVP на `Bullet`, `Collection`
+> подключается позже.
+
+По аналогии с Bullet Journal: каждый bullet живёт в какой-то
+коллекции — произвольном именованном списке.
+
+| Поле | Тип | Описание |
+| --- | --- | --- |
+| id | UUID | |
+| topic | string | обязательное, ≤100 символов |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+**Операции:** Create, List, Get, Update, Delete.
 
 ---
 
@@ -74,59 +73,10 @@ Done (пометить выполненной; запись не удаляет�
 
 ## 3. Эндпоинты
 
-### Collections
+### Health
 
-#### POST /api/collections
-
-```json
-// request
-{ "topic": "Идеи для проекта" }
-```
-
-```json
-// response 201
-{
-  "id": "uuid", "topic": "Идеи для проекта",
-  "created_at": "...", "updated_at": "..."
-}
-```
-
-#### GET /api/collections?limit=20&offset=0
-
-- `limit` — по умолчанию 20, максимум 100
-- `offset` — по умолчанию 0
-
-```json
-// response 200
-{
-  "collections": [ /* Collection[] */ ],
-  "total": 5, "limit": 20, "offset": 0
-}
-```
-
-#### GET /api/collections/{id}
-
-Ответ 200 — Collection, либо `404`.
-
-#### PUT /api/collections/{id}
-
-```json
-// request — полная замена
-{ "topic": "Идеи для проекта" }
-```
-
-Ответ 200 — обновлённая Collection.
-
-#### DELETE /api/collections/{id}
-
-Ответ `204`, либо `404` — если коллекция не существует. Если внутри
-есть bullets — `409`, сначала перенеси или удали их. Источник истины —
-`FK bullets.collection_id REFERENCES collections(id) ON DELETE
-RESTRICT` в схеме Postgres, а не
-предварительная проверка в service-слое: под конкурентной нагрузкой
-check-then-delete даёт гонку (bullet может быть создан между проверкой
-и удалением). `409` в этом эндпоинте — это маппинг ошибки нарушения
-FK-констрейнта (`23503`) на HTTP-код, а не отдельная бизнес-проверка.
+**GET /health** → `200 { "status": "ok" }` — для Docker/orchestrator
+healthcheck.
 
 ### Bullets
 
@@ -208,10 +158,62 @@ bullet в другую коллекцию (миграция на завтра), 
 
 Публикует `bullet.completed`.
 
-### Health
+### Collections
 
-**GET /health** → `200 { "status": "ok" }` — для Docker/orchestrator
-healthcheck.
+> Реализация отложена: сначала MVP на `Bullet`, `Collection`
+> подключается позже.
+
+#### POST /api/collections
+
+```json
+// request
+{ "topic": "Идеи для проекта" }
+```
+
+```json
+// response 201
+{
+  "id": "uuid", "topic": "Идеи для проекта",
+  "created_at": "...", "updated_at": "..."
+}
+```
+
+#### GET /api/collections?limit=20&offset=0
+
+- `limit` — по умолчанию 20, максимум 100
+- `offset` — по умолчанию 0
+
+```json
+// response 200
+{
+  "collections": [ /* Collection[] */ ],
+  "total": 5, "limit": 20, "offset": 0
+}
+```
+
+#### GET /api/collections/{id}
+
+Ответ 200 — Collection, либо `404`.
+
+#### PUT /api/collections/{id}
+
+```json
+// request — полная замена
+{ "topic": "Идеи для проекта" }
+```
+
+Ответ 200 — обновлённая Collection.
+
+#### DELETE /api/collections/{id}
+
+Ответ `204`, либо `404` — если коллекция не существует. Если внутри
+есть bullets — `409`, сначала перенеси или удали их. Источник истины —
+`FK bullets.collection_id REFERENCES collections(id) ON DELETE
+RESTRICT` в схеме Postgres, а не
+предварительная проверка в service-слое: под конкурентной нагрузкой
+check-then-delete даёт гонку (bullet может быть создан между проверкой
+и удалением). `409` в этом эндпоинте — это маппинг ошибки нарушения
+FK-констрейнта (`23503`) на HTTP-код, а не отдельная бизнес-проверка.
 
 ---
 
