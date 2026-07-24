@@ -55,4 +55,12 @@ func (r *bulletMemory) List() ([]*entity.Bullet, error) {
 	return bullets, nil
 }
 
-// var _ port.BulletRepository = &bulletMemory{}
+func (r *bulletMemory) Update(bullet *entity.Bullet) error {
+	return nil
+}
+
+func (r *bulletMemory) Delete(id uuid.UUID) error {
+	return nil
+}
+
+var _ port.BulletRepository = &bulletMemory{}
