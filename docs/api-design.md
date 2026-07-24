@@ -15,7 +15,6 @@ side-effects (уведомления, аудит), не основной пут�
 | id | UUID | |
 | collection_id | UUID | коллекция-владелец (FK → Collection) |
 | title | string | обязательное, ≤200 символов |
-| date | date (ISO 8601, `YYYY-MM-DD`) | дата выполнения |
 | status | string | `OPEN` \| `DONE` |
 | created_at | timestamp | |
 | updated_at | timestamp | |
@@ -85,18 +84,15 @@ healthcheck.
 ```json
 // request
 {
-  "collection_id": "uuid", "title": "Оплатить хостинг",
-  "date": "2026-07-20"
+  "collection_id": "uuid", "title": "Оплатить хостинг"
 }
 ```
-
-Если `date` не передан — по умолчанию сегодня.
 
 ```json
 // response 201
 {
   "id": "uuid", "collection_id": "uuid", "title": "Оплатить хостинг",
-  "date": "2026-07-20", "status": "OPEN",
+  "status": "OPEN",
   "created_at": "...", "updated_at": "..."
 }
 ```
@@ -124,7 +120,7 @@ healthcheck.
 ```json
 // request — полная замена
 {
-  "collection_id": "uuid", "title": "...", "date": "2026-08-01",
+  "collection_id": "uuid", "title": "...",
   "status": "OPEN"
 }
 ```
@@ -222,7 +218,7 @@ FK-констрейнта (`23503`) на HTTP-код, а не отдельная
 Exchange: `bullet_events` (topic).
 
 - **`bullet.created`** — после успешного `POST /api/bullets`.
-  Payload: `{bullet_id, collection_id, title, date}`.
+  Payload: `{bullet_id, collection_id, title}`.
 - **`bullet.completed`** — после `POST /api/bullets/{id}/done`.
   Payload: `{bullet_id, collection_id, title, completed_at}`.
 - **`bullet.deleted`** — после `DELETE /api/bullets/{id}`.

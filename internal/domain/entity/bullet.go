@@ -21,7 +21,6 @@ const (
 type Bullet struct {
 	ID        uuid.UUID
 	Title     string
-	Date      time.Time
 	Status    BulletStatus
 	CreatedAt time.Time
 	UpdatedAt time.Time
