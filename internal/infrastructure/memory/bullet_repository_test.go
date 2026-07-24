@@ -12,7 +12,7 @@ import (
 )
 
 func TestBulletMemory_CreateAndRead(t *testing.T) {
-	repo := NewMemoryBulletRepository()
+	repo := NewBulletRepository()
 
 	bullet := &entity.Bullet{
 		ID:    uuid.New(),
@@ -28,7 +28,7 @@ func TestBulletMemory_CreateAndRead(t *testing.T) {
 }
 
 func TestBulletMemory_ConcurrentAccess(t *testing.T) {
-	repo := NewMemoryBulletRepository()
+	repo := NewBulletRepository()
 
 	var wg sync.WaitGroup
 	for range 100 {
@@ -41,7 +41,7 @@ func TestBulletMemory_ConcurrentAccess(t *testing.T) {
 }
 
 func TestBulletMemory_Create_StoresCopy(t *testing.T) {
-	repo := NewMemoryBulletRepository()
+	repo := NewBulletRepository()
 
 	bullet := &entity.Bullet{ID: uuid.New(), Title: "Заголовок"}
 	require.NoError(t, repo.Create(bullet))
@@ -54,7 +54,7 @@ func TestBulletMemory_Create_StoresCopy(t *testing.T) {
 }
 
 func TestBulletMemory_Read_NotFound(t *testing.T) {
-	repo := NewMemoryBulletRepository()
+	repo := NewBulletRepository()
 
 	got, err := repo.Read(uuid.New())
 	assert.Nil(t, got)
@@ -62,7 +62,7 @@ func TestBulletMemory_Read_NotFound(t *testing.T) {
 }
 
 func TestBulletMemory_Read_ReturnsCopy(t *testing.T) {
-	repo := NewMemoryBulletRepository()
+	repo := NewBulletRepository()
 
 	bullet := &entity.Bullet{ID: uuid.New(), Title: "Заголовок"}
 	require.NoError(t, repo.Create(bullet))
@@ -100,7 +100,7 @@ func TestBulletMemory_List(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			repo := NewMemoryBulletRepository()
+			repo := NewBulletRepository()
 
 			for _, b := range tc.seed {
 				require.NoError(t, repo.Create(b))
@@ -115,7 +115,7 @@ func TestBulletMemory_List(t *testing.T) {
 }
 
 func TestBulletMemory_List_ReturnsCopies(t *testing.T) {
-	repo := NewMemoryBulletRepository()
+	repo := NewBulletRepository()
 
 	bullet := &entity.Bullet{ID: uuid.New(), Title: "Заголовок"}
 	require.NoError(t, repo.Create(bullet))

@@ -8,18 +8,18 @@ import (
 	"github.com/google/uuid"
 )
 
-type bulletMemory struct {
+type bulletRepository struct {
 	mu   sync.RWMutex
 	data map[uuid.UUID]*entity.Bullet
 }
 
-func NewMemoryBulletRepository() *bulletMemory {
-	return &bulletMemory{
+func NewBulletRepository() *bulletRepository {
+	return &bulletRepository{
 		data: make(map[uuid.UUID]*entity.Bullet),
 	}
 }
 
-func (r *bulletMemory) Create(bullet *entity.Bullet) error {
+func (r *bulletRepository) Create(bullet *entity.Bullet) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -29,7 +29,7 @@ func (r *bulletMemory) Create(bullet *entity.Bullet) error {
 	return nil
 }
 
-func (r *bulletMemory) Read(id uuid.UUID) (*entity.Bullet, error) {
+func (r *bulletRepository) Read(id uuid.UUID) (*entity.Bullet, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -42,7 +42,7 @@ func (r *bulletMemory) Read(id uuid.UUID) (*entity.Bullet, error) {
 	return &bulletCopy, nil
 }
 
-func (r *bulletMemory) List() ([]*entity.Bullet, error) {
+func (r *bulletRepository) List() ([]*entity.Bullet, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -55,12 +55,12 @@ func (r *bulletMemory) List() ([]*entity.Bullet, error) {
 	return bullets, nil
 }
 
-func (r *bulletMemory) Update(bullet *entity.Bullet) error {
+func (r *bulletRepository) Update(bullet *entity.Bullet) error {
 	return nil
 }
 
-func (r *bulletMemory) Delete(id uuid.UUID) error {
+func (r *bulletRepository) Delete(id uuid.UUID) error {
 	return nil
 }
 
-var _ port.BulletRepository = &bulletMemory{}
+var _ port.BulletRepository = &bulletRepository{}

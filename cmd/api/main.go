@@ -20,7 +20,7 @@ func main() {
 
 	router.HandleFunc("/health", httpapi.HealthHandler)
 
-	bulletRepository := memory.NewMemoryBulletRepository()
+	bulletRepository := memory.NewBulletRepository()
 	bulletService := usecase.NewBulletService(bulletRepository)
 	bulletHandler := httpapi.NewBulletHandler(bulletService)
 

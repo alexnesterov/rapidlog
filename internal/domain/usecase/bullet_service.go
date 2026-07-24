@@ -8,17 +8,17 @@ import (
 	"github.com/google/uuid"
 )
 
-type BulletService struct {
+type bulletService struct {
 	repo port.BulletRepository
 }
 
-func NewBulletService(r port.BulletRepository) *BulletService {
-	return &BulletService{
+func NewBulletService(r port.BulletRepository) *bulletService {
+	return &bulletService{
 		repo: r,
 	}
 }
 
-func (s *BulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bullet, error) {
+func (s *bulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bullet, error) {
 	now := time.Now()
 
 	bullet := &entity.Bullet{
@@ -40,20 +40,20 @@ func (s *BulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bull
 	return bullet, nil
 }
 
-func (s *BulletService) ListBullets() ([]*entity.Bullet, error) {
+func (s *bulletService) ListBullets() ([]*entity.Bullet, error) {
 	return nil, nil
 }
 
-func (s *BulletService) ReadBullet(id uuid.UUID) (*entity.Bullet, error) {
+func (s *bulletService) ReadBullet(id uuid.UUID) (*entity.Bullet, error) {
 	return nil, nil
 }
 
-func (s *BulletService) UpdateBullet(req port.UpdateBulletRequest) (*entity.Bullet, error) {
+func (s *bulletService) UpdateBullet(req port.UpdateBulletRequest) (*entity.Bullet, error) {
 	return nil, nil
 }
 
-func (s *BulletService) DeleteBullet(id uuid.UUID) error {
+func (s *bulletService) DeleteBullet(id uuid.UUID) error {
 	return nil
 }
 
-var _ port.BulletService = &BulletService{}
+var _ port.BulletService = &bulletService{}

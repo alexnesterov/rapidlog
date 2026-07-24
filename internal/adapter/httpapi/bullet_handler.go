@@ -9,17 +9,17 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/domain/port"
 )
 
-type BulletHandler struct {
+type bulletHandler struct {
 	usecase port.BulletService
 }
 
-func NewBulletHandler(uc port.BulletService) *BulletHandler {
-	return &BulletHandler{
+func NewBulletHandler(uc port.BulletService) *bulletHandler {
+	return &bulletHandler{
 		usecase: uc,
 	}
 }
 
-func (h *BulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
+func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var req port.CreateBulletRequest
