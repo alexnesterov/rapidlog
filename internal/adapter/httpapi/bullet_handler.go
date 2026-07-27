@@ -32,15 +32,14 @@ func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var validationErr *entity.ValidationError
 		if errors.As(err, &validationErr) {
-			w.WriteHeader(http.StatusBadRequest)
+			respondError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(createdBullet)
+	respondData(w, http.StatusCreated, createdBullet)
 }
 
 func (h *bulletHandler) ListBullets(w http.ResponseWriter, r *http.Request) {

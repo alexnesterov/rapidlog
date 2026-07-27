@@ -24,7 +24,8 @@ func TestCreateBullet(t *testing.T) {
 		body       string
 		setupMock  func(m *mocks.MockBulletService)
 		wantStatus int
-		wantBody   *entity.Bullet
+		wantData   *entity.Bullet
+		wantError  *errorBody
 	}{
 		{
 			name: "success",
@@ -39,7 +40,7 @@ func TestCreateBullet(t *testing.T) {
 					Once()
 			},
 			wantStatus: http.StatusCreated,
-			wantBody: &entity.Bullet{
+			wantData: &entity.Bullet{
 				ID:    fixedID,
 				Title: "Заголовок",
 			},
@@ -67,10 +68,14 @@ func TestCreateBullet(t *testing.T) {
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
 					CreateBullet(port.CreateBulletRequest{Title: ""}).
-					Return(nil, &entity.ValidationError{Err: entity.ErrTitleRequired}).
+					Return(nil, &entity.ValidationError{Err: errors.New("some validation error")}).
 					Once()
 			},
 			wantStatus: http.StatusBadRequest,
+			wantError: &errorBody{
+				Code:    http.StatusBadRequest,
+				Message: "some validation error",
+			},
 		},
 	}
 
@@ -87,10 +92,19 @@ func TestCreateBullet(t *testing.T) {
 			require.Equal(t, tc.wantStatus, res.Code)
 			assert.Equal(t, "application/json", res.Header().Get("Content-Type"))
 
-			if tc.wantBody != nil {
-				var got entity.Bullet
+			if tc.wantData != nil {
+				var got response[entity.Bullet]
 				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
-				assert.Equal(t, *tc.wantBody, got)
+				assert.Equal(t, responseStatus("success"), got.Status)
+				assert.Equal(t, *tc.wantData, got.Data)
+			}
+
+			if tc.wantError != nil {
+				var got response[any]
+				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
+				assert.Equal(t, responseStatus("error"), got.Status)
+				assert.Equal(t, tc.wantError.Code, got.Error.Code)
+				assert.Equal(t, tc.wantError.Message, got.Error.Message)
 			}
 		})
 	}
