@@ -19,9 +19,9 @@ side-effects (уведомления, аудит), не основной пут�
 | created_at | timestamp | |
 | updated_at | timestamp | |
 
-**Операции:** Create, List (поиск/пагинация), Get, Update, Delete,
-Done (пометить выполненной; запись не удаляется — удаление только
-через отдельный Delete по решению пользователя).
+**Операции:** Create, List, Get, Update, Delete, Done (пометить
+выполненной; запись не удаляется — удаление только через отдельный
+Delete по решению пользователя).
 
 ### Collection
 
@@ -99,16 +99,13 @@ healthcheck.
 
 Побочный эффект: публикуется событие `bullet.created` (см. раздел 4).
 
-#### GET /api/bullets?search=&collection_id=&limit=20&offset=0
+#### GET /api/bullets?collection_id=
 
-- `search` — поиск по title (опционально)
 - `collection_id` — фильтр по коллекции (опционально)
-- `limit` — по умолчанию 20, максимум 100
-- `offset` — по умолчанию 0
 
 ```json
 // response 200
-{ "bullets": [ /* Bullet[] */ ], "total": 42, "limit": 20, "offset": 0 }
+{ "bullets": [ /* Bullet[] */ ] }
 ```
 
 #### GET /api/bullets/{id}
