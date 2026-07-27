@@ -42,3 +42,20 @@ func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(createdBullet)
 }
+
+func (h *bulletHandler) ListBullets(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	bullets, err := h.usecase.ListBullets()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if bullets == nil {
+		bullets = []*entity.Bullet{}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(bullets)
+}

@@ -105,7 +105,7 @@ healthcheck.
 
 ```json
 // response 200
-{ "bullets": [ /* Bullet[] */ ] }
+[ /* Bullet[] */ ]
 ```
 
 #### GET /api/bullets/{id}
