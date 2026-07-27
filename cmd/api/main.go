@@ -25,6 +25,7 @@ func main() {
 	bulletHandler := httpapi.NewBulletHandler(bulletService)
 
 	router.HandleFunc("POST /api/bullets", bulletHandler.CreateBullet)
+	router.HandleFunc("GET /api/bullets", bulletHandler.ListBullets)
 
 	log.Printf("%s is starting on port %s", cfg.App.Name, cfg.HTTP.Port)
 	log.Fatal(http.ListenAndServe(":"+cfg.HTTP.Port, router))
