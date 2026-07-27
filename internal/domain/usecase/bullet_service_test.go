@@ -81,3 +81,19 @@ func TestCreateBullet(t *testing.T) {
 		})
 	}
 }
+
+func TestListBullets(t *testing.T) {
+	want := []*entity.Bullet{{Title: "Заголовок"}}
+
+	mockRepo := mocks.NewMockBulletRepository(t)
+	mockRepo.EXPECT().
+		List().
+		Return(want, nil).
+		Once()
+
+	uc := NewBulletService(mockRepo)
+
+	got, err := uc.ListBullets()
+	require.NoError(t, err)
+	assert.Equal(t, want, got)
+}

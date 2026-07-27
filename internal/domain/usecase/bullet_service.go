@@ -41,7 +41,7 @@ func (s *bulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bull
 }
 
 func (s *bulletService) ListBullets() ([]*entity.Bullet, error) {
-	return nil, nil
+	return s.repo.List()
 }
 
 var _ port.BulletService = &bulletService{}
