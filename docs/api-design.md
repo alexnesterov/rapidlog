@@ -44,18 +44,32 @@ Delete по решению пользователя).
 
 ## 2. Общий формат ответов
 
-**Успех** — сама сущность или объект-обёртка для списков.
+**Успех — одиночный объект:**
+
+```json
+{ "data": { /* сущность */ } }
+```
+
+**Успех — список:**
+
+```json
+{ "data": [ /* Bullet[] */ ] }
+```
 
 **Ошибка:**
 
 ```json
 {
+  "data": null,
   "error": {
-    "code": "validation_error",
+    "code": 400,
     "message": "title is required"
   }
 }
 ```
+
+`error.code` — числовой HTTP-статус (дублирует статус-код ответа),
+отдельного строкового кода ошибки нет.
 
 | Код | Когда |
 | --- | --- |
@@ -91,9 +105,14 @@ healthcheck.
 ```json
 // response 201
 {
-  "id": "uuid", "collection_id": "uuid", "title": "Оплатить хостинг",
-  "status": "OPEN",
-  "created_at": "...", "updated_at": "..."
+  "data": {
+    "id": "uuid",
+    "collection_id": "uuid",
+    "title": "Оплатить хостинг",
+    "status": "OPEN",
+    "created_at": "...",
+    "updated_at": "..."
+  }
 }
 ```
 
@@ -105,7 +124,7 @@ healthcheck.
 
 ```json
 // response 200
-[ /* Bullet[] */ ]
+{ "data": [ /* Bullet[] */ ] }
 ```
 
 #### GET /api/bullets/{id}
@@ -144,8 +163,13 @@ bullet в другую коллекцию (миграция на завтра), 
 ```json
 // response 200
 {
-  "id": "uuid", "title": "Оплатить хостинг", "status": "DONE",
-  "created_at": "...", "updated_at": "..."
+  "data": {
+    "id": "uuid",
+    "title": "Оплатить хостинг",
+    "status": "DONE",
+    "created_at": "...",
+    "updated_at": "..."
+  }
 }
 ```
 
@@ -166,22 +190,20 @@ bullet в другую коллекцию (миграция на завтра), 
 ```json
 // response 201
 {
-  "id": "uuid", "topic": "Идеи для проекта",
-  "created_at": "...", "updated_at": "..."
+  "data": {
+    "id": "uuid",
+    "topic": "Идеи для проекта",
+    "created_at": "...",
+    "updated_at": "..."
+  }
 }
 ```
 
-#### GET /api/collections?limit=20&offset=0
-
-- `limit` — по умолчанию 20, максимум 100
-- `offset` — по умолчанию 0
+#### GET /api/collections
 
 ```json
 // response 200
-{
-  "collections": [ /* Collection[] */ ],
-  "total": 5, "limit": 20, "offset": 0
-}
+{ "data": [ /* Collection[] */ ] }
 ```
 
 #### GET /api/collections/{id}
