@@ -11,12 +11,8 @@ type errorResponse struct {
 }
 
 type response[T any] struct {
-	Data  T              `json:"data,omitempty"`
+	Data  T              `json:"data"`
 	Error *errorResponse `json:"error,omitempty"`
-}
-
-type listData[T any] struct {
-	Items []T `json:"items"`
 }
 
 func respondData[T any](w http.ResponseWriter, code int, data T) {

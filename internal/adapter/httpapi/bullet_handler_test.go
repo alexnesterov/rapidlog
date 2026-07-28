@@ -121,7 +121,7 @@ func TestListBullets(t *testing.T) {
 		name       string
 		setupMock  func(m *mocks.MockBulletService)
 		wantStatus int
-		wantData   *listData[*entity.Bullet]
+		wantData   []*entity.Bullet
 		wantError  *errorResponse
 	}{
 		{
@@ -132,9 +132,7 @@ func TestListBullets(t *testing.T) {
 					Once()
 			},
 			wantStatus: http.StatusOK,
-			wantData: &listData[*entity.Bullet]{
-				Items: []*entity.Bullet{{Title: "Заголовок"}},
-			},
+			wantData:   []*entity.Bullet{{Title: "Заголовок"}},
 		},
 		{
 			name: "empty list",
@@ -144,9 +142,7 @@ func TestListBullets(t *testing.T) {
 					Once()
 			},
 			wantStatus: http.StatusOK,
-			wantData: &listData[*entity.Bullet]{
-				Items: []*entity.Bullet{},
-			},
+			wantData:   []*entity.Bullet{},
 		},
 		{
 			name: "service error",
@@ -177,9 +173,9 @@ func TestListBullets(t *testing.T) {
 			assert.Equal(t, "application/json", res.Header().Get("Content-Type"))
 
 			if tc.wantData != nil {
-				var got response[listData[*entity.Bullet]]
+				var got response[[]*entity.Bullet]
 				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
-				assert.Equal(t, *tc.wantData, got.Data)
+				assert.Equal(t, tc.wantData, got.Data)
 			}
 
 			if tc.wantError != nil {
