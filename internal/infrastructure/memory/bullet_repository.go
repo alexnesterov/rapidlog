@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"sort"
 	"sync"
 
 	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
@@ -51,6 +52,10 @@ func (r *bulletRepository) List() ([]*entity.Bullet, error) {
 		bulletCopy := *bullet
 		bullets = append(bullets, &bulletCopy)
 	}
+
+	sort.Slice(bullets, func(i, j int) bool {
+		return bullets[i].CreatedAt.Before(bullets[j].CreatedAt)
+	})
 
 	return bullets, nil
 }
