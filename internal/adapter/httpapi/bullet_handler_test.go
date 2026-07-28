@@ -25,7 +25,7 @@ func TestCreateBullet(t *testing.T) {
 		setupMock  func(m *mocks.MockBulletService)
 		wantStatus int
 		wantData   *entity.Bullet
-		wantError  *errorBody
+		wantError  *errorResponse
 	}{
 		{
 			name: "success",
@@ -50,7 +50,7 @@ func TestCreateBullet(t *testing.T) {
 			body:       "не json",
 			setupMock:  func(m *mocks.MockBulletService) {},
 			wantStatus: http.StatusBadRequest,
-			wantError: &errorBody{
+			wantError: &errorResponse{
 				Code:    http.StatusBadRequest,
 				Message: "invalid request body",
 			},
@@ -65,7 +65,7 @@ func TestCreateBullet(t *testing.T) {
 					Once()
 			},
 			wantStatus: http.StatusInternalServerError,
-			wantError: &errorBody{
+			wantError: &errorResponse{
 				Code:    http.StatusInternalServerError,
 				Message: "internal server error",
 			},
@@ -80,7 +80,7 @@ func TestCreateBullet(t *testing.T) {
 					Once()
 			},
 			wantStatus: http.StatusBadRequest,
-			wantError: &errorBody{
+			wantError: &errorResponse{
 				Code:    http.StatusBadRequest,
 				Message: "some validation error",
 			},
@@ -123,7 +123,8 @@ func TestListBullets(t *testing.T) {
 		name       string
 		setupMock  func(m *mocks.MockBulletService)
 		wantStatus int
-		wantBody   []*entity.Bullet
+		wantData   *listData[*entity.Bullet]
+		wantError  *errorResponse
 	}{
 		{
 			name: "success",
@@ -133,7 +134,9 @@ func TestListBullets(t *testing.T) {
 					Once()
 			},
 			wantStatus: http.StatusOK,
-			wantBody:   []*entity.Bullet{{Title: "Заголовок"}},
+			wantData: &listData[*entity.Bullet]{
+				Items: []*entity.Bullet{{Title: "Заголовок"}},
+			},
 		},
 		{
 			name: "empty list",
@@ -143,7 +146,9 @@ func TestListBullets(t *testing.T) {
 					Once()
 			},
 			wantStatus: http.StatusOK,
-			wantBody:   []*entity.Bullet{},
+			wantData: &listData[*entity.Bullet]{
+				Items: []*entity.Bullet{},
+			},
 		},
 		{
 			name: "service error",
@@ -153,7 +158,10 @@ func TestListBullets(t *testing.T) {
 					Once()
 			},
 			wantStatus: http.StatusInternalServerError,
-			wantBody:   nil,
+			wantError: &errorResponse{
+				Code:    http.StatusInternalServerError,
+				Message: "internal server error",
+			},
 		},
 	}
 
@@ -170,10 +178,19 @@ func TestListBullets(t *testing.T) {
 			require.Equal(t, tc.wantStatus, res.Code)
 			assert.Equal(t, "application/json", res.Header().Get("Content-Type"))
 
-			if tc.wantBody != nil {
-				var got []*entity.Bullet
+			if tc.wantData != nil {
+				var got response[listData[*entity.Bullet]]
 				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
-				assert.Equal(t, tc.wantBody, got)
+				assert.Equal(t, responseStatus("success"), got.Status)
+				assert.Equal(t, *tc.wantData, got.Data)
+			}
+
+			if tc.wantError != nil {
+				var got response[any]
+				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
+				assert.Equal(t, responseStatus("error"), got.Status)
+				assert.Equal(t, tc.wantError.Code, got.Error.Code)
+				assert.Equal(t, tc.wantError.Message, got.Error.Message)
 			}
 		})
 	}

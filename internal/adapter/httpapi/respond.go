@@ -12,7 +12,7 @@ const (
 	statusError   responseStatus = "error"
 )
 
-type errorBody struct {
+type errorResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
@@ -20,7 +20,11 @@ type errorBody struct {
 type response[T any] struct {
 	Status responseStatus `json:"status"`
 	Data   T              `json:"data,omitempty"`
-	Error  *errorBody     `json:"error,omitempty"`
+	Error  *errorResponse `json:"error,omitempty"`
+}
+
+type listData[T any] struct {
+	Items []T `json:"items"`
 }
 
 func respondData[T any](w http.ResponseWriter, code int, data T) {
@@ -39,7 +43,7 @@ func respondError(w http.ResponseWriter, code int, message string) {
 
 	_ = json.NewEncoder(w).Encode(response[any]{
 		Status: statusError,
-		Error: &errorBody{
+		Error: &errorResponse{
 			Code:    code,
 			Message: message,
 		},

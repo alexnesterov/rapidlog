@@ -42,11 +42,9 @@ func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *bulletHandler) ListBullets(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	bullets, err := h.usecase.ListBullets()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		respondError(w, http.StatusInternalServerError, errInternal.Error())
 		return
 	}
 
@@ -54,6 +52,5 @@ func (h *bulletHandler) ListBullets(w http.ResponseWriter, r *http.Request) {
 		bullets = []*entity.Bullet{}
 	}
 
-	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(bullets)
+	respondData(w, http.StatusOK, listData[*entity.Bullet]{Items: bullets})
 }
