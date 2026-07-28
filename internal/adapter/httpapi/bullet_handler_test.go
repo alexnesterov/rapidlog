@@ -46,10 +46,14 @@ func TestCreateBullet(t *testing.T) {
 			},
 		},
 		{
-			name:       "invalid json body",
+			name:       "invalid request body",
 			body:       "не json",
 			setupMock:  func(m *mocks.MockBulletService) {},
 			wantStatus: http.StatusBadRequest,
+			wantError: &errorBody{
+				Code:    http.StatusBadRequest,
+				Message: "invalid request body",
+			},
 		},
 		{
 			name: "service error",
@@ -61,6 +65,10 @@ func TestCreateBullet(t *testing.T) {
 					Once()
 			},
 			wantStatus: http.StatusInternalServerError,
+			wantError: &errorBody{
+				Code:    http.StatusInternalServerError,
+				Message: "internal server error",
+			},
 		},
 		{
 			name: "validation error",

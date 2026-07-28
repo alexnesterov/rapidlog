@@ -20,11 +20,9 @@ func NewBulletHandler(uc port.BulletService) *bulletHandler {
 }
 
 func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	var req port.CreateBulletRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		respondError(w, http.StatusBadRequest, errInvalidRequest.Error())
 		return
 	}
 
@@ -35,7 +33,8 @@ func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 			respondError(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		w.WriteHeader(http.StatusInternalServerError)
+
+		respondError(w, http.StatusInternalServerError, errInternal.Error())
 		return
 	}
 
