@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { listBullets, markBulletDone } from "./api/bulletsApi";
 import type { Bullet } from "./types/bullet";
 import { todayIsoDate } from "./lib/date";
+import { waitForFonts } from "./lib/fonts";
 import { DaySection } from "./components/DaySection";
 import "./App.css";
 
@@ -36,6 +37,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const fontsReady = useRef(waitForFonts()).current;
 
   const reload = useCallback(() => {
     setLoading(true);
@@ -44,10 +46,12 @@ function App() {
       .then((res) => setBullets(res.bullets))
       .catch(() => setError("не удалось загрузить записи"))
       .finally(() => {
-        setLoading(false);
-        setInitialized(true);
+        fontsReady.then(() => {
+          setLoading(false);
+          setInitialized(true);
+        });
       });
-  }, []);
+  }, [fontsReady]);
 
   useEffect(() => {
     reload();
