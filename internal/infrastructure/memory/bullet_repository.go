@@ -54,7 +54,7 @@ func (r *bulletRepository) List() ([]*entity.Bullet, error) {
 	}
 
 	sort.Slice(bullets, func(i, j int) bool {
-		return bullets[i].CreatedAt.Before(bullets[j].CreatedAt)
+		return bullets[i].CreatedAt.After(bullets[j].CreatedAt)
 	})
 
 	return bullets, nil

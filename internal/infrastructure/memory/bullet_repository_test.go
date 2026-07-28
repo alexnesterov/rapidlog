@@ -143,5 +143,5 @@ func TestBulletMemory_List_OrderedByCreatedAt(t *testing.T) {
 
 	got, err := repo.List()
 	require.NoError(t, err)
-	assert.Equal(t, []*entity.Bullet{older, middle, newer}, got)
+	assert.Equal(t, []*entity.Bullet{newer, middle, older}, got)
 }
