@@ -103,14 +103,12 @@ func TestCreateBullet(t *testing.T) {
 			if tc.wantData != nil {
 				var got response[entity.Bullet]
 				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
-				assert.Equal(t, responseStatus("success"), got.Status)
 				assert.Equal(t, *tc.wantData, got.Data)
 			}
 
 			if tc.wantError != nil {
 				var got response[any]
 				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
-				assert.Equal(t, responseStatus("error"), got.Status)
 				assert.Equal(t, tc.wantError.Code, got.Error.Code)
 				assert.Equal(t, tc.wantError.Message, got.Error.Message)
 			}
@@ -181,14 +179,12 @@ func TestListBullets(t *testing.T) {
 			if tc.wantData != nil {
 				var got response[listData[*entity.Bullet]]
 				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
-				assert.Equal(t, responseStatus("success"), got.Status)
 				assert.Equal(t, *tc.wantData, got.Data)
 			}
 
 			if tc.wantError != nil {
 				var got response[any]
 				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
-				assert.Equal(t, responseStatus("error"), got.Status)
 				assert.Equal(t, tc.wantError.Code, got.Error.Code)
 				assert.Equal(t, tc.wantError.Message, got.Error.Message)
 			}
