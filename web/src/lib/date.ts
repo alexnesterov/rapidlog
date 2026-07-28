@@ -5,6 +5,10 @@ export function todayIsoDate(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+export function isoDateFromTimestamp(timestamp: string): string {
+  return new Date(timestamp).toISOString().slice(0, 10);
+}
+
 function parseIsoDate(iso: string): Date {
   return new Date(iso + "T00:00:00");
 }

@@ -1,35 +1,31 @@
 export type BulletStatus = "OPEN" | "DONE";
 
-export interface Bullet {
+// форма, в которой bullet приходит по сети — как в entity.Bullet на бэкенде
+export interface RawBullet {
   id: string;
   title: string;
-  date: string; // YYYY-MM-DD
   status: BulletStatus;
   created_at: string;
   updated_at: string;
 }
 
-export interface CreateBulletRequest {
-  title: string;
-  date?: string;
+// то же самое плюс date, вычисленное на клиенте из created_at — им живёт UI
+export interface Bullet extends RawBullet {
+  date: string; // YYYY-MM-DD
 }
 
-export interface ListBulletsParams {
-  search?: string;
-  limit?: number;
-  offset?: number;
+export interface CreateBulletRequest {
+  title: string;
 }
 
 export interface ListBulletsResponse {
   bullets: Bullet[];
-  total: number;
-  limit: number;
-  offset: number;
 }
 
-export interface ApiErrorBody {
-  error: {
-    code: string;
+export interface ApiEnvelope<T> {
+  data: T;
+  error?: {
+    code: number;
     message: string;
   };
 }
