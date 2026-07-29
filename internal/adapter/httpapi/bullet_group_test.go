@@ -22,7 +22,7 @@ func TestGroupBulletsByDate(t *testing.T) {
 
 	grouped := groupBulletsByDay(bullets)
 
-	assert.Equal(t, []bulletGroup{
+	assert.Equal(t, []bulletDayGroup{
 		{Day: dayC.Format("2006-01-02"), Bullets: []*entity.Bullet{{Title: "Заголовок 4", CreatedAt: dayC.Add(1 * time.Hour)}}},
 		{Day: dayB.Format("2006-01-02"), Bullets: []*entity.Bullet{{Title: "Заголовок 2", CreatedAt: dayB.Add(1 * time.Hour)}, {Title: "Заголовок 3", CreatedAt: dayB.Add(6 * time.Hour)}}},
 		{Day: dayA.Format("2006-01-02"), Bullets: []*entity.Bullet{{Title: "Заголовок 1", CreatedAt: dayA.Add(1 * time.Hour)}}},
