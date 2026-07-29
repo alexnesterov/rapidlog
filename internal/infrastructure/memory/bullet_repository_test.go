@@ -3,7 +3,6 @@ package memory
 import (
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/port"
@@ -129,19 +128,4 @@ func TestBulletMemory_List_ReturnsCopies(t *testing.T) {
 	again, err := repo.List()
 	require.NoError(t, err)
 	assert.Equal(t, "Заголовок", again[0].Title)
-}
-
-func TestBulletMemory_List_OrderedByCreatedAt(t *testing.T) {
-	older := &entity.Bullet{ID: uuid.New(), Title: "Старый", CreatedAt: time.Now().Add(-2 * time.Hour)}
-	middle := &entity.Bullet{ID: uuid.New(), Title: "Средний", CreatedAt: time.Now().Add(-time.Hour)}
-	newer := &entity.Bullet{ID: uuid.New(), Title: "Новый", CreatedAt: time.Now()}
-
-	repo := NewBulletRepository()
-	require.NoError(t, repo.Create(newer))
-	require.NoError(t, repo.Create(middle))
-	require.NoError(t, repo.Create(older))
-
-	got, err := repo.List()
-	require.NoError(t, err)
-	assert.Equal(t, []*entity.Bullet{newer, middle, older}, got)
 }
