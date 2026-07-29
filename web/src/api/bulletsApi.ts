@@ -1,11 +1,9 @@
-import { isoDateFromTimestamp } from "../lib/date";
 import {
   ApiError,
   type ApiEnvelope,
   type Bullet,
+  type BulletDayGroup,
   type CreateBulletRequest,
-  type ListBulletsResponse,
-  type RawBullet,
 } from "../types/bullet";
 
 const API_BASE = "/api";
@@ -29,25 +27,20 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return body.data;
 }
 
-function toBullet(raw: RawBullet): Bullet {
-  return {
-    ...raw,
-    status: doneOverrides.has(raw.id) ? "DONE" : raw.status,
-    date: isoDateFromTimestamp(raw.created_at),
-  };
+function applyDoneOverride(bullet: Bullet): Bullet {
+  return doneOverrides.has(bullet.id) ? { ...bullet, status: "DONE" } : bullet;
 }
 
-export async function listBullets(): Promise<ListBulletsResponse> {
-  const bullets = await request<RawBullet[]>("/bullets");
-  return { bullets: bullets.map(toBullet) };
+export async function listBullets(): Promise<BulletDayGroup[]> {
+  const groups = await request<BulletDayGroup[]>("/bullets");
+  return groups.map((group) => ({ ...group, bullets: group.bullets.map(applyDoneOverride) }));
 }
 
 export async function createBullet(req: CreateBulletRequest): Promise<Bullet> {
-  const raw = await request<RawBullet>("/bullets", {
+  return request<Bullet>("/bullets", {
     method: "POST",
     body: JSON.stringify(req),
   });
-  return toBullet(raw);
 }
 
 export async function markBulletDone(id: string): Promise<void> {

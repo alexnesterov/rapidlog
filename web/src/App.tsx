@@ -1,39 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { listBullets, markBulletDone } from "./api/bulletsApi";
-import type { Bullet } from "./types/bullet";
+import type { Bullet, BulletDayGroup } from "./types/bullet";
 import { todayIsoDate } from "./lib/date";
 import { waitForFonts } from "./lib/fonts";
 import { DaySection } from "./components/DaySection";
 import "./App.css";
 
-interface DayGroup {
-  date: string;
-  bullets: Bullet[];
-}
-
-function groupByDate(bullets: Bullet[]): DayGroup[] {
-  const byDate = new Map<string, Bullet[]>();
-  for (const bullet of bullets) {
-    const group = byDate.get(bullet.date);
-    if (group) {
-      group.push(bullet);
-    } else {
-      byDate.set(bullet.date, [bullet]);
-    }
-  }
-
+function withToday(days: BulletDayGroup[]): BulletDayGroup[] {
   const today = todayIsoDate();
-  if (!byDate.has(today)) {
-    byDate.set(today, []);
-  }
-
-  return [...byDate.entries()]
-    .sort((a, b) => b[0].localeCompare(a[0]))
-    .map(([date, dayBullets]) => ({ date, bullets: [...dayBullets].reverse() }));
+  if (days.some((day) => day.day === today)) return days;
+  return [{ day: today, bullets: [] }, ...days];
 }
 
 function App() {
-  const [bullets, setBullets] = useState<Bullet[]>([]);
+  const [days, setDays] = useState<BulletDayGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
@@ -43,7 +23,7 @@ function App() {
     setLoading(true);
     setError(null);
     listBullets()
-      .then((res) => setBullets(res.bullets))
+      .then((res) => setDays(withToday(res)))
       .catch(() => setError("не удалось загрузить записи"))
       .finally(() => {
         fontsReady.then(() => {
@@ -67,7 +47,6 @@ function App() {
   );
 
   const today = todayIsoDate();
-  const days = groupByDate(bullets);
 
   if (!initialized) {
     return (
@@ -96,10 +75,10 @@ function App() {
         <div className="days">
           {days.map((day, index) => (
             <DaySection
-              key={day.date}
-              date={day.date}
+              key={day.day}
+              date={day.day}
               bullets={day.bullets}
-              isToday={day.date === today}
+              isToday={day.day === today}
               onCreated={reload}
               onComplete={completeBullet}
               animationDelay={index * 70}

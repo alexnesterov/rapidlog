@@ -1,7 +1,6 @@
 export type BulletStatus = "OPEN" | "DONE";
 
-// форма, в которой bullet приходит по сети — как в entity.Bullet на бэкенде
-export interface RawBullet {
+export interface Bullet {
   id: string;
   title: string;
   status: BulletStatus;
@@ -9,16 +8,14 @@ export interface RawBullet {
   updated_at: string;
 }
 
-// то же самое плюс date, вычисленное на клиенте из created_at — им живёт UI
-export interface Bullet extends RawBullet {
-  date: string; // YYYY-MM-DD
-}
-
 export interface CreateBulletRequest {
   title: string;
 }
 
-export interface ListBulletsResponse {
+// GET /api/bullets отдаёт bullets уже сгруппированными по дню — новый день
+// первым, bullets внутри дня по возрастанию created_at
+export interface BulletDayGroup {
+  day: string; // YYYY-MM-DD
   bullets: Bullet[];
 }
 
