@@ -17,25 +17,25 @@ func groupBulletsByDay(bullets []*entity.Bullet) []bulletDayGroup {
 		return bullets[i].CreatedAt.Before(bullets[j].CreatedAt)
 	})
 
-	groups := []bulletDayGroup{}
+	var groups []bulletDayGroup
+	var current *bulletDayGroup
 
 	for _, b := range bullets {
 		day := b.CreatedAt.Format("2006-01-02")
 
-		if len(groups) > 0 && groups[len(groups)-1].Day == day {
-			groups[len(groups)-1].Bullets = append(groups[len(groups)-1].Bullets, b)
-			continue
+		if current == nil || current.Day != day {
+			groups = append(groups, bulletDayGroup{Day: day})
+			current = &groups[len(groups)-1]
 		}
 
-		g := bulletDayGroup{
-			Day:     day,
-			Bullets: []*entity.Bullet{b},
-		}
-
-		groups = append(groups, g)
+		current.Bullets = append(current.Bullets, b)
 	}
 
 	slices.Reverse(groups)
+
+	if groups == nil {
+		groups = []bulletDayGroup{}
+	}
 
 	return groups
 }
