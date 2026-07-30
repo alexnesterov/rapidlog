@@ -11,6 +11,48 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestBulletMemory_CreateAndRead(t *testing.T) {
+	repo := NewBulletRepository()
+
+	bullet := &entity.Bullet{
+		ID:    uuid.New(),
+		Title: "Заголовок",
+	}
+
+	err := repo.Create(bullet)
+	require.NoError(t, err)
+
+	got, err := repo.Get(bullet.ID)
+	require.NoError(t, err)
+	assert.Equal(t, bullet, got)
+}
+
+func TestBulletMemory_ConcurrentAccess(t *testing.T) {
+	repo := NewBulletRepository()
+
+	var wg sync.WaitGroup
+	for range 100 {
+		wg.Go(func() {
+			_ = repo.Create(&entity.Bullet{ID: uuid.New(), Title: "x"})
+		})
+	}
+
+	wg.Wait()
+}
+
+func TestBulletMemory_Create_StoresCopy(t *testing.T) {
+	repo := NewBulletRepository()
+
+	bullet := &entity.Bullet{ID: uuid.New(), Title: "Заголовок"}
+	require.NoError(t, repo.Create(bullet))
+
+	bullet.Title = "Изменено"
+
+	got, err := repo.Get(bullet.ID)
+	require.NoError(t, err)
+	assert.Equal(t, "Заголовок", got.Title)
+}
+
 func TestBulletMemory_List(t *testing.T) {
 	b1 := &entity.Bullet{ID: uuid.New(), Title: "Первый"}
 	b2 := &entity.Bullet{ID: uuid.New(), Title: "Второй"}
@@ -64,52 +106,10 @@ func TestBulletMemory_List_ReturnsCopies(t *testing.T) {
 	assert.Equal(t, "Заголовок", again[0].Title)
 }
 
-func TestBulletMemory_CreateAndRead(t *testing.T) {
-	repo := NewBulletRepository()
-
-	bullet := &entity.Bullet{
-		ID:    uuid.New(),
-		Title: "Заголовок",
-	}
-
-	err := repo.Create(bullet)
-	require.NoError(t, err)
-
-	got, err := repo.Read(bullet.ID)
-	require.NoError(t, err)
-	assert.Equal(t, bullet, got)
-}
-
-func TestBulletMemory_ConcurrentAccess(t *testing.T) {
-	repo := NewBulletRepository()
-
-	var wg sync.WaitGroup
-	for range 100 {
-		wg.Go(func() {
-			_ = repo.Create(&entity.Bullet{ID: uuid.New(), Title: "x"})
-		})
-	}
-
-	wg.Wait()
-}
-
-func TestBulletMemory_Create_StoresCopy(t *testing.T) {
-	repo := NewBulletRepository()
-
-	bullet := &entity.Bullet{ID: uuid.New(), Title: "Заголовок"}
-	require.NoError(t, repo.Create(bullet))
-
-	bullet.Title = "Изменено"
-
-	got, err := repo.Read(bullet.ID)
-	require.NoError(t, err)
-	assert.Equal(t, "Заголовок", got.Title)
-}
-
 func TestBulletMemory_Read_NotFound(t *testing.T) {
 	repo := NewBulletRepository()
 
-	got, err := repo.Read(uuid.New())
+	got, err := repo.Get(uuid.New())
 	assert.Nil(t, got)
 	assert.ErrorIs(t, err, port.ErrNotFound)
 }
@@ -120,12 +120,12 @@ func TestBulletMemory_Read_ReturnsCopy(t *testing.T) {
 	bullet := &entity.Bullet{ID: uuid.New(), Title: "Заголовок"}
 	require.NoError(t, repo.Create(bullet))
 
-	got, err := repo.Read(bullet.ID)
+	got, err := repo.Get(bullet.ID)
 	require.NoError(t, err)
 
 	got.Title = "Изменено"
 
-	again, err := repo.Read(bullet.ID)
+	again, err := repo.Get(bullet.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "Заголовок", again.Title)
 }

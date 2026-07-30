@@ -88,6 +88,68 @@ func (_c *MockBulletRepository_Create_Call) RunAndReturn(run func(bullet *entity
 	return _c
 }
 
+// Get provides a mock function for the type MockBulletRepository
+func (_mock *MockBulletRepository) Get(id uuid.UUID) (*entity.Bullet, error) {
+	ret := _mock.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Get")
+	}
+
+	var r0 *entity.Bullet
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(uuid.UUID) (*entity.Bullet, error)); ok {
+		return returnFunc(id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(uuid.UUID) *entity.Bullet); ok {
+		r0 = returnFunc(id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entity.Bullet)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = returnFunc(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockBulletRepository_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
+type MockBulletRepository_Get_Call struct {
+	*mock.Call
+}
+
+// Get is a helper method to define mock.On call
+//   - id uuid.UUID
+func (_e *MockBulletRepository_Expecter) Get(id any) *MockBulletRepository_Get_Call {
+	return &MockBulletRepository_Get_Call{Call: _e.mock.On("Get", id)}
+}
+
+func (_c *MockBulletRepository_Get_Call) Run(run func(id uuid.UUID)) *MockBulletRepository_Get_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 uuid.UUID
+		if args[0] != nil {
+			arg0 = args[0].(uuid.UUID)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockBulletRepository_Get_Call) Return(bullet *entity.Bullet, err error) *MockBulletRepository_Get_Call {
+	_c.Call.Return(bullet, err)
+	return _c
+}
+
+func (_c *MockBulletRepository_Get_Call) RunAndReturn(run func(id uuid.UUID) (*entity.Bullet, error)) *MockBulletRepository_Get_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // List provides a mock function for the type MockBulletRepository
 func (_mock *MockBulletRepository) List() ([]*entity.Bullet, error) {
 	ret := _mock.Called()
@@ -139,68 +201,6 @@ func (_c *MockBulletRepository_List_Call) Return(bullets []*entity.Bullet, err e
 }
 
 func (_c *MockBulletRepository_List_Call) RunAndReturn(run func() ([]*entity.Bullet, error)) *MockBulletRepository_List_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Read provides a mock function for the type MockBulletRepository
-func (_mock *MockBulletRepository) Read(id uuid.UUID) (*entity.Bullet, error) {
-	ret := _mock.Called(id)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Read")
-	}
-
-	var r0 *entity.Bullet
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(uuid.UUID) (*entity.Bullet, error)); ok {
-		return returnFunc(id)
-	}
-	if returnFunc, ok := ret.Get(0).(func(uuid.UUID) *entity.Bullet); ok {
-		r0 = returnFunc(id)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entity.Bullet)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = returnFunc(id)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockBulletRepository_Read_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Read'
-type MockBulletRepository_Read_Call struct {
-	*mock.Call
-}
-
-// Read is a helper method to define mock.On call
-//   - id uuid.UUID
-func (_e *MockBulletRepository_Expecter) Read(id any) *MockBulletRepository_Read_Call {
-	return &MockBulletRepository_Read_Call{Call: _e.mock.On("Read", id)}
-}
-
-func (_c *MockBulletRepository_Read_Call) Run(run func(id uuid.UUID)) *MockBulletRepository_Read_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 uuid.UUID
-		if args[0] != nil {
-			arg0 = args[0].(uuid.UUID)
-		}
-		run(
-			arg0,
-		)
-	})
-	return _c
-}
-
-func (_c *MockBulletRepository_Read_Call) Return(bullet *entity.Bullet, err error) *MockBulletRepository_Read_Call {
-	_c.Call.Return(bullet, err)
-	return _c
-}
-
-func (_c *MockBulletRepository_Read_Call) RunAndReturn(run func(id uuid.UUID) (*entity.Bullet, error)) *MockBulletRepository_Read_Call {
 	_c.Call.Return(run)
 	return _c
 }

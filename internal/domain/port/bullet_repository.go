@@ -6,7 +6,7 @@ import (
 )
 
 type BulletRepository interface {
-	List() ([]*entity.Bullet, error)
 	Create(bullet *entity.Bullet) error
-	Read(id uuid.UUID) (*entity.Bullet, error)
+	List() ([]*entity.Bullet, error)
+	Get(id uuid.UUID) (*entity.Bullet, error)
 }

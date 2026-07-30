@@ -18,10 +18,6 @@ func NewBulletService(r port.BulletRepository) *bulletService {
 	}
 }
 
-func (s *bulletService) ListBullets() ([]*entity.Bullet, error) {
-	return s.repo.List()
-}
-
 func (s *bulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bullet, error) {
 	now := time.Now()
 
@@ -42,6 +38,10 @@ func (s *bulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bull
 	}
 
 	return bullet, nil
+}
+
+func (s *bulletService) ListBullets() ([]*entity.Bullet, error) {
+	return s.repo.List()
 }
 
 var _ port.BulletService = &bulletService{}

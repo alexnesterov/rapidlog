@@ -23,7 +23,7 @@ func (r *bulletPostgresql) List() ([]*entity.Bullet, error) {
 	return nil, nil
 }
 
-func (r *bulletPostgresql) Read(id uuid.UUID) (*entity.Bullet, error) {
+func (r *bulletPostgresql) Get(id uuid.UUID) (*entity.Bullet, error) {
 	return nil, nil
 }
 

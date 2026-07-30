@@ -19,6 +19,16 @@ func NewBulletRepository() *bulletRepository {
 	}
 }
 
+func (r *bulletRepository) Create(bullet *entity.Bullet) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	bulletCopy := *bullet
+	r.data[bullet.ID] = &bulletCopy
+
+	return nil
+}
+
 func (r *bulletRepository) List() ([]*entity.Bullet, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -32,17 +42,7 @@ func (r *bulletRepository) List() ([]*entity.Bullet, error) {
 	return bullets, nil
 }
 
-func (r *bulletRepository) Create(bullet *entity.Bullet) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	bulletCopy := *bullet
-	r.data[bullet.ID] = &bulletCopy
-
-	return nil
-}
-
-func (r *bulletRepository) Read(id uuid.UUID) (*entity.Bullet, error) {
+func (r *bulletRepository) Get(id uuid.UUID) (*entity.Bullet, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 

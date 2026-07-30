@@ -13,22 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestListBullets(t *testing.T) {
-	want := []*entity.Bullet{{Title: "Заголовок"}}
-
-	mockRepo := mocks.NewMockBulletRepository(t)
-	mockRepo.EXPECT().
-		List().
-		Return(want, nil).
-		Once()
-
-	uc := NewBulletService(mockRepo)
-
-	got, err := uc.ListBullets()
-	require.NoError(t, err)
-	assert.Equal(t, want, got)
-}
-
 func TestCreateBullet(t *testing.T) {
 	var errRepo = errors.New("repo error")
 
@@ -96,4 +80,20 @@ func TestCreateBullet(t *testing.T) {
 			assert.False(t, got.UpdatedAt.IsZero())
 		})
 	}
+}
+
+func TestListBullets(t *testing.T) {
+	want := []*entity.Bullet{{Title: "Заголовок"}}
+
+	mockRepo := mocks.NewMockBulletRepository(t)
+	mockRepo.EXPECT().
+		List().
+		Return(want, nil).
+		Once()
+
+	uc := NewBulletService(mockRepo)
+
+	got, err := uc.ListBullets()
+	require.NoError(t, err)
+	assert.Equal(t, want, got)
 }
