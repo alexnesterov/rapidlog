@@ -9,6 +9,6 @@ type CreateBulletRequest struct {
 }
 
 type BulletService interface {
-	CreateBullet(req CreateBulletRequest) (*entity.Bullet, error)
 	ListBullets() ([]*entity.Bullet, error)
+	CreateBullet(req CreateBulletRequest) (*entity.Bullet, error)
 }

@@ -19,6 +19,19 @@ func NewBulletRepository() *bulletRepository {
 	}
 }
 
+func (r *bulletRepository) List() ([]*entity.Bullet, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	bullets := make([]*entity.Bullet, 0, len(r.data))
+	for _, bullet := range r.data {
+		bulletCopy := *bullet
+		bullets = append(bullets, &bulletCopy)
+	}
+
+	return bullets, nil
+}
+
 func (r *bulletRepository) Create(bullet *entity.Bullet) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -40,19 +53,6 @@ func (r *bulletRepository) Read(id uuid.UUID) (*entity.Bullet, error) {
 
 	bulletCopy := *bullet
 	return &bulletCopy, nil
-}
-
-func (r *bulletRepository) List() ([]*entity.Bullet, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
-	bullets := make([]*entity.Bullet, 0, len(r.data))
-	for _, bullet := range r.data {
-		bulletCopy := *bullet
-		bullets = append(bullets, &bulletCopy)
-	}
-
-	return bullets, nil
 }
 
 var _ port.BulletRepository = &bulletRepository{}
