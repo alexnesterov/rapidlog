@@ -116,7 +116,7 @@ healthcheck.
     "id": "uuid",
     "collection_id": "uuid",
     "title": "Оплатить хостинг",
-    "status": "OPEN",
+    "status": "OPENED",
     "created_at": "...",
     "updated_at": "..."
   }
@@ -187,7 +187,7 @@ healthcheck.
   "data": {
     "id": "uuid",
     "title": "Оплатить хостинг",
-    "status": "DONE",
+    "status": "COMPLETED",
     "created_at": "...",
     "updated_at": "..."
   }

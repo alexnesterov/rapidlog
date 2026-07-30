@@ -14,8 +14,8 @@ var ErrTitleTooLong = errors.New("title is too long")
 type BulletStatus string
 
 const (
-	StatusOpen BulletStatus = "OPEN"
-	StatusDone BulletStatus = "DONE"
+	StatusOpened    BulletStatus = "OPENED"
+	StatusCompleted BulletStatus = "COMPLETED"
 )
 
 type Bullet struct {

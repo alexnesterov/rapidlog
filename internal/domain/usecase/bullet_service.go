@@ -24,7 +24,7 @@ func (s *bulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bull
 	bullet := &entity.Bullet{
 		ID:        uuid.New(),
 		Title:     req.Title,
-		Status:    entity.StatusOpen,
+		Status:    entity.StatusOpened,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}

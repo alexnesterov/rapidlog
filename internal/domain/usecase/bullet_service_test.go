@@ -75,7 +75,7 @@ func TestCreateBullet(t *testing.T) {
 
 			assert.Equal(t, tc.want.Title, got.Title)
 			assert.NotEqual(t, uuid.Nil, got.ID)
-			assert.Equal(t, entity.StatusOpen, got.Status)
+			assert.Equal(t, entity.StatusOpened, got.Status)
 			assert.False(t, got.CreatedAt.IsZero())
 			assert.False(t, got.UpdatedAt.IsZero())
 		})
@@ -97,3 +97,12 @@ func TestListBullets(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, want, got)
 }
+
+// func TestDoneBullet(t *testing.T) {
+// 	mockRepo := mocks.NewMockBulletRepository(t)
+// 	mockRepo.EXPECT().Update(mock.AnythingOfType("*entity.Bullet")).
+// 		Return(entity.Bullet, nil).
+// 		Once()
+
+// 	uc := NewBulletService(mockRepo)
+// }
