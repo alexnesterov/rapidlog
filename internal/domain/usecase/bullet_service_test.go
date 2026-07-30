@@ -97,12 +97,3 @@ func TestListBullets(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, want, got)
 }
-
-// func TestDoneBullet(t *testing.T) {
-// 	mockRepo := mocks.NewMockBulletRepository(t)
-// 	mockRepo.EXPECT().Update(mock.AnythingOfType("*entity.Bullet")).
-// 		Return(entity.Bullet, nil).
-// 		Once()
-
-// 	uc := NewBulletService(mockRepo)
-// }

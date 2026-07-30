@@ -15,7 +15,7 @@ side-effects (уведомления, аудит), не основной пут�
 | id | UUID | |
 | collection_id | UUID | коллекция-владелец (FK → Collection) |
 | title | string | обязательное, ≤200 символов |
-| status | string | `OPEN` \| `DONE` |
+| status | string | `OPENED` \| `COMPLETED` |
 | created_at | timestamp | |
 | updated_at | timestamp | |
 
@@ -99,7 +99,7 @@ healthcheck.
 - **Актор**: пользователь
 - **Предусловие**: нет (bullet создаётся с нуля)
 - **Основной поток**: `title` не пустой → создаётся bullet со
-  `status = OPEN`
+  `status = OPENED`
 - **Ошибка**: `title` пустой/невалидный → `400`
 
 ```json
@@ -171,15 +171,15 @@ healthcheck.
 
 - **Актор**: пользователь
 - **Предусловие**: bullet с данным `id` существует
-- **Основной поток**: bullet имеет `status = OPEN` → переводится в
-  `DONE`
-- **Альтернативный поток**: bullet уже `DONE` → `200` без изменений
+- **Основной поток**: bullet имеет `status = OPENED` → переводится в
+  `COMPLETED`
+- **Альтернативный поток**: bullet уже `COMPLETED` → `200` без изменений
   (идемпотентность)
 - **Ошибка**: bullet с данным `id` не найден → `404`
 
-Логика: `status` bullet переводится в `DONE`, запись не удаляется —
+Логика: `status` bullet переводится в `COMPLETED`, запись не удаляется —
 удалить её пользователь может отдельно через `DELETE`. Идемпотентно:
-если bullet уже `DONE`, повторный вызов — `200` без изменений.
+если bullet уже `COMPLETED`, повторный вызов — `200` без изменений.
 
 ```json
 // response 200
