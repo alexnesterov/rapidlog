@@ -55,4 +55,8 @@ func (r *bulletRepository) Get(id uuid.UUID) (*entity.Bullet, error) {
 	return &bulletCopy, nil
 }
 
+func (r *bulletRepository) Update(bullet *entity.Bullet) error {
+	return nil
+}
+
 var _ port.BulletRepository = &bulletRepository{}

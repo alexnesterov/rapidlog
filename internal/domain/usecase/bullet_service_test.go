@@ -3,6 +3,7 @@ package usecase
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/port"
@@ -96,4 +97,73 @@ func TestListBullets(t *testing.T) {
 	got, err := uc.ListBullets()
 	require.NoError(t, err)
 	assert.Equal(t, want, got)
+}
+
+func TestCompleteBullet(t *testing.T) {
+	oldUpdatedAt := time.Now().Add(-24 * time.Hour)
+
+	cases := []struct {
+		name                 string
+		setupMock            func(m *mocks.MockBulletRepository)
+		wantUpdatedAtChanged bool
+		wantErr              error
+	}{
+		{
+			name: "success",
+			setupMock: func(m *mocks.MockBulletRepository) {
+				m.EXPECT().Get(mock.AnythingOfType("uuid.UUID")).
+					Return(&entity.Bullet{Status: entity.StatusOpened, UpdatedAt: oldUpdatedAt}, nil).
+					Once()
+				m.EXPECT().Update(mock.AnythingOfType("*entity.Bullet")).
+					Return(nil).
+					Once()
+			},
+			wantUpdatedAtChanged: true,
+		},
+		{
+			name: "already completed",
+			setupMock: func(m *mocks.MockBulletRepository) {
+				m.EXPECT().Get(mock.AnythingOfType("uuid.UUID")).
+					Return(&entity.Bullet{Status: entity.StatusCompleted, UpdatedAt: oldUpdatedAt}, nil).
+					Once()
+			},
+		},
+		{
+			name: "not found",
+			setupMock: func(m *mocks.MockBulletRepository) {
+				m.EXPECT().Get(mock.AnythingOfType("uuid.UUID")).
+					Return(nil, port.ErrNotFound).
+					Once()
+			},
+			wantErr: port.ErrNotFound,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockRepo := mocks.NewMockBulletRepository(t)
+			tc.setupMock(mockRepo)
+
+			uc := NewBulletService(mockRepo)
+
+			got, err := uc.CompleteBullet(uuid.New())
+			if tc.wantErr != nil {
+				require.Error(t, err)
+				assert.Nil(t, got)
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+
+			require.NoError(t, err)
+			assert.Equal(t, entity.StatusCompleted, got.Status)
+
+			if tc.wantUpdatedAtChanged {
+				assert.True(t, got.UpdatedAt.After(oldUpdatedAt))
+			}
+
+			if !tc.wantUpdatedAtChanged {
+				assert.Equal(t, oldUpdatedAt, got.UpdatedAt)
+			}
+		})
+	}
 }

@@ -164,7 +164,7 @@ healthcheck.
 }
 ```
 
-#### POST /api/bullets/{id}/done
+#### POST /api/bullets/{id}/complete
 
 **Юзкейс**: пользователь отмечает задачу выполненной, не удаляя её —
 как галочка в бумажном bullet journal.

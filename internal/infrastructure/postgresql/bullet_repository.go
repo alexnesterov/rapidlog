@@ -27,4 +27,8 @@ func (r *bulletPostgresql) Get(id uuid.UUID) (*entity.Bullet, error) {
 	return nil, nil
 }
 
+func (r *bulletPostgresql) Update(bullet *entity.Bullet) error {
+	return nil
+}
+
 var _ port.BulletRepository = &bulletPostgresql{}

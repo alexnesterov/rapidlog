@@ -7,6 +7,7 @@ package mocks
 import (
 	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/port"
+	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -35,6 +36,68 @@ type MockBulletService_Expecter struct {
 
 func (_m *MockBulletService) EXPECT() *MockBulletService_Expecter {
 	return &MockBulletService_Expecter{mock: &_m.Mock}
+}
+
+// CompleteBullet provides a mock function for the type MockBulletService
+func (_mock *MockBulletService) CompleteBullet(id uuid.UUID) (*entity.Bullet, error) {
+	ret := _mock.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CompleteBullet")
+	}
+
+	var r0 *entity.Bullet
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(uuid.UUID) (*entity.Bullet, error)); ok {
+		return returnFunc(id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(uuid.UUID) *entity.Bullet); ok {
+		r0 = returnFunc(id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entity.Bullet)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = returnFunc(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockBulletService_CompleteBullet_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CompleteBullet'
+type MockBulletService_CompleteBullet_Call struct {
+	*mock.Call
+}
+
+// CompleteBullet is a helper method to define mock.On call
+//   - id uuid.UUID
+func (_e *MockBulletService_Expecter) CompleteBullet(id any) *MockBulletService_CompleteBullet_Call {
+	return &MockBulletService_CompleteBullet_Call{Call: _e.mock.On("CompleteBullet", id)}
+}
+
+func (_c *MockBulletService_CompleteBullet_Call) Run(run func(id uuid.UUID)) *MockBulletService_CompleteBullet_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 uuid.UUID
+		if args[0] != nil {
+			arg0 = args[0].(uuid.UUID)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockBulletService_CompleteBullet_Call) Return(bullet *entity.Bullet, err error) *MockBulletService_CompleteBullet_Call {
+	_c.Call.Return(bullet, err)
+	return _c
+}
+
+func (_c *MockBulletService_CompleteBullet_Call) RunAndReturn(run func(id uuid.UUID) (*entity.Bullet, error)) *MockBulletService_CompleteBullet_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // CreateBullet provides a mock function for the type MockBulletService

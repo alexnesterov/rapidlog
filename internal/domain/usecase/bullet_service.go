@@ -44,4 +44,24 @@ func (s *bulletService) ListBullets() ([]*entity.Bullet, error) {
 	return s.repo.List()
 }
 
+func (s *bulletService) CompleteBullet(id uuid.UUID) (*entity.Bullet, error) {
+	bullet, err := s.repo.Get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if bullet.Status == entity.StatusCompleted {
+		return bullet, nil
+	}
+
+	bullet.Status = entity.StatusCompleted
+	bullet.UpdatedAt = time.Now()
+
+	if err := s.repo.Update(bullet); err != nil {
+		return nil, err
+	}
+
+	return bullet, nil
+}
+
 var _ port.BulletService = &bulletService{}
