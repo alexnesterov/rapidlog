@@ -14,14 +14,16 @@ side-effects (уведомления, аудит), не основной пут�
 | --- | --- | --- |
 | id | UUID | |
 | collection_id | UUID | коллекция-владелец (FK → Collection) |
-| title | string | обязательное, ≤200 символов |
+| type | string | `task` \| `event` \| `note`, необязательное, по умолчанию `task` |
 | signifier | string | `open` \| `completed` \| `migrated` \| `scheduled` \| `cancelled` |
+| title | string | обязательное, ≤200 символов |
 | created_at | timestamp | |
 | updated_at | timestamp | |
 
-По аналогии с нотацией Bullet Journal: `signifier` описывает состояние
-записи (открыта, выполнена, перенесена, запланирована, отменена).
-Реализованы пока только переходы `open` → `completed` (см. `POST
+По аналогии с нотацией Bullet Journal: `type` описывает разновидность
+записи (задача, событие, заметка), `signifier` — её состояние (открыта,
+выполнена, перенесена, запланирована, отменена). Реализованы пока
+только переходы `open` → `completed` (см. `POST
 /api/bullets/{id}/complete`); `migrated`/`scheduled`/`cancelled`
 зарезервированы под будущие операции переноса/планирования/отмены —
 эндпоинтов для них пока нет.
@@ -106,7 +108,7 @@ healthcheck.
 - **Актор**: пользователь
 - **Предусловие**: нет (bullet создаётся с нуля)
 - **Основной поток**: `title` не пустой → создаётся bullet со
-  `signifier = open`
+  `signifier = open`; `type` не передан → по умолчанию `task`
 - **Ошибка**: `title` пустой/невалидный → `400`
 
 ```json
@@ -122,6 +124,7 @@ healthcheck.
   "data": {
     "id": "uuid",
     "collection_id": "uuid",
+    "type": "task",
     "title": "Оплатить хостинг",
     "signifier": "open",
     "created_at": "...",
@@ -193,6 +196,7 @@ healthcheck.
 {
   "data": {
     "id": "uuid",
+    "type": "task",
     "title": "Оплатить хостинг",
     "signifier": "completed",
     "created_at": "...",

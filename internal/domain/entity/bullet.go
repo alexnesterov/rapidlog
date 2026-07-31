@@ -11,6 +11,14 @@ import (
 var ErrTitleRequired = errors.New("title is required")
 var ErrTitleTooLong = errors.New("title is too long")
 
+type BulletType string
+
+const (
+	BulletTask  BulletType = "task"
+	BulletEvent BulletType = "event"
+	BulletNote  BulletType = "note"
+)
+
 type Signifier string
 
 const (
@@ -22,11 +30,12 @@ const (
 )
 
 type Bullet struct {
-	ID        uuid.UUID `json:"id"`
-	Title     string    `json:"title"`
-	Signifier Signifier `json:"signifier"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uuid.UUID  `json:"id"`
+	Type      BulletType `json:"type"`
+	Signifier Signifier  `json:"signifier"`
+	Title     string     `json:"title"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 func (b *Bullet) Validate() error {
