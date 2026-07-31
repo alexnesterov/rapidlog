@@ -6,6 +6,7 @@ import (
 )
 
 type CreateBulletRequest struct {
+	Type    entity.BulletType
 	Content string
 }
 

@@ -26,14 +26,25 @@ func TestCreateBullet(t *testing.T) {
 	}{
 		{
 			name: "success",
-			req:  port.CreateBulletRequest{Content: "Заголовок"},
+			req:  port.CreateBulletRequest{Content: "Заголовок", Type: entity.BulletTask},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().
 					Create(mock.AnythingOfType("*entity.Bullet")).
 					Return(nil).
 					Once()
 			},
-			want:    &entity.Bullet{Content: "Заголовок"},
+			want:    &entity.Bullet{Content: "Заголовок", Type: entity.BulletTask},
+			wantErr: nil,
+		},
+		{
+			name: "type defaults to task when not provided",
+			req:  port.CreateBulletRequest{Content: "Заголовок"},
+			setupMock: func(m *mocks.MockBulletRepository) {
+				m.EXPECT().Create(mock.AnythingOfType("*entity.Bullet")).
+					Return(nil).
+					Once()
+			},
+			want:    &entity.Bullet{Content: "Заголовок", Type: entity.BulletTask},
 			wantErr: nil,
 		},
 		{
@@ -76,6 +87,7 @@ func TestCreateBullet(t *testing.T) {
 
 			assert.Equal(t, tc.want.Content, got.Content)
 			assert.NotEqual(t, uuid.Nil, got.ID)
+			assert.Equal(t, tc.want.Type, got.Type)
 			assert.Equal(t, entity.SignifierOpen, got.Signifier)
 			assert.False(t, got.CreatedAt.IsZero())
 			assert.False(t, got.UpdatedAt.IsZero())

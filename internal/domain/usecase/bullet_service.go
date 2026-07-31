@@ -21,10 +21,16 @@ func NewBulletService(r port.BulletRepository) *bulletService {
 func (s *bulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bullet, error) {
 	now := time.Now()
 
+	bulletType := req.Type
+	if bulletType == "" {
+		bulletType = entity.BulletTask
+	}
+
 	bullet := &entity.Bullet{
 		ID:        uuid.New(),
-		Content:   req.Content,
+		Type:      bulletType,
 		Signifier: entity.SignifierOpen,
+		Content:   req.Content,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
