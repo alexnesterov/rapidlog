@@ -76,7 +76,7 @@ func TestCreateBullet(t *testing.T) {
 
 			assert.Equal(t, tc.want.Title, got.Title)
 			assert.NotEqual(t, uuid.Nil, got.ID)
-			assert.Equal(t, entity.StatusOpened, got.Status)
+			assert.Equal(t, entity.SignifierOpen, got.Signifier)
 			assert.False(t, got.CreatedAt.IsZero())
 			assert.False(t, got.UpdatedAt.IsZero())
 		})
@@ -112,7 +112,7 @@ func TestCompleteBullet(t *testing.T) {
 			name: "success",
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().Get(mock.AnythingOfType("uuid.UUID")).
-					Return(&entity.Bullet{Status: entity.StatusOpened, UpdatedAt: oldUpdatedAt}, nil).
+					Return(&entity.Bullet{Signifier: entity.SignifierOpen, UpdatedAt: oldUpdatedAt}, nil).
 					Once()
 				m.EXPECT().Update(mock.AnythingOfType("*entity.Bullet")).
 					Return(nil).
@@ -124,7 +124,7 @@ func TestCompleteBullet(t *testing.T) {
 			name: "already completed",
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().Get(mock.AnythingOfType("uuid.UUID")).
-					Return(&entity.Bullet{Status: entity.StatusCompleted, UpdatedAt: oldUpdatedAt}, nil).
+					Return(&entity.Bullet{Signifier: entity.SignifierCompleted, UpdatedAt: oldUpdatedAt}, nil).
 					Once()
 			},
 		},
@@ -155,7 +155,7 @@ func TestCompleteBullet(t *testing.T) {
 			}
 
 			require.NoError(t, err)
-			assert.Equal(t, entity.StatusCompleted, got.Status)
+			assert.Equal(t, entity.SignifierCompleted, got.Signifier)
 
 			if tc.wantUpdatedAtChanged {
 				assert.True(t, got.UpdatedAt.After(oldUpdatedAt))

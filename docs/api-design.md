@@ -15,11 +15,18 @@ side-effects (уведомления, аудит), не основной пут�
 | id | UUID | |
 | collection_id | UUID | коллекция-владелец (FK → Collection) |
 | title | string | обязательное, ≤200 символов |
-| status | string | `OPENED` \| `COMPLETED` |
+| signifier | string | `open` \| `completed` \| `migrated` \| `scheduled` \| `cancelled` |
 | created_at | timestamp | |
 | updated_at | timestamp | |
 
-**Операции:** Create, List, Get, Update, Delete, Done.
+По аналогии с нотацией Bullet Journal: `signifier` описывает состояние
+записи (открыта, выполнена, перенесена, запланирована, отменена).
+Реализованы пока только переходы `open` → `completed` (см. `POST
+/api/bullets/{id}/complete`); `migrated`/`scheduled`/`cancelled`
+зарезервированы под будущие операции переноса/планирования/отмены —
+эндпоинтов для них пока нет.
+
+**Операции:** Create, List, Get, Update, Delete, Complete.
 
 ### Collection
 
@@ -99,7 +106,7 @@ healthcheck.
 - **Актор**: пользователь
 - **Предусловие**: нет (bullet создаётся с нуля)
 - **Основной поток**: `title` не пустой → создаётся bullet со
-  `status = OPENED`
+  `signifier = open`
 - **Ошибка**: `title` пустой/невалидный → `400`
 
 ```json
@@ -116,7 +123,7 @@ healthcheck.
     "id": "uuid",
     "collection_id": "uuid",
     "title": "Оплатить хостинг",
-    "status": "OPENED",
+    "signifier": "open",
     "created_at": "...",
     "updated_at": "..."
   }
@@ -171,15 +178,15 @@ healthcheck.
 
 - **Актор**: пользователь
 - **Предусловие**: bullet с данным `id` существует
-- **Основной поток**: bullet имеет `status = OPENED` → переводится в
-  `COMPLETED`
-- **Альтернативный поток**: bullet уже `COMPLETED` → `200` без изменений
+- **Основной поток**: bullet имеет `signifier = open` → переводится в
+  `completed`
+- **Альтернативный поток**: bullet уже `completed` → `200` без изменений
   (идемпотентность)
 - **Ошибка**: bullet с данным `id` не найден → `404`
 
-Логика: `status` bullet переводится в `COMPLETED`, запись не удаляется —
+Логика: `signifier` bullet переводится в `completed`, запись не удаляется —
 удалить её пользователь может отдельно через `DELETE`. Идемпотентно:
-если bullet уже `COMPLETED`, повторный вызов — `200` без изменений.
+если bullet уже `completed`, повторный вызов — `200` без изменений.
 
 ```json
 // response 200
@@ -187,7 +194,7 @@ healthcheck.
   "data": {
     "id": "uuid",
     "title": "Оплатить хостинг",
-    "status": "COMPLETED",
+    "signifier": "completed",
     "created_at": "...",
     "updated_at": "..."
   }

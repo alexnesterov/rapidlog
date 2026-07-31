@@ -24,7 +24,7 @@ func (s *bulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bull
 	bullet := &entity.Bullet{
 		ID:        uuid.New(),
 		Title:     req.Title,
-		Status:    entity.StatusOpened,
+		Signifier: entity.SignifierOpen,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
@@ -50,11 +50,11 @@ func (s *bulletService) CompleteBullet(id uuid.UUID) (*entity.Bullet, error) {
 		return nil, err
 	}
 
-	if bullet.Status == entity.StatusCompleted {
+	if bullet.Signifier == entity.SignifierCompleted {
 		return bullet, nil
 	}
 
-	bullet.Status = entity.StatusCompleted
+	bullet.Signifier = entity.SignifierCompleted
 	bullet.UpdatedAt = time.Now()
 
 	if err := s.repo.Update(bullet); err != nil {
