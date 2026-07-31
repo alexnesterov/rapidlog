@@ -14,9 +14,26 @@ func TestBullet_Validate(t *testing.T) {
 		wantErr error
 	}{
 		{
+			name: "type invalid",
+			bullet: Bullet{
+				Content: "Заголовок",
+				Type:    "invalid",
+			},
+			wantErr: ErrTypeInvalid,
+		},
+		{
+			name: "type empty",
+			bullet: Bullet{
+				Content: "Заголовок",
+				Type:    "",
+			},
+			wantErr: ErrTypeInvalid,
+		},
+		{
 			name: "valid content",
 			bullet: Bullet{
 				Content: "Заголовок",
+				Type:    BulletTask,
 			},
 			wantErr: nil,
 		},
@@ -24,6 +41,7 @@ func TestBullet_Validate(t *testing.T) {
 			name: "empty content",
 			bullet: Bullet{
 				Content: "",
+				Type:    BulletTask,
 			},
 			wantErr: ErrContentRequired,
 		},
@@ -31,6 +49,7 @@ func TestBullet_Validate(t *testing.T) {
 			name: "content too long",
 			bullet: Bullet{
 				Content: strings.Repeat("а", 201),
+				Type:    BulletTask,
 			},
 			wantErr: ErrContentTooLong,
 		},
@@ -38,6 +57,7 @@ func TestBullet_Validate(t *testing.T) {
 			name: "200 cyrillic chars is valid",
 			bullet: Bullet{
 				Content: strings.Repeat("ф", 200),
+				Type:    BulletTask,
 			},
 			wantErr: nil,
 		},

@@ -10,6 +10,7 @@ import (
 
 var ErrContentRequired = errors.New("content is required")
 var ErrContentTooLong = errors.New("content is too long")
+var ErrTypeInvalid = errors.New("type must be task, event or note")
 
 type BulletType string
 
@@ -39,6 +40,12 @@ type Bullet struct {
 }
 
 func (b *Bullet) Validate() error {
+	switch b.Type {
+	case BulletTask, BulletEvent, BulletNote:
+	default:
+		return &ValidationError{Err: ErrTypeInvalid}
+	}
+
 	if b.Content == "" {
 		return &ValidationError{Err: ErrContentRequired}
 	}
