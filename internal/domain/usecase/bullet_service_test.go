@@ -26,19 +26,19 @@ func TestCreateBullet(t *testing.T) {
 	}{
 		{
 			name: "success",
-			req:  port.CreateBulletRequest{Title: "Заголовок"},
+			req:  port.CreateBulletRequest{Content: "Заголовок"},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().
 					Create(mock.AnythingOfType("*entity.Bullet")).
 					Return(nil).
 					Once()
 			},
-			want:    &entity.Bullet{Title: "Заголовок"},
+			want:    &entity.Bullet{Content: "Заголовок"},
 			wantErr: nil,
 		},
 		{
 			name: "repo error",
-			req:  port.CreateBulletRequest{Title: "Заголовок"},
+			req:  port.CreateBulletRequest{Content: "Заголовок"},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().
 					Create(mock.AnythingOfType("*entity.Bullet")).
@@ -49,11 +49,11 @@ func TestCreateBullet(t *testing.T) {
 			wantErr: errRepo,
 		},
 		{
-			name:      "empty title",
-			req:       port.CreateBulletRequest{Title: ""},
+			name:      "empty content",
+			req:       port.CreateBulletRequest{Content: ""},
 			setupMock: func(m *mocks.MockBulletRepository) {},
 			want:      nil,
-			wantErr:   entity.ErrTitleRequired,
+			wantErr:   entity.ErrContentRequired,
 		},
 	}
 
@@ -74,7 +74,7 @@ func TestCreateBullet(t *testing.T) {
 
 			require.NoError(t, err)
 
-			assert.Equal(t, tc.want.Title, got.Title)
+			assert.Equal(t, tc.want.Content, got.Content)
 			assert.NotEqual(t, uuid.Nil, got.ID)
 			assert.Equal(t, entity.SignifierOpen, got.Signifier)
 			assert.False(t, got.CreatedAt.IsZero())
@@ -84,7 +84,7 @@ func TestCreateBullet(t *testing.T) {
 }
 
 func TestListBullets(t *testing.T) {
-	want := []*entity.Bullet{{Title: "Заголовок"}}
+	want := []*entity.Bullet{{Content: "Заголовок"}}
 
 	mockRepo := mocks.NewMockBulletRepository(t)
 	mockRepo.EXPECT().

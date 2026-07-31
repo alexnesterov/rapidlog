@@ -23,7 +23,7 @@ func (s *bulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bull
 
 	bullet := &entity.Bullet{
 		ID:        uuid.New(),
-		Title:     req.Title,
+		Content:   req.Content,
 		Signifier: entity.SignifierOpen,
 		CreatedAt: now,
 		UpdatedAt: now,

@@ -16,7 +16,7 @@ side-effects (уведомления, аудит), не основной пут�
 | collection_id | UUID | коллекция-владелец (FK → Collection) |
 | type | string | `task` \| `event` \| `note`, необязательное, по умолчанию `task` |
 | signifier | string | `open` \| `completed` \| `migrated` \| `scheduled` \| `cancelled` |
-| title | string | обязательное, ≤200 символов |
+| content | string | обязательное, ≤200 символов |
 | created_at | timestamp | |
 | updated_at | timestamp | |
 
@@ -70,7 +70,7 @@ side-effects (уведомления, аудит), не основной пут�
   "data": null,
   "error": {
     "code": 400,
-    "message": "title is required"
+    "message": "content is required"
   }
 }
 ```
@@ -107,14 +107,14 @@ healthcheck.
 
 - **Актор**: пользователь
 - **Предусловие**: нет (bullet создаётся с нуля)
-- **Основной поток**: `title` не пустой → создаётся bullet со
+- **Основной поток**: `content` не пустой → создаётся bullet со
   `signifier = open`; `type` не передан → по умолчанию `task`
-- **Ошибка**: `title` пустой/невалидный → `400`
+- **Ошибка**: `content` пустой/невалидный → `400`
 
 ```json
 // request
 {
-  "collection_id": "uuid", "title": "Оплатить хостинг"
+  "collection_id": "uuid", "content": "Оплатить хостинг"
 }
 ```
 
@@ -125,7 +125,7 @@ healthcheck.
     "id": "uuid",
     "collection_id": "uuid",
     "type": "task",
-    "title": "Оплатить хостинг",
+    "content": "Оплатить хостинг",
     "signifier": "open",
     "created_at": "...",
     "updated_at": "..."
@@ -139,7 +139,7 @@ healthcheck.
   "data": null,
   "error": {
     "code": 400,
-    "message": "title is required"
+    "message": "content is required"
   }
 }
 ```
@@ -197,7 +197,7 @@ healthcheck.
   "data": {
     "id": "uuid",
     "type": "task",
-    "title": "Оплатить хостинг",
+    "content": "Оплатить хостинг",
     "signifier": "completed",
     "created_at": "...",
     "updated_at": "..."

@@ -14,30 +14,30 @@ func TestBullet_Validate(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name: "valid title",
+			name: "valid content",
 			bullet: Bullet{
-				Title: "Заголовок",
+				Content: "Заголовок",
 			},
 			wantErr: nil,
 		},
 		{
-			name: "empty title",
+			name: "empty content",
 			bullet: Bullet{
-				Title: "",
+				Content: "",
 			},
-			wantErr: ErrTitleRequired,
+			wantErr: ErrContentRequired,
 		},
 		{
-			name: "title too long",
+			name: "content too long",
 			bullet: Bullet{
-				Title: strings.Repeat("а", 201),
+				Content: strings.Repeat("а", 201),
 			},
-			wantErr: ErrTitleTooLong,
+			wantErr: ErrContentTooLong,
 		},
 		{
 			name: "200 cyrillic chars is valid",
 			bullet: Bullet{
-				Title: strings.Repeat("ф", 200),
+				Content: strings.Repeat("ф", 200),
 			},
 			wantErr: nil,
 		},

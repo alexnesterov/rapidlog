@@ -15,8 +15,8 @@ func TestBulletMemory_CreateAndRead(t *testing.T) {
 	repo := NewBulletRepository()
 
 	bullet := &entity.Bullet{
-		ID:    uuid.New(),
-		Title: "Заголовок",
+		ID:      uuid.New(),
+		Content: "Заголовок",
 	}
 
 	err := repo.Create(bullet)
@@ -33,7 +33,7 @@ func TestBulletMemory_ConcurrentAccess(t *testing.T) {
 	var wg sync.WaitGroup
 	for range 100 {
 		wg.Go(func() {
-			_ = repo.Create(&entity.Bullet{ID: uuid.New(), Title: "x"})
+			_ = repo.Create(&entity.Bullet{ID: uuid.New(), Content: "x"})
 		})
 	}
 
@@ -43,19 +43,19 @@ func TestBulletMemory_ConcurrentAccess(t *testing.T) {
 func TestBulletMemory_Create_StoresCopy(t *testing.T) {
 	repo := NewBulletRepository()
 
-	bullet := &entity.Bullet{ID: uuid.New(), Title: "Заголовок"}
+	bullet := &entity.Bullet{ID: uuid.New(), Content: "Заголовок"}
 	require.NoError(t, repo.Create(bullet))
 
-	bullet.Title = "Изменено"
+	bullet.Content = "Изменено"
 
 	got, err := repo.Get(bullet.ID)
 	require.NoError(t, err)
-	assert.Equal(t, "Заголовок", got.Title)
+	assert.Equal(t, "Заголовок", got.Content)
 }
 
 func TestBulletMemory_List(t *testing.T) {
-	b1 := &entity.Bullet{ID: uuid.New(), Title: "Первый"}
-	b2 := &entity.Bullet{ID: uuid.New(), Title: "Второй"}
+	b1 := &entity.Bullet{ID: uuid.New(), Content: "Первый"}
+	b2 := &entity.Bullet{ID: uuid.New(), Content: "Второй"}
 
 	cases := []struct {
 		name string
@@ -93,17 +93,17 @@ func TestBulletMemory_List(t *testing.T) {
 func TestBulletMemory_List_ReturnsCopies(t *testing.T) {
 	repo := NewBulletRepository()
 
-	bullet := &entity.Bullet{ID: uuid.New(), Title: "Заголовок"}
+	bullet := &entity.Bullet{ID: uuid.New(), Content: "Заголовок"}
 	require.NoError(t, repo.Create(bullet))
 
 	got, err := repo.List()
 	require.NoError(t, err)
 
-	got[0].Title = "Изменено"
+	got[0].Content = "Изменено"
 
 	again, err := repo.List()
 	require.NoError(t, err)
-	assert.Equal(t, "Заголовок", again[0].Title)
+	assert.Equal(t, "Заголовок", again[0].Content)
 }
 
 func TestBulletMemory_Read_NotFound(t *testing.T) {
@@ -117,15 +117,15 @@ func TestBulletMemory_Read_NotFound(t *testing.T) {
 func TestBulletMemory_Read_ReturnsCopy(t *testing.T) {
 	repo := NewBulletRepository()
 
-	bullet := &entity.Bullet{ID: uuid.New(), Title: "Заголовок"}
+	bullet := &entity.Bullet{ID: uuid.New(), Content: "Заголовок"}
 	require.NoError(t, repo.Create(bullet))
 
 	got, err := repo.Get(bullet.ID)
 	require.NoError(t, err)
 
-	got.Title = "Изменено"
+	got.Content = "Изменено"
 
 	again, err := repo.Get(bullet.ID)
 	require.NoError(t, err)
-	assert.Equal(t, "Заголовок", again.Title)
+	assert.Equal(t, "Заголовок", again.Content)
 }

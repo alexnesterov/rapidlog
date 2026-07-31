@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 )
 
-var ErrTitleRequired = errors.New("title is required")
-var ErrTitleTooLong = errors.New("title is too long")
+var ErrContentRequired = errors.New("content is required")
+var ErrContentTooLong = errors.New("content is too long")
 
 type BulletType string
 
@@ -33,18 +33,18 @@ type Bullet struct {
 	ID        uuid.UUID  `json:"id"`
 	Type      BulletType `json:"type"`
 	Signifier Signifier  `json:"signifier"`
-	Title     string     `json:"title"`
+	Content   string     `json:"content"`
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 func (b *Bullet) Validate() error {
-	if b.Title == "" {
-		return &ValidationError{Err: ErrTitleRequired}
+	if b.Content == "" {
+		return &ValidationError{Err: ErrContentRequired}
 	}
 
-	if utf8.RuneCountInString(b.Title) > 200 {
-		return &ValidationError{Err: ErrTitleTooLong}
+	if utf8.RuneCountInString(b.Content) > 200 {
+		return &ValidationError{Err: ErrContentTooLong}
 	}
 
 	return nil

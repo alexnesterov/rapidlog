@@ -29,20 +29,20 @@ func TestCreateBullet(t *testing.T) {
 	}{
 		{
 			name: "success",
-			body: `{"title": "Заголовок"}`,
+			body: `{"content": "Заголовок"}`,
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
-					CreateBullet(port.CreateBulletRequest{Title: "Заголовок"}).
+					CreateBullet(port.CreateBulletRequest{Content: "Заголовок"}).
 					Return(&entity.Bullet{
-						ID:    fixedID,
-						Title: "Заголовок",
+						ID:      fixedID,
+						Content: "Заголовок",
 					}, nil).
 					Once()
 			},
 			wantStatus: http.StatusCreated,
 			wantData: &entity.Bullet{
-				ID:    fixedID,
-				Title: "Заголовок",
+				ID:      fixedID,
+				Content: "Заголовок",
 			},
 		},
 		{
@@ -57,10 +57,10 @@ func TestCreateBullet(t *testing.T) {
 		},
 		{
 			name: "service error",
-			body: `{"title": "Заголовок"}`,
+			body: `{"content": "Заголовок"}`,
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
-					CreateBullet(port.CreateBulletRequest{Title: "Заголовок"}).
+					CreateBullet(port.CreateBulletRequest{Content: "Заголовок"}).
 					Return(nil, errors.New("service error")).
 					Once()
 			},
@@ -72,10 +72,10 @@ func TestCreateBullet(t *testing.T) {
 		},
 		{
 			name: "validation error",
-			body: `{"title": ""}`,
+			body: `{"content": ""}`,
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
-					CreateBullet(port.CreateBulletRequest{Title: ""}).
+					CreateBullet(port.CreateBulletRequest{Content: ""}).
 					Return(nil, &entity.ValidationError{Err: errors.New("some validation error")}).
 					Once()
 			},
@@ -128,12 +128,12 @@ func TestListBullets(t *testing.T) {
 			name: "success",
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().ListBullets().
-					Return([]*entity.Bullet{{Title: "Заголовок"}}, nil).
+					Return([]*entity.Bullet{{Content: "Заголовок"}}, nil).
 					Once()
 			},
 			wantStatus: http.StatusOK,
 			wantData: []bulletDayGroup{
-				{Day: "0001-01-01", Bullets: []*entity.Bullet{{Title: "Заголовок"}}},
+				{Day: "0001-01-01", Bullets: []*entity.Bullet{{Content: "Заголовок"}}},
 			},
 		},
 		{

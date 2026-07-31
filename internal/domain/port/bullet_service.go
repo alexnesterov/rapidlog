@@ -6,7 +6,7 @@ import (
 )
 
 type CreateBulletRequest struct {
-	Title string
+	Content string
 }
 
 type BulletService interface {
