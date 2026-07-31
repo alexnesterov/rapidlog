@@ -28,7 +28,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 function applyDoneOverride(bullet: Bullet): Bullet {
-  return doneOverrides.has(bullet.id) ? { ...bullet, status: "DONE" } : bullet;
+  return doneOverrides.has(bullet.id) ? { ...bullet, signifier: "completed" } : bullet;
 }
 
 export async function listBullets(): Promise<BulletDayGroup[]> {

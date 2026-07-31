@@ -1,15 +1,19 @@
-export type BulletStatus = "OPEN" | "DONE";
+export type BulletType = "task" | "event" | "note";
+
+export type Signifier = "open" | "completed" | "migrated" | "scheduled" | "cancelled";
 
 export interface Bullet {
   id: string;
-  title: string;
-  status: BulletStatus;
+  type: BulletType;
+  signifier: Signifier;
+  content: string;
   created_at: string;
   updated_at: string;
 }
 
 export interface CreateBulletRequest {
-  title: string;
+  content: string;
+  type?: BulletType;
 }
 
 // GET /api/bullets отдаёт bullets уже сгруппированными по дню — новый день

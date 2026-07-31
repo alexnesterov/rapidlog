@@ -23,7 +23,7 @@ export function BulletForm({ onCreated }: BulletFormProps) {
 
     setSubmitting(true);
     try {
-      await createBullet({ title: title.trim() });
+      await createBullet({ content: title.trim() });
       setTitle("");
       onCreated();
       inputRef.current?.focus();

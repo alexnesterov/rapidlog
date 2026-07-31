@@ -13,7 +13,7 @@ export function BulletList({ bullets, onComplete }: BulletListProps) {
   return (
     <ul className="log-lines">
       {bullets.map((bullet) => {
-        const done = bullet.status === "DONE";
+        const done = bullet.signifier === "completed";
         return (
           <li className={`log-line ${done ? "is-done" : ""}`} key={bullet.id}>
             {done ? (
@@ -30,7 +30,7 @@ export function BulletList({ bullets, onComplete }: BulletListProps) {
                 •
               </button>
             )}
-            <span className="log-line__title">{bullet.title}</span>
+            <span className="log-line__title">{bullet.content}</span>
           </li>
         );
       })}
