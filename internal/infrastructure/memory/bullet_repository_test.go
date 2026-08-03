@@ -129,3 +129,39 @@ func TestBulletMemory_Read_ReturnsCopy(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "Заголовок", again.Content)
 }
+
+func TestBulletMemory_Update(t *testing.T) {
+	repo := NewBulletRepository()
+
+	t.Run("success", func(t *testing.T) {
+		bullet := &entity.Bullet{ID: uuid.New(), Content: "Заголовок"}
+		require.NoError(t, repo.Create(bullet))
+
+		bullet.Signifier = entity.SignifierCompleted
+		require.NoError(t, repo.Update(bullet))
+
+		got, err := repo.Get(bullet.ID)
+		require.NoError(t, err)
+		assert.Equal(t, entity.SignifierCompleted, got.Signifier)
+	})
+
+	t.Run("StoresCopy", func(t *testing.T) {
+		bullet := &entity.Bullet{ID: uuid.New(), Content: "Заголовок"}
+		require.NoError(t, repo.Create(bullet))
+
+		bullet.Signifier = entity.SignifierCompleted
+		require.NoError(t, repo.Update(bullet))
+
+		bullet.Content = "Изменено"
+
+		got, err := repo.Get(bullet.ID)
+		require.NoError(t, err)
+		assert.Equal(t, entity.SignifierCompleted, got.Signifier)
+		assert.Equal(t, "Заголовок", got.Content)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		err := repo.Update(&entity.Bullet{ID: uuid.New()})
+		assert.ErrorIs(t, err, port.ErrNotFound)
+	})
+}
