@@ -13,6 +13,7 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/domain/port/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -178,6 +179,100 @@ func TestListBullets(t *testing.T) {
 				var got response[[]bulletDayGroup]
 				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
 				assert.Equal(t, tc.wantData, got.Data)
+			}
+
+			if tc.wantError != nil {
+				var got response[any]
+				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
+				assert.Equal(t, tc.wantError.Code, got.Error.Code)
+				assert.Equal(t, tc.wantError.Message, got.Error.Message)
+			}
+		})
+	}
+}
+
+func TestCompleteBullet(t *testing.T) {
+	cases := []struct {
+		name       string
+		params     struct{ id string }
+		setupMock  func(m *mocks.MockBulletService)
+		wantStatus int
+		wantData   *entity.Bullet
+		wantError  *errorResponse
+	}{
+		{
+			name:   "success",
+			params: struct{ id string }{id: uuid.New().String()},
+			setupMock: func(m *mocks.MockBulletService) {
+				m.EXPECT().CompleteBullet(mock.AnythingOfType("uuid.UUID")).
+					Return(&entity.Bullet{Signifier: entity.SignifierCompleted}, nil).
+					Once()
+			},
+			wantStatus: http.StatusOK,
+			wantData: &entity.Bullet{
+				Signifier: entity.SignifierCompleted,
+			},
+		},
+		{
+			name:       "parse id error",
+			params:     struct{ id string }{id: "123"},
+			setupMock:  func(m *mocks.MockBulletService) {},
+			wantStatus: http.StatusBadRequest,
+			wantError: &errorResponse{
+				Code:    http.StatusBadRequest,
+				Message: "parse id error",
+			},
+		},
+		{
+			name:   "service error",
+			params: struct{ id string }{id: uuid.New().String()},
+			setupMock: func(m *mocks.MockBulletService) {
+				m.EXPECT().CompleteBullet(mock.AnythingOfType("uuid.UUID")).
+					Return(nil, errors.New("service error")).
+					Once()
+			},
+			wantStatus: http.StatusInternalServerError,
+			wantError: &errorResponse{
+				Code:    http.StatusInternalServerError,
+				Message: "internal server error",
+			},
+		},
+		{
+			name:   "not found",
+			params: struct{ id string }{id: uuid.New().String()},
+			setupMock: func(m *mocks.MockBulletService) {
+				m.EXPECT().CompleteBullet(mock.AnythingOfType("uuid.UUID")).
+					Return(nil, port.ErrNotFound).
+					Once()
+			},
+			wantStatus: http.StatusNotFound,
+			wantError: &errorResponse{
+				Code:    http.StatusNotFound,
+				Message: "bullet not found",
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockBulletService := mocks.NewMockBulletService(t)
+			tc.setupMock(mockBulletService)
+			bulletHandler := NewBulletHandler(mockBulletService)
+
+			req := httptest.NewRequest(http.MethodPost, "/api/bullets/"+tc.params.id+"/complete", nil)
+			res := httptest.NewRecorder()
+
+			req.SetPathValue("id", tc.params.id)
+
+			bulletHandler.CompleteBullet(res, req)
+
+			require.Equal(t, tc.wantStatus, res.Code)
+			assert.Equal(t, "application/json", res.Header().Get("Content-Type"))
+
+			if tc.wantData != nil {
+				var got response[entity.Bullet]
+				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
+				assert.Equal(t, *tc.wantData, got.Data)
 			}
 
 			if tc.wantError != nil {

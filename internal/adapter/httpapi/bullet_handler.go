@@ -7,6 +7,7 @@ import (
 
 	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/port"
+	"github.com/google/uuid"
 )
 
 type bulletHandler struct {
@@ -53,4 +54,25 @@ func (h *bulletHandler) ListBullets(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondData(w, http.StatusOK, groupBulletsByDay(bullets))
+}
+
+func (h *bulletHandler) CompleteBullet(w http.ResponseWriter, r *http.Request) {
+	id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, errParseID.Error())
+		return
+	}
+
+	completedBullet, err := h.usecase.CompleteBullet(id)
+	if err != nil {
+		if errors.Is(err, port.ErrNotFound) {
+			respondError(w, http.StatusNotFound, "bullet not found")
+			return
+		}
+
+		respondError(w, http.StatusInternalServerError, errInternal.Error())
+		return
+	}
+
+	respondData(w, http.StatusOK, completedBullet)
 }
