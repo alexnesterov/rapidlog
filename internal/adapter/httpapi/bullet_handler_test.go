@@ -34,9 +34,11 @@ func TestCreateBullet(t *testing.T) {
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
 					CreateBullet(port.CreateBulletInput{Content: "Заголовок"}).
-					Return(&entity.Bullet{
-						ID:      fixedID,
-						Content: "Заголовок",
+					Return(port.CreateBulletOutput{
+						Bullet: entity.Bullet{
+							ID:      fixedID,
+							Content: "Заголовок",
+						},
 					}, nil).
 					Once()
 			},
@@ -62,7 +64,7 @@ func TestCreateBullet(t *testing.T) {
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
 					CreateBullet(port.CreateBulletInput{Content: "Заголовок"}).
-					Return(nil, errors.New("service error")).
+					Return(port.CreateBulletOutput{}, errors.New("service error")).
 					Once()
 			},
 			wantStatus: http.StatusInternalServerError,
@@ -77,7 +79,7 @@ func TestCreateBullet(t *testing.T) {
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
 					CreateBullet(port.CreateBulletInput{Content: ""}).
-					Return(nil, &entity.ValidationError{Err: errors.New("some validation error")}).
+					Return(port.CreateBulletOutput{}, &entity.ValidationError{Err: errors.New("some validation error")}).
 					Once()
 			},
 			wantStatus: http.StatusBadRequest,

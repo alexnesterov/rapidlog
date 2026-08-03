@@ -70,14 +70,14 @@ func TestCreateBulletUseCase(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			mockBulletRepo := mocks.NewMockBulletRepository(t)
-			tc.setupMock(mockBulletRepo)
-			uc := usecase.NewBulletService(mockBulletRepo)
+			mockRepo := mocks.NewMockBulletRepository(t)
+			tc.setupMock(mockRepo)
+			uc := usecase.NewBulletService(mockRepo)
 
 			got, err := uc.CreateBullet(tc.input)
 			if tc.wantErr != nil {
 				require.Error(t, err)
-				assert.Nil(t, got)
+				assert.Equal(t, port.CreateBulletOutput{}, got)
 				assert.ErrorIs(t, err, tc.wantErr)
 
 				return
