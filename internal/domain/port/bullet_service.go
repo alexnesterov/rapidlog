@@ -5,13 +5,13 @@ import (
 	"github.com/google/uuid"
 )
 
-type CreateBulletRequest struct {
+type CreateBulletInput struct {
 	Type    entity.BulletType
 	Content string
 }
 
 type BulletService interface {
-	CreateBullet(req CreateBulletRequest) (*entity.Bullet, error)
+	CreateBullet(input CreateBulletInput) (*entity.Bullet, error)
 	ListBullets() ([]*entity.Bullet, error)
 	CompleteBullet(id uuid.UUID) (*entity.Bullet, error)
 }

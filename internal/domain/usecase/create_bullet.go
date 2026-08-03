@@ -8,10 +8,10 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *bulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bullet, error) {
+func (s *bulletService) CreateBullet(input port.CreateBulletInput) (*entity.Bullet, error) {
 	now := time.Now()
 
-	bulletType := req.Type
+	bulletType := input.Type
 	if bulletType == "" {
 		bulletType = entity.BulletTask
 	}
@@ -20,7 +20,7 @@ func (s *bulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bull
 		ID:        uuid.New(),
 		Type:      bulletType,
 		Signifier: entity.SignifierOpen,
-		Content:   req.Content,
+		Content:   input.Content,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}

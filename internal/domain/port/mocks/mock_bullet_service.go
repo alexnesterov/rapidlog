@@ -101,8 +101,8 @@ func (_c *MockBulletService_CompleteBullet_Call) RunAndReturn(run func(id uuid.U
 }
 
 // CreateBullet provides a mock function for the type MockBulletService
-func (_mock *MockBulletService) CreateBullet(req port.CreateBulletRequest) (*entity.Bullet, error) {
-	ret := _mock.Called(req)
+func (_mock *MockBulletService) CreateBullet(input port.CreateBulletInput) (*entity.Bullet, error) {
+	ret := _mock.Called(input)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateBullet")
@@ -110,18 +110,18 @@ func (_mock *MockBulletService) CreateBullet(req port.CreateBulletRequest) (*ent
 
 	var r0 *entity.Bullet
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(port.CreateBulletRequest) (*entity.Bullet, error)); ok {
-		return returnFunc(req)
+	if returnFunc, ok := ret.Get(0).(func(port.CreateBulletInput) (*entity.Bullet, error)); ok {
+		return returnFunc(input)
 	}
-	if returnFunc, ok := ret.Get(0).(func(port.CreateBulletRequest) *entity.Bullet); ok {
-		r0 = returnFunc(req)
+	if returnFunc, ok := ret.Get(0).(func(port.CreateBulletInput) *entity.Bullet); ok {
+		r0 = returnFunc(input)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*entity.Bullet)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(port.CreateBulletRequest) error); ok {
-		r1 = returnFunc(req)
+	if returnFunc, ok := ret.Get(1).(func(port.CreateBulletInput) error); ok {
+		r1 = returnFunc(input)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -134,16 +134,16 @@ type MockBulletService_CreateBullet_Call struct {
 }
 
 // CreateBullet is a helper method to define mock.On call
-//   - req port.CreateBulletRequest
-func (_e *MockBulletService_Expecter) CreateBullet(req any) *MockBulletService_CreateBullet_Call {
-	return &MockBulletService_CreateBullet_Call{Call: _e.mock.On("CreateBullet", req)}
+//   - input port.CreateBulletInput
+func (_e *MockBulletService_Expecter) CreateBullet(input any) *MockBulletService_CreateBullet_Call {
+	return &MockBulletService_CreateBullet_Call{Call: _e.mock.On("CreateBullet", input)}
 }
 
-func (_c *MockBulletService_CreateBullet_Call) Run(run func(req port.CreateBulletRequest)) *MockBulletService_CreateBullet_Call {
+func (_c *MockBulletService_CreateBullet_Call) Run(run func(input port.CreateBulletInput)) *MockBulletService_CreateBullet_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 port.CreateBulletRequest
+		var arg0 port.CreateBulletInput
 		if args[0] != nil {
-			arg0 = args[0].(port.CreateBulletRequest)
+			arg0 = args[0].(port.CreateBulletInput)
 		}
 		run(
 			arg0,
@@ -157,7 +157,7 @@ func (_c *MockBulletService_CreateBullet_Call) Return(bullet *entity.Bullet, err
 	return _c
 }
 
-func (_c *MockBulletService_CreateBullet_Call) RunAndReturn(run func(req port.CreateBulletRequest) (*entity.Bullet, error)) *MockBulletService_CreateBullet_Call {
+func (_c *MockBulletService_CreateBullet_Call) RunAndReturn(run func(input port.CreateBulletInput) (*entity.Bullet, error)) *MockBulletService_CreateBullet_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -21,13 +21,13 @@ func NewBulletHandler(uc port.BulletService) *bulletHandler {
 }
 
 func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
-	var req port.CreateBulletRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	var input port.CreateBulletInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		respondError(w, http.StatusBadRequest, errInvalidRequest.Error())
 		return
 	}
 
-	createdBullet, err := h.usecase.CreateBullet(req)
+	createdBullet, err := h.usecase.CreateBullet(input)
 	if err != nil {
 		var validationErr *entity.ValidationError
 		if errors.As(err, &validationErr) {

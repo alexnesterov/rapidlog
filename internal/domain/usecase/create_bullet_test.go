@@ -19,14 +19,14 @@ func TestCreateBulletUseCase(t *testing.T) {
 
 	cases := []struct {
 		name      string
-		req       port.CreateBulletRequest
+		input     port.CreateBulletInput
 		setupMock func(m *mocks.MockBulletRepository)
 		want      *entity.Bullet
 		wantErr   error
 	}{
 		{
-			name: "success",
-			req:  port.CreateBulletRequest{Content: "Заголовок", Type: entity.BulletTask},
+			name:  "success",
+			input: port.CreateBulletInput{Content: "Заголовок", Type: entity.BulletTask},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().
 					Create(mock.AnythingOfType("*entity.Bullet")).
@@ -37,8 +37,8 @@ func TestCreateBulletUseCase(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "type defaults to task when not provided",
-			req:  port.CreateBulletRequest{Content: "Заголовок"},
+			name:  "type defaults to task when not provided",
+			input: port.CreateBulletInput{Content: "Заголовок"},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().Create(mock.AnythingOfType("*entity.Bullet")).
 					Return(nil).
@@ -48,8 +48,8 @@ func TestCreateBulletUseCase(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "repo error",
-			req:  port.CreateBulletRequest{Content: "Заголовок"},
+			name:  "repo error",
+			input: port.CreateBulletInput{Content: "Заголовок"},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().
 					Create(mock.AnythingOfType("*entity.Bullet")).
@@ -61,7 +61,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 		},
 		{
 			name:      "empty content",
-			req:       port.CreateBulletRequest{Content: ""},
+			input:     port.CreateBulletInput{Content: ""},
 			setupMock: func(m *mocks.MockBulletRepository) {},
 			want:      nil,
 			wantErr:   entity.ErrContentRequired,
@@ -74,7 +74,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 			tc.setupMock(mockBulletRepo)
 			uc := usecase.NewBulletService(mockBulletRepo)
 
-			got, err := uc.CreateBullet(tc.req)
+			got, err := uc.CreateBullet(tc.input)
 			if tc.wantErr != nil {
 				require.Error(t, err)
 				assert.Nil(t, got)

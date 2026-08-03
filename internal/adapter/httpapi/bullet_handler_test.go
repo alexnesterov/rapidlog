@@ -33,7 +33,7 @@ func TestCreateBullet(t *testing.T) {
 			body: `{"content": "Заголовок"}`,
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
-					CreateBullet(port.CreateBulletRequest{Content: "Заголовок"}).
+					CreateBullet(port.CreateBulletInput{Content: "Заголовок"}).
 					Return(&entity.Bullet{
 						ID:      fixedID,
 						Content: "Заголовок",
@@ -61,7 +61,7 @@ func TestCreateBullet(t *testing.T) {
 			body: `{"content": "Заголовок"}`,
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
-					CreateBullet(port.CreateBulletRequest{Content: "Заголовок"}).
+					CreateBullet(port.CreateBulletInput{Content: "Заголовок"}).
 					Return(nil, errors.New("service error")).
 					Once()
 			},
@@ -76,7 +76,7 @@ func TestCreateBullet(t *testing.T) {
 			body: `{"content": ""}`,
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
-					CreateBullet(port.CreateBulletRequest{Content: ""}).
+					CreateBullet(port.CreateBulletInput{Content: ""}).
 					Return(nil, &entity.ValidationError{Err: errors.New("some validation error")}).
 					Once()
 			},
