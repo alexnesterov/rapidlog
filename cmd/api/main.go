@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 
 	"github.com/alexnesterov/rapidlog-api/internal/adapter/httpapi"
 	"github.com/alexnesterov/rapidlog-api/internal/config"
@@ -13,26 +14,27 @@ import (
 )
 
 func main() {
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
 	cfg, err := config.Load()
 	if err != nil {
-		log.Fatal(err)
+		logger.Error("failed to load config", "error", err)
+		os.Exit(1)
 	}
 
 	ctx := context.Background()
+
 	pool, err := postgres.Connect(ctx, cfg.DB.DSN)
 	if err != nil {
-		log.Fatal("failed to connect to database: ", err)
+		logger.Error("failed to connect to database", "error", err)
+		os.Exit(1)
 	}
 	defer pool.Close()
 
-	if err := pool.Ping(ctx); err != nil {
-		log.Fatal("failed to ping database: ", err)
-	}
-	log.Println("Database connected successfully")
+	logger.Info("connected to postgres")
 
 	router := http.NewServeMux()
-
-	router.HandleFunc("/health", httpapi.HealthHandler)
+	router.HandleFunc("/health", httpapi.NewHealthHandler(pool))
 
 	bulletRepository := memory.NewBulletRepository()
 	bulletService := usecase.NewBulletService(bulletRepository)
@@ -42,6 +44,9 @@ func main() {
 	router.HandleFunc("GET /api/bullets", bulletHandler.ListBullets)
 	router.HandleFunc("POST /api/bullets/{id}/complete", bulletHandler.CompleteBullet)
 
-	log.Printf("%s is starting on port %s", cfg.App.Name, cfg.HTTP.Port)
-	log.Fatal(http.ListenAndServe(":"+cfg.HTTP.Port, router))
+	logger.Info("starting server", "name", cfg.App.Name, "port", cfg.HTTP.Port)
+	if err := http.ListenAndServe(":"+cfg.HTTP.Port, router); err != nil {
+		logger.Error("failed to start server", "error", err)
+		os.Exit(1)
+	}
 }
