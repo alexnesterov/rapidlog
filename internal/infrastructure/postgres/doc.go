@@ -1,2 +1,2 @@
 // Package postgresql contains repository implementations
-package postgresql
+package postgres

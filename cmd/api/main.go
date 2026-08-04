@@ -9,7 +9,7 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/config"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/usecase"
 	"github.com/alexnesterov/rapidlog-api/internal/infrastructure/memory"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/alexnesterov/rapidlog-api/internal/infrastructure/postgres"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	pool, err := pgxpool.New(ctx, cfg.DB.DSN)
+	pool, err := postgres.Connect(ctx, cfg.DB.DSN)
 	if err != nil {
 		log.Fatal("failed to connect to database: ", err)
 	}
