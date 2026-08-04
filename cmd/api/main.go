@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/config"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/usecase"
 	"github.com/alexnesterov/rapidlog-api/internal/infrastructure/memory"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
@@ -15,6 +17,18 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	ctx := context.Background()
+	pool, err := pgxpool.New(ctx, cfg.DB.DSN)
+	if err != nil {
+		log.Fatal("failed to connect to database: ", err)
+	}
+	defer pool.Close()
+
+	if err := pool.Ping(ctx); err != nil {
+		log.Fatal("failed to ping database: ", err)
+	}
+	log.Println("Database connected successfully")
 
 	router := http.NewServeMux()
 

@@ -22,6 +22,9 @@ func TestValidate(t *testing.T) {
 				App: AppConfig{
 					Name: "",
 				},
+				DB: DBConfig{
+					DSN: "postgresql://user:pass@localhost:5432/db",
+				},
 			},
 			want: ErrEmptyAppName,
 		},
@@ -31,8 +34,23 @@ func TestValidate(t *testing.T) {
 				App: AppConfig{
 					Name: "RAPIDLOG",
 				},
+				DB: DBConfig{
+					DSN: "postgresql://user:pass@localhost:5432/db",
+				},
 			},
 			want: nil,
+		},
+		{
+			name: "empty db dsn",
+			cfg: &Config{
+				App: AppConfig{
+					Name: "RAPIDLOG",
+				},
+				DB: DBConfig{
+					DSN: "",
+				},
+			},
+			want: ErrEmptyDSN,
 		},
 	}
 
@@ -53,6 +71,8 @@ func TestLoad_Defaults(t *testing.T) {
 	assert.Equal(t, 5*time.Second, cfg.HTTP.ReadTimeout)
 	assert.Equal(t, 10*time.Second, cfg.HTTP.WriteTimeout)
 	assert.Equal(t, 15*time.Second, cfg.HTTP.IdleTimeout)
+
+	assert.Equal(t, "postgres://rapidlog:rapidlog@localhost:5432/rapidlog", cfg.DB.DSN)
 }
 
 func TestLoad_FromFile(t *testing.T) {
@@ -66,6 +86,9 @@ http:
   read_timeout: 1s
   write_timeout: 2s
   idle_timeout: 3s
+
+db:
+  dsn: "postgresql://user:pass@localhost:5432/db"
 `), 0o644)
 	require.NoError(t, err)
 
@@ -79,4 +102,5 @@ http:
 	assert.Equal(t, 1*time.Second, cfg.HTTP.ReadTimeout)
 	assert.Equal(t, 2*time.Second, cfg.HTTP.WriteTimeout)
 	assert.Equal(t, 3*time.Second, cfg.HTTP.IdleTimeout)
+	assert.Equal(t, "postgresql://user:pass@localhost:5432/db", cfg.DB.DSN)
 }

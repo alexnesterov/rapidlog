@@ -6,3 +6,7 @@ http:
   read_timeout: 5s
   write_timeout: 10s
   idle_timeout: 15s
+
+db:
+  dsn: "postgres://rapidlog:rapidlog@localhost:5432/rapidlog"
+

@@ -10,6 +10,7 @@ import (
 )
 
 var ErrEmptyAppName = errors.New("empty app name")
+var ErrEmptyDSN = errors.New("empty database dsn")
 
 func setDefaults(v *viper.Viper) {
 	v.SetDefault("app.name", "rapidlog")
@@ -18,11 +19,16 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("http.read_timeout", 5*time.Second)
 	v.SetDefault("http.write_timeout", 10*time.Second)
 	v.SetDefault("http.idle_timeout", 15*time.Second)
+
+	v.SetDefault("db.dsn", "postgres://rapidlog:rapidlog@localhost:5432/rapidlog")
 }
 
 func validate(cfg *Config) error {
 	if cfg.App.Name == "" {
 		return ErrEmptyAppName
+	}
+	if cfg.DB.DSN == "" {
+		return ErrEmptyDSN
 	}
 	return nil
 }
