@@ -101,22 +101,24 @@ func (_c *MockBulletService_CompleteBullet_Call) RunAndReturn(run func(id uuid.U
 }
 
 // CreateBullet provides a mock function for the type MockBulletService
-func (_mock *MockBulletService) CreateBullet(input port.CreateBulletInput) (port.CreateBulletOutput, error) {
+func (_mock *MockBulletService) CreateBullet(input port.CreateBulletInput) (*entity.Bullet, error) {
 	ret := _mock.Called(input)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateBullet")
 	}
 
-	var r0 port.CreateBulletOutput
+	var r0 *entity.Bullet
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(port.CreateBulletInput) (port.CreateBulletOutput, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(port.CreateBulletInput) (*entity.Bullet, error)); ok {
 		return returnFunc(input)
 	}
-	if returnFunc, ok := ret.Get(0).(func(port.CreateBulletInput) port.CreateBulletOutput); ok {
+	if returnFunc, ok := ret.Get(0).(func(port.CreateBulletInput) *entity.Bullet); ok {
 		r0 = returnFunc(input)
 	} else {
-		r0 = ret.Get(0).(port.CreateBulletOutput)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entity.Bullet)
+		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(port.CreateBulletInput) error); ok {
 		r1 = returnFunc(input)
@@ -150,12 +152,12 @@ func (_c *MockBulletService_CreateBullet_Call) Run(run func(input port.CreateBul
 	return _c
 }
 
-func (_c *MockBulletService_CreateBullet_Call) Return(createBulletOutput port.CreateBulletOutput, err error) *MockBulletService_CreateBullet_Call {
-	_c.Call.Return(createBulletOutput, err)
+func (_c *MockBulletService_CreateBullet_Call) Return(bullet *entity.Bullet, err error) *MockBulletService_CreateBullet_Call {
+	_c.Call.Return(bullet, err)
 	return _c
 }
 
-func (_c *MockBulletService_CreateBullet_Call) RunAndReturn(run func(input port.CreateBulletInput) (port.CreateBulletOutput, error)) *MockBulletService_CreateBullet_Call {
+func (_c *MockBulletService_CreateBullet_Call) RunAndReturn(run func(input port.CreateBulletInput) (*entity.Bullet, error)) *MockBulletService_CreateBullet_Call {
 	_c.Call.Return(run)
 	return _c
 }

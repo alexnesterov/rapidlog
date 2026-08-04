@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *bulletService) CreateBullet(input port.CreateBulletInput) (port.CreateBulletOutput, error) {
+func (s *bulletService) CreateBullet(input port.CreateBulletInput) (*entity.Bullet, error) {
 	now := time.Now()
 
 	bulletType := input.Type
@@ -16,7 +16,7 @@ func (s *bulletService) CreateBullet(input port.CreateBulletInput) (port.CreateB
 		bulletType = entity.BulletTask
 	}
 
-	bullet := entity.Bullet{
+	bullet := &entity.Bullet{
 		ID:        uuid.New(),
 		Type:      bulletType,
 		Signifier: entity.SignifierOpen,
@@ -26,12 +26,12 @@ func (s *bulletService) CreateBullet(input port.CreateBulletInput) (port.CreateB
 	}
 
 	if err := bullet.Validate(); err != nil {
-		return port.CreateBulletOutput{}, err
+		return nil, err
 	}
 
-	if err := s.repo.Create(&bullet); err != nil {
-		return port.CreateBulletOutput{}, err
+	if err := s.repo.Create(bullet); err != nil {
+		return nil, err
 	}
 
-	return port.CreateBulletOutput{Bullet: bullet}, nil
+	return bullet, nil
 }

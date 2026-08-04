@@ -10,12 +10,8 @@ type CreateBulletInput struct {
 	Content string
 }
 
-type CreateBulletOutput struct {
-	entity.Bullet
-}
-
 type BulletService interface {
-	CreateBullet(input CreateBulletInput) (CreateBulletOutput, error)
+	CreateBullet(input CreateBulletInput) (*entity.Bullet, error)
 	ListBullets() ([]*entity.Bullet, error)
 	CompleteBullet(id uuid.UUID) (*entity.Bullet, error)
 }

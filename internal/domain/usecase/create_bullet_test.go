@@ -77,7 +77,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 			got, err := uc.CreateBullet(tc.input)
 			if tc.wantErr != nil {
 				require.Error(t, err)
-				assert.Equal(t, port.CreateBulletOutput{}, got)
+				assert.Nil(t, got)
 				assert.ErrorIs(t, err, tc.wantErr)
 
 				return
