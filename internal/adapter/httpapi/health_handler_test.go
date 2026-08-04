@@ -1,40 +1,37 @@
 package httpapi
 
 import (
-	"context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/alexnesterov/rapidlog-api/internal/adapter/httpapi/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
-
-type mockPinger struct {
-	pingErr error
-}
-
-func (m *mockPinger) Ping(ctx context.Context) error {
-	return m.pingErr
-}
 
 func TestHealthHandler(t *testing.T) {
 	cases := []struct {
 		name       string
-		pinger     Pinger
+		setupMock  func(*mocks.MockPinger)
 		wantStatus int
 		wantBody   string
 	}{
 		{
-			name:       "healthy",
-			pinger:     &mockPinger{pingErr: nil},
+			name: "healthy",
+			setupMock: func(m *mocks.MockPinger) {
+				m.EXPECT().Ping(mock.Anything).Return(nil)
+			},
 			wantStatus: http.StatusOK,
 			wantBody:   `{"status":"ok","db":"ok"}`,
 		},
 		{
-			name:       "database error",
-			pinger:     &mockPinger{pingErr: errors.New("db error")},
+			name: "database error",
+			setupMock: func(m *mocks.MockPinger) {
+				m.EXPECT().Ping(mock.Anything).Return(errors.New("db error"))
+			},
 			wantStatus: http.StatusServiceUnavailable,
 			wantBody:   `{"status":"error","db":"error"}`,
 		},
@@ -42,10 +39,13 @@ func TestHealthHandler(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
+			mockPinger := mocks.NewMockPinger(t)
+			tc.setupMock(mockPinger)
+
 			req := httptest.NewRequest(http.MethodGet, "/health", nil)
 			res := httptest.NewRecorder()
 
-			handler := NewHealthHandler(tc.pinger)
+			handler := NewHealthHandler(mockPinger)
 			handler(res, req)
 
 			require.Equal(t, tc.wantStatus, res.Code)

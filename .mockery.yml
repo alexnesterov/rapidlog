@@ -12,3 +12,6 @@ packages:
   github.com/alexnesterov/rapidlog-api/internal/domain/port:
     config:
       all: true
+  github.com/alexnesterov/rapidlog-api/internal/adapter/httpapi:
+    config:
+      all: true
