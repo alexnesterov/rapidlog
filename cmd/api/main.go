@@ -10,7 +10,6 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/adapter/httpapi/middleware"
 	"github.com/alexnesterov/rapidlog-api/internal/config"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/usecase"
-	"github.com/alexnesterov/rapidlog-api/internal/infrastructure/memory"
 	"github.com/alexnesterov/rapidlog-api/internal/infrastructure/postgres"
 )
 
@@ -41,7 +40,7 @@ func main() {
 	handler = middleware.Logging(logger)(handler)
 	handler = middleware.Recovery(logger)(handler)
 
-	bulletRepository := memory.NewBulletRepository()
+	bulletRepository := postgres.NewBulletRepository(pool)
 	bulletService := usecase.NewBulletService(bulletRepository)
 	bulletHandler := httpapi.NewBulletHandler(bulletService)
 
