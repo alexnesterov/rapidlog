@@ -1,7 +1,11 @@
 package usecase
 
-import "github.com/alexnesterov/rapidlog-api/internal/domain/entity"
+import (
+	"context"
 
-func (s *bulletService) ListBullets() ([]*entity.Bullet, error) {
-	return s.repo.List()
+	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
+)
+
+func (s *bulletService) ListBullets(ctx context.Context) ([]*entity.Bullet, error) {
+	return s.repo.List(ctx)
 }

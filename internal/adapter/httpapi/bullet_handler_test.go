@@ -33,7 +33,7 @@ func TestCreateBullet(t *testing.T) {
 			body: `{"content": "Заголовок"}`,
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
-					CreateBullet(port.CreateBulletInput{Content: "Заголовок"}).
+					CreateBullet(mock.Anything, port.CreateBulletInput{Content: "Заголовок"}).
 					Return(&entity.Bullet{
 						ID:      fixedID,
 						Content: "Заголовок",
@@ -61,7 +61,7 @@ func TestCreateBullet(t *testing.T) {
 			body: `{"content": "Заголовок"}`,
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
-					CreateBullet(port.CreateBulletInput{Content: "Заголовок"}).
+					CreateBullet(mock.Anything, port.CreateBulletInput{Content: "Заголовок"}).
 					Return(nil, errors.New("service error")).
 					Once()
 			},
@@ -76,7 +76,7 @@ func TestCreateBullet(t *testing.T) {
 			body: `{"content": ""}`,
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
-					CreateBullet(port.CreateBulletInput{Content: ""}).
+					CreateBullet(mock.Anything, port.CreateBulletInput{Content: ""}).
 					Return(nil, &entity.ValidationError{Err: errors.New("some validation error")}).
 					Once()
 			},
@@ -128,7 +128,7 @@ func TestListBullets(t *testing.T) {
 		{
 			name: "success",
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().ListBullets().
+				m.EXPECT().ListBullets(mock.Anything).
 					Return([]*entity.Bullet{{Content: "Заголовок"}}, nil).
 					Once()
 			},
@@ -140,7 +140,7 @@ func TestListBullets(t *testing.T) {
 		{
 			name: "empty list",
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().ListBullets().
+				m.EXPECT().ListBullets(mock.Anything).
 					Return(nil, nil).
 					Once()
 			},
@@ -150,7 +150,7 @@ func TestListBullets(t *testing.T) {
 		{
 			name: "service error",
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().ListBullets().
+				m.EXPECT().ListBullets(mock.Anything).
 					Return(nil, errors.New("service error")).
 					Once()
 			},
@@ -204,7 +204,7 @@ func TestCompleteBullet(t *testing.T) {
 			name:   "success",
 			params: struct{ id string }{id: uuid.New().String()},
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().CompleteBullet(mock.AnythingOfType("uuid.UUID")).
+				m.EXPECT().CompleteBullet(mock.Anything, mock.AnythingOfType("uuid.UUID")).
 					Return(&entity.Bullet{Signifier: entity.SignifierCompleted}, nil).
 					Once()
 			},
@@ -227,7 +227,7 @@ func TestCompleteBullet(t *testing.T) {
 			name:   "service error",
 			params: struct{ id string }{id: uuid.New().String()},
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().CompleteBullet(mock.AnythingOfType("uuid.UUID")).
+				m.EXPECT().CompleteBullet(mock.Anything, mock.AnythingOfType("uuid.UUID")).
 					Return(nil, errors.New("service error")).
 					Once()
 			},
@@ -241,7 +241,7 @@ func TestCompleteBullet(t *testing.T) {
 			name:   "not found",
 			params: struct{ id string }{id: uuid.New().String()},
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().CompleteBullet(mock.AnythingOfType("uuid.UUID")).
+				m.EXPECT().CompleteBullet(mock.Anything, mock.AnythingOfType("uuid.UUID")).
 					Return(nil, port.ErrNotFound).
 					Once()
 			},

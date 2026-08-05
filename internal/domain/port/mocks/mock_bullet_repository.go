@@ -5,6 +5,8 @@
 package mocks
 
 import (
+	"context"
+
 	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
 	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
@@ -38,16 +40,16 @@ func (_m *MockBulletRepository) EXPECT() *MockBulletRepository_Expecter {
 }
 
 // Create provides a mock function for the type MockBulletRepository
-func (_mock *MockBulletRepository) Create(bullet *entity.Bullet) error {
-	ret := _mock.Called(bullet)
+func (_mock *MockBulletRepository) Create(ctx context.Context, bullet *entity.Bullet) error {
+	ret := _mock.Called(ctx, bullet)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(*entity.Bullet) error); ok {
-		r0 = returnFunc(bullet)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *entity.Bullet) error); ok {
+		r0 = returnFunc(ctx, bullet)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -60,19 +62,25 @@ type MockBulletRepository_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
+//   - ctx context.Context
 //   - bullet *entity.Bullet
-func (_e *MockBulletRepository_Expecter) Create(bullet any) *MockBulletRepository_Create_Call {
-	return &MockBulletRepository_Create_Call{Call: _e.mock.On("Create", bullet)}
+func (_e *MockBulletRepository_Expecter) Create(ctx any, bullet any) *MockBulletRepository_Create_Call {
+	return &MockBulletRepository_Create_Call{Call: _e.mock.On("Create", ctx, bullet)}
 }
 
-func (_c *MockBulletRepository_Create_Call) Run(run func(bullet *entity.Bullet)) *MockBulletRepository_Create_Call {
+func (_c *MockBulletRepository_Create_Call) Run(run func(ctx context.Context, bullet *entity.Bullet)) *MockBulletRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *entity.Bullet
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(*entity.Bullet)
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *entity.Bullet
+		if args[1] != nil {
+			arg1 = args[1].(*entity.Bullet)
 		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -83,14 +91,14 @@ func (_c *MockBulletRepository_Create_Call) Return(err error) *MockBulletReposit
 	return _c
 }
 
-func (_c *MockBulletRepository_Create_Call) RunAndReturn(run func(bullet *entity.Bullet) error) *MockBulletRepository_Create_Call {
+func (_c *MockBulletRepository_Create_Call) RunAndReturn(run func(ctx context.Context, bullet *entity.Bullet) error) *MockBulletRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Get provides a mock function for the type MockBulletRepository
-func (_mock *MockBulletRepository) Get(id uuid.UUID) (*entity.Bullet, error) {
-	ret := _mock.Called(id)
+func (_mock *MockBulletRepository) Get(ctx context.Context, id uuid.UUID) (*entity.Bullet, error) {
+	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
@@ -98,18 +106,18 @@ func (_mock *MockBulletRepository) Get(id uuid.UUID) (*entity.Bullet, error) {
 
 	var r0 *entity.Bullet
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(uuid.UUID) (*entity.Bullet, error)); ok {
-		return returnFunc(id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*entity.Bullet, error)); ok {
+		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(uuid.UUID) *entity.Bullet); ok {
-		r0 = returnFunc(id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *entity.Bullet); ok {
+		r0 = returnFunc(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*entity.Bullet)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = returnFunc(id)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -122,19 +130,25 @@ type MockBulletRepository_Get_Call struct {
 }
 
 // Get is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id uuid.UUID
-func (_e *MockBulletRepository_Expecter) Get(id any) *MockBulletRepository_Get_Call {
-	return &MockBulletRepository_Get_Call{Call: _e.mock.On("Get", id)}
+func (_e *MockBulletRepository_Expecter) Get(ctx any, id any) *MockBulletRepository_Get_Call {
+	return &MockBulletRepository_Get_Call{Call: _e.mock.On("Get", ctx, id)}
 }
 
-func (_c *MockBulletRepository_Get_Call) Run(run func(id uuid.UUID)) *MockBulletRepository_Get_Call {
+func (_c *MockBulletRepository_Get_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockBulletRepository_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 uuid.UUID
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(uuid.UUID)
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
 		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -145,14 +159,14 @@ func (_c *MockBulletRepository_Get_Call) Return(bullet *entity.Bullet, err error
 	return _c
 }
 
-func (_c *MockBulletRepository_Get_Call) RunAndReturn(run func(id uuid.UUID) (*entity.Bullet, error)) *MockBulletRepository_Get_Call {
+func (_c *MockBulletRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (*entity.Bullet, error)) *MockBulletRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function for the type MockBulletRepository
-func (_mock *MockBulletRepository) List() ([]*entity.Bullet, error) {
-	ret := _mock.Called()
+func (_mock *MockBulletRepository) List(ctx context.Context) ([]*entity.Bullet, error) {
+	ret := _mock.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -160,18 +174,18 @@ func (_mock *MockBulletRepository) List() ([]*entity.Bullet, error) {
 
 	var r0 []*entity.Bullet
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func() ([]*entity.Bullet, error)); ok {
-		return returnFunc()
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]*entity.Bullet, error)); ok {
+		return returnFunc(ctx)
 	}
-	if returnFunc, ok := ret.Get(0).(func() []*entity.Bullet); ok {
-		r0 = returnFunc()
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []*entity.Bullet); ok {
+		r0 = returnFunc(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*entity.Bullet)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func() error); ok {
-		r1 = returnFunc()
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -184,13 +198,20 @@ type MockBulletRepository_List_Call struct {
 }
 
 // List is a helper method to define mock.On call
-func (_e *MockBulletRepository_Expecter) List() *MockBulletRepository_List_Call {
-	return &MockBulletRepository_List_Call{Call: _e.mock.On("List")}
+//   - ctx context.Context
+func (_e *MockBulletRepository_Expecter) List(ctx any) *MockBulletRepository_List_Call {
+	return &MockBulletRepository_List_Call{Call: _e.mock.On("List", ctx)}
 }
 
-func (_c *MockBulletRepository_List_Call) Run(run func()) *MockBulletRepository_List_Call {
+func (_c *MockBulletRepository_List_Call) Run(run func(ctx context.Context)) *MockBulletRepository_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
 	})
 	return _c
 }
@@ -200,22 +221,22 @@ func (_c *MockBulletRepository_List_Call) Return(bullets []*entity.Bullet, err e
 	return _c
 }
 
-func (_c *MockBulletRepository_List_Call) RunAndReturn(run func() ([]*entity.Bullet, error)) *MockBulletRepository_List_Call {
+func (_c *MockBulletRepository_List_Call) RunAndReturn(run func(ctx context.Context) ([]*entity.Bullet, error)) *MockBulletRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Update provides a mock function for the type MockBulletRepository
-func (_mock *MockBulletRepository) Update(bullet *entity.Bullet) error {
-	ret := _mock.Called(bullet)
+func (_mock *MockBulletRepository) Update(ctx context.Context, bullet *entity.Bullet) error {
+	ret := _mock.Called(ctx, bullet)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(*entity.Bullet) error); ok {
-		r0 = returnFunc(bullet)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *entity.Bullet) error); ok {
+		r0 = returnFunc(ctx, bullet)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -228,19 +249,25 @@ type MockBulletRepository_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
+//   - ctx context.Context
 //   - bullet *entity.Bullet
-func (_e *MockBulletRepository_Expecter) Update(bullet any) *MockBulletRepository_Update_Call {
-	return &MockBulletRepository_Update_Call{Call: _e.mock.On("Update", bullet)}
+func (_e *MockBulletRepository_Expecter) Update(ctx any, bullet any) *MockBulletRepository_Update_Call {
+	return &MockBulletRepository_Update_Call{Call: _e.mock.On("Update", ctx, bullet)}
 }
 
-func (_c *MockBulletRepository_Update_Call) Run(run func(bullet *entity.Bullet)) *MockBulletRepository_Update_Call {
+func (_c *MockBulletRepository_Update_Call) Run(run func(ctx context.Context, bullet *entity.Bullet)) *MockBulletRepository_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *entity.Bullet
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(*entity.Bullet)
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *entity.Bullet
+		if args[1] != nil {
+			arg1 = args[1].(*entity.Bullet)
 		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -251,7 +278,7 @@ func (_c *MockBulletRepository_Update_Call) Return(err error) *MockBulletReposit
 	return _c
 }
 
-func (_c *MockBulletRepository_Update_Call) RunAndReturn(run func(bullet *entity.Bullet) error) *MockBulletRepository_Update_Call {
+func (_c *MockBulletRepository_Update_Call) RunAndReturn(run func(ctx context.Context, bullet *entity.Bullet) error) *MockBulletRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

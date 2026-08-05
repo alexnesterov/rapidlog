@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"time"
 
 	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
@@ -8,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *bulletService) CreateBullet(input port.CreateBulletInput) (*entity.Bullet, error) {
+func (s *bulletService) CreateBullet(ctx context.Context, input port.CreateBulletInput) (*entity.Bullet, error) {
 	now := time.Now()
 
 	bulletType := input.Type
@@ -29,7 +30,7 @@ func (s *bulletService) CreateBullet(input port.CreateBulletInput) (*entity.Bull
 		return nil, err
 	}
 
-	if err := s.repo.Create(bullet); err != nil {
+	if err := s.repo.Create(ctx, bullet); err != nil {
 		return nil, err
 	}
 

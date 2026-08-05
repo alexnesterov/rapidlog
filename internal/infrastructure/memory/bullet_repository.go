@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"context"
 	"sync"
 
 	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
@@ -38,7 +39,7 @@ func (r *bulletRepository) find(id uuid.UUID) (*entity.Bullet, error) {
 	return r.clone(bullet), nil
 }
 
-func (r *bulletRepository) Create(bullet *entity.Bullet) error {
+func (r *bulletRepository) Create(ctx context.Context, bullet *entity.Bullet) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -47,7 +48,7 @@ func (r *bulletRepository) Create(bullet *entity.Bullet) error {
 	return nil
 }
 
-func (r *bulletRepository) List() ([]*entity.Bullet, error) {
+func (r *bulletRepository) List(ctx context.Context) ([]*entity.Bullet, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -59,14 +60,14 @@ func (r *bulletRepository) List() ([]*entity.Bullet, error) {
 	return bullets, nil
 }
 
-func (r *bulletRepository) Get(id uuid.UUID) (*entity.Bullet, error) {
+func (r *bulletRepository) Get(ctx context.Context, id uuid.UUID) (*entity.Bullet, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	return r.find(id)
 }
 
-func (r *bulletRepository) Update(bullet *entity.Bullet) error {
+func (r *bulletRepository) Update(ctx context.Context, bullet *entity.Bullet) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 

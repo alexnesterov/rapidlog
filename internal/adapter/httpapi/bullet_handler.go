@@ -27,7 +27,7 @@ func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createdBullet, err := h.usecase.CreateBullet(input)
+	createdBullet, err := h.usecase.CreateBullet(r.Context(), input)
 	if err != nil {
 		var validationErr *entity.ValidationError
 		if errors.As(err, &validationErr) {
@@ -43,7 +43,7 @@ func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *bulletHandler) ListBullets(w http.ResponseWriter, r *http.Request) {
-	bullets, err := h.usecase.ListBullets()
+	bullets, err := h.usecase.ListBullets(r.Context())
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, errInternal.Error())
 		return
@@ -63,7 +63,7 @@ func (h *bulletHandler) CompleteBullet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	completedBullet, err := h.usecase.CompleteBullet(id)
+	completedBullet, err := h.usecase.CompleteBullet(r.Context(), id)
 	if err != nil {
 		if errors.Is(err, port.ErrNotFound) {
 			RespondError(w, http.StatusNotFound, "bullet not found")

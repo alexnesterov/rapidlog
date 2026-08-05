@@ -1,6 +1,8 @@
 package port
 
 import (
+	"context"
+
 	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
 	"github.com/google/uuid"
 )
@@ -11,7 +13,7 @@ type CreateBulletInput struct {
 }
 
 type BulletService interface {
-	CreateBullet(input CreateBulletInput) (*entity.Bullet, error)
-	ListBullets() ([]*entity.Bullet, error)
-	CompleteBullet(id uuid.UUID) (*entity.Bullet, error)
+	CreateBullet(ctx context.Context, input CreateBulletInput) (*entity.Bullet, error)
+	ListBullets(ctx context.Context) ([]*entity.Bullet, error)
+	CompleteBullet(ctx context.Context, id uuid.UUID) (*entity.Bullet, error)
 }

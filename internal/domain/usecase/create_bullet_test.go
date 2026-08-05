@@ -1,6 +1,7 @@
 package usecase_test
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -29,7 +30,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 			input: port.CreateBulletInput{Content: "Заголовок", Type: entity.BulletTask},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().
-					Create(mock.AnythingOfType("*entity.Bullet")).
+					Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 					Return(nil).
 					Once()
 			},
@@ -40,7 +41,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 			name:  "type defaults to task when not provided",
 			input: port.CreateBulletInput{Content: "Заголовок"},
 			setupMock: func(m *mocks.MockBulletRepository) {
-				m.EXPECT().Create(mock.AnythingOfType("*entity.Bullet")).
+				m.EXPECT().Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 					Return(nil).
 					Once()
 			},
@@ -52,7 +53,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 			input: port.CreateBulletInput{Content: "Заголовок"},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().
-					Create(mock.AnythingOfType("*entity.Bullet")).
+					Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 					Return(errRepo).
 					Once()
 			},
@@ -74,7 +75,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 			tc.setupMock(mockRepo)
 			uc := usecase.NewBulletService(mockRepo)
 
-			got, err := uc.CreateBullet(tc.input)
+			got, err := uc.CreateBullet(context.Background(), tc.input)
 			if tc.wantErr != nil {
 				require.Error(t, err)
 				assert.Nil(t, got)

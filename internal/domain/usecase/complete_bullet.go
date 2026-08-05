@@ -1,14 +1,15 @@
 package usecase
 
 import (
+	"context"
 	"time"
 
 	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
 	"github.com/google/uuid"
 )
 
-func (s *bulletService) CompleteBullet(id uuid.UUID) (*entity.Bullet, error) {
-	bullet, err := s.repo.Get(id)
+func (s *bulletService) CompleteBullet(ctx context.Context, id uuid.UUID) (*entity.Bullet, error) {
+	bullet, err := s.repo.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -20,7 +21,7 @@ func (s *bulletService) CompleteBullet(id uuid.UUID) (*entity.Bullet, error) {
 	bullet.Signifier = entity.SignifierCompleted
 	bullet.UpdatedAt = time.Now()
 
-	if err := s.repo.Update(bullet); err != nil {
+	if err := s.repo.Update(ctx, bullet); err != nil {
 		return nil, err
 	}
 

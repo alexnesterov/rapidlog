@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"context"
+
 	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/port"
 	"github.com/google/uuid"
@@ -15,19 +17,19 @@ func NewPostgresBulletRepository(db *pgxpool.Pool) *postgresBulletRepository {
 	return &postgresBulletRepository{db: db}
 }
 
-func (r *postgresBulletRepository) Create(bullet *entity.Bullet) error {
+func (r *postgresBulletRepository) Create(ctx context.Context, bullet *entity.Bullet) error {
 	return nil
 }
 
-func (r *postgresBulletRepository) List() ([]*entity.Bullet, error) {
+func (r *postgresBulletRepository) List(ctx context.Context) ([]*entity.Bullet, error) {
 	return nil, nil
 }
 
-func (r *postgresBulletRepository) Get(id uuid.UUID) (*entity.Bullet, error) {
+func (r *postgresBulletRepository) Get(ctx context.Context, id uuid.UUID) (*entity.Bullet, error) {
 	return nil, nil
 }
 
-func (r *postgresBulletRepository) Update(bullet *entity.Bullet) error {
+func (r *postgresBulletRepository) Update(ctx context.Context, bullet *entity.Bullet) error {
 	return nil
 }
 

@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"context"
 	"sync"
 	"testing"
 
@@ -19,10 +20,10 @@ func TestBulletMemory_CreateAndRead(t *testing.T) {
 		Content: "Заголовок",
 	}
 
-	err := repo.Create(bullet)
+	err := repo.Create(context.Background(), bullet)
 	require.NoError(t, err)
 
-	got, err := repo.Get(bullet.ID)
+	got, err := repo.Get(context.Background(), bullet.ID)
 	require.NoError(t, err)
 	assert.Equal(t, bullet, got)
 }
@@ -33,7 +34,7 @@ func TestBulletMemory_ConcurrentAccess(t *testing.T) {
 	var wg sync.WaitGroup
 	for range 100 {
 		wg.Go(func() {
-			_ = repo.Create(&entity.Bullet{ID: uuid.New(), Content: "x"})
+			_ = repo.Create(context.Background(), &entity.Bullet{ID: uuid.New(), Content: "x"})
 		})
 	}
 
@@ -44,11 +45,11 @@ func TestBulletMemory_Create_StoresCopy(t *testing.T) {
 	repo := NewBulletRepository()
 
 	bullet := &entity.Bullet{ID: uuid.New(), Content: "Заголовок"}
-	require.NoError(t, repo.Create(bullet))
+	require.NoError(t, repo.Create(context.Background(), bullet))
 
 	bullet.Content = "Изменено"
 
-	got, err := repo.Get(bullet.ID)
+	got, err := repo.Get(context.Background(), bullet.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "Заголовок", got.Content)
 }
@@ -79,10 +80,10 @@ func TestBulletMemory_List(t *testing.T) {
 			repo := NewBulletRepository()
 
 			for _, b := range tc.seed {
-				require.NoError(t, repo.Create(b))
+				require.NoError(t, repo.Create(context.Background(), b))
 			}
 
-			got, err := repo.List()
+			got, err := repo.List(context.Background())
 			require.NoError(t, err)
 			assert.NotNil(t, got)
 			assert.ElementsMatch(t, tc.want, got)
@@ -94,14 +95,14 @@ func TestBulletMemory_List_ReturnsCopies(t *testing.T) {
 	repo := NewBulletRepository()
 
 	bullet := &entity.Bullet{ID: uuid.New(), Content: "Заголовок"}
-	require.NoError(t, repo.Create(bullet))
+	require.NoError(t, repo.Create(context.Background(), bullet))
 
-	got, err := repo.List()
+	got, err := repo.List(context.Background())
 	require.NoError(t, err)
 
 	got[0].Content = "Изменено"
 
-	again, err := repo.List()
+	again, err := repo.List(context.Background())
 	require.NoError(t, err)
 	assert.Equal(t, "Заголовок", again[0].Content)
 }
@@ -109,7 +110,7 @@ func TestBulletMemory_List_ReturnsCopies(t *testing.T) {
 func TestBulletMemory_Read_NotFound(t *testing.T) {
 	repo := NewBulletRepository()
 
-	got, err := repo.Get(uuid.New())
+	got, err := repo.Get(context.Background(), uuid.New())
 	assert.Nil(t, got)
 	assert.ErrorIs(t, err, port.ErrNotFound)
 }
@@ -118,14 +119,14 @@ func TestBulletMemory_Read_ReturnsCopy(t *testing.T) {
 	repo := NewBulletRepository()
 
 	bullet := &entity.Bullet{ID: uuid.New(), Content: "Заголовок"}
-	require.NoError(t, repo.Create(bullet))
+	require.NoError(t, repo.Create(context.Background(), bullet))
 
-	got, err := repo.Get(bullet.ID)
+	got, err := repo.Get(context.Background(), bullet.ID)
 	require.NoError(t, err)
 
 	got.Content = "Изменено"
 
-	again, err := repo.Get(bullet.ID)
+	again, err := repo.Get(context.Background(), bullet.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "Заголовок", again.Content)
 }
@@ -135,33 +136,33 @@ func TestBulletMemory_Update(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		bullet := &entity.Bullet{ID: uuid.New(), Content: "Заголовок"}
-		require.NoError(t, repo.Create(bullet))
+		require.NoError(t, repo.Create(context.Background(), bullet))
 
 		bullet.Signifier = entity.SignifierCompleted
-		require.NoError(t, repo.Update(bullet))
+		require.NoError(t, repo.Update(context.Background(), bullet))
 
-		got, err := repo.Get(bullet.ID)
+		got, err := repo.Get(context.Background(), bullet.ID)
 		require.NoError(t, err)
 		assert.Equal(t, entity.SignifierCompleted, got.Signifier)
 	})
 
 	t.Run("StoresCopy", func(t *testing.T) {
 		bullet := &entity.Bullet{ID: uuid.New(), Content: "Заголовок"}
-		require.NoError(t, repo.Create(bullet))
+		require.NoError(t, repo.Create(context.Background(), bullet))
 
 		bullet.Signifier = entity.SignifierCompleted
-		require.NoError(t, repo.Update(bullet))
+		require.NoError(t, repo.Update(context.Background(), bullet))
 
 		bullet.Content = "Изменено"
 
-		got, err := repo.Get(bullet.ID)
+		got, err := repo.Get(context.Background(), bullet.ID)
 		require.NoError(t, err)
 		assert.Equal(t, entity.SignifierCompleted, got.Signifier)
 		assert.Equal(t, "Заголовок", got.Content)
 	})
 
 	t.Run("not found", func(t *testing.T) {
-		err := repo.Update(&entity.Bullet{ID: uuid.New()})
+		err := repo.Update(context.Background(), &entity.Bullet{ID: uuid.New()})
 		assert.ErrorIs(t, err, port.ErrNotFound)
 	})
 }
