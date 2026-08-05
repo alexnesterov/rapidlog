@@ -15,7 +15,7 @@ type response[T any] struct {
 	Error *errorResponse `json:"error,omitempty"`
 }
 
-func respondData[T any](w http.ResponseWriter, code int, data T) {
+func RespondData[T any](w http.ResponseWriter, code int, data T) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 
@@ -24,7 +24,7 @@ func respondData[T any](w http.ResponseWriter, code int, data T) {
 	})
 }
 
-func respondError(w http.ResponseWriter, code int, message string) {
+func RespondError(w http.ResponseWriter, code int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 

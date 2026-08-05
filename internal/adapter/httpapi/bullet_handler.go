@@ -23,7 +23,7 @@ func NewBulletHandler(uc port.BulletService) *bulletHandler {
 func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 	var input port.CreateBulletInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		respondError(w, http.StatusBadRequest, errInvalidRequest.Error())
+		RespondError(w, http.StatusBadRequest, errInvalidRequest.Error())
 		return
 	}
 
@@ -31,21 +31,21 @@ func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var validationErr *entity.ValidationError
 		if errors.As(err, &validationErr) {
-			respondError(w, http.StatusBadRequest, err.Error())
+			RespondError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		respondError(w, http.StatusInternalServerError, errInternal.Error())
+		RespondError(w, http.StatusInternalServerError, errInternal.Error())
 		return
 	}
 
-	respondData(w, http.StatusCreated, createdBullet)
+	RespondData(w, http.StatusCreated, createdBullet)
 }
 
 func (h *bulletHandler) ListBullets(w http.ResponseWriter, r *http.Request) {
 	bullets, err := h.usecase.ListBullets()
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, errInternal.Error())
+		RespondError(w, http.StatusInternalServerError, errInternal.Error())
 		return
 	}
 
@@ -53,26 +53,26 @@ func (h *bulletHandler) ListBullets(w http.ResponseWriter, r *http.Request) {
 		bullets = []*entity.Bullet{}
 	}
 
-	respondData(w, http.StatusOK, groupBulletsByDay(bullets))
+	RespondData(w, http.StatusOK, groupBulletsByDay(bullets))
 }
 
 func (h *bulletHandler) CompleteBullet(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		respondError(w, http.StatusBadRequest, errParseID.Error())
+		RespondError(w, http.StatusBadRequest, errParseID.Error())
 		return
 	}
 
 	completedBullet, err := h.usecase.CompleteBullet(id)
 	if err != nil {
 		if errors.Is(err, port.ErrNotFound) {
-			respondError(w, http.StatusNotFound, "bullet not found")
+			RespondError(w, http.StatusNotFound, "bullet not found")
 			return
 		}
 
-		respondError(w, http.StatusInternalServerError, errInternal.Error())
+		RespondError(w, http.StatusInternalServerError, errInternal.Error())
 		return
 	}
 
-	respondData(w, http.StatusOK, completedBullet)
+	RespondData(w, http.StatusOK, completedBullet)
 }

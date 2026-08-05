@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/alexnesterov/rapidlog-api/internal/adapter/httpapi"
+	"github.com/alexnesterov/rapidlog-api/internal/adapter/httpapi/middleware"
 	"github.com/alexnesterov/rapidlog-api/internal/config"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/usecase"
 	"github.com/alexnesterov/rapidlog-api/internal/infrastructure/memory"
@@ -36,6 +37,10 @@ func main() {
 	router := http.NewServeMux()
 	router.HandleFunc("/health", httpapi.NewHealthHandler(pool))
 
+	var handler http.Handler = router
+	handler = middleware.Logging(logger)(handler)
+	handler = middleware.Recovery(logger)(handler)
+
 	bulletRepository := memory.NewBulletRepository()
 	bulletService := usecase.NewBulletService(bulletRepository)
 	bulletHandler := httpapi.NewBulletHandler(bulletService)
@@ -45,7 +50,7 @@ func main() {
 	router.HandleFunc("POST /api/bullets/{id}/complete", bulletHandler.CompleteBullet)
 
 	logger.Info("starting server", "name", cfg.App.Name, "port", cfg.HTTP.Port)
-	if err := http.ListenAndServe(":"+cfg.HTTP.Port, router); err != nil {
+	if err := http.ListenAndServe(":"+cfg.HTTP.Port, handler); err != nil {
 		logger.Error("failed to start server", "error", err)
 		os.Exit(1)
 	}
