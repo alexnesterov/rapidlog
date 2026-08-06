@@ -1,4 +1,18 @@
 services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api
+    restart: always
+    ports:
+      - "1509:1508"
+    environment:
+      - RAPIDLOG_DB_DSN=postgres://rapidlog:rapidlog@db:5432/rapidlog
+      - RAPIDLOG_HTTP_PORT=1508
+    depends_on:
+      - db
+
   db:
     container_name: postgres
     image: postgres
