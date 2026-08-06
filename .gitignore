@@ -18,5 +18,8 @@ go.work.sum
 # OS
 .DS_Store
 
+# Environment
+.env
+
 # Playground
 /cmd/play

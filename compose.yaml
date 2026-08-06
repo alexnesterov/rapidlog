@@ -7,9 +7,8 @@ services:
     restart: always
     ports:
       - "1509:1508"
-    environment:
-      - RAPIDLOG_DB_DSN=postgres://rapidlog:rapidlog@db:5432/rapidlog
-      - RAPIDLOG_HTTP_PORT=1508
+    env_file:
+      - .env
     depends_on:
       - db
 
@@ -18,15 +17,15 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_USER: rapidlog
-      POSTGRES_PASSWORD: rapidlog
-      POSTGRES_DB: rapidlog
+      POSTGRES_USER: ${RAPIDLOG_DB_USER}
+      POSTGRES_PASSWORD: ${RAPIDLOG_DB_PASSWORD}
+      POSTGRES_DB: ${RAPIDLOG_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "rapidlog" ]
+      test: [ "CMD", "pg_isready", "-U", "${RAPIDLOG_DB_USER}" ]
       interval: 10s
       timeout: 5s
       retries: 5
