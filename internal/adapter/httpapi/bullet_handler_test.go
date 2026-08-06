@@ -220,7 +220,7 @@ func TestCompleteBullet(t *testing.T) {
 			wantStatus: http.StatusBadRequest,
 			wantError: &errorResponse{
 				Code:    http.StatusBadRequest,
-				Message: "parse id error",
+				Message: "invalid id",
 			},
 		},
 		{

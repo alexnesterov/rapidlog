@@ -23,7 +23,7 @@ func NewBulletHandler(uc port.BulletService) *bulletHandler {
 func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 	var input port.CreateBulletInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		RespondError(w, http.StatusBadRequest, errInvalidRequest.Error())
+		RespondError(w, http.StatusBadRequest, errInvalidRequestBody.Error())
 		return
 	}
 
@@ -59,7 +59,7 @@ func (h *bulletHandler) ListBullets(w http.ResponseWriter, r *http.Request) {
 func (h *bulletHandler) CompleteBullet(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		RespondError(w, http.StatusBadRequest, errParseID.Error())
+		RespondError(w, http.StatusBadRequest, errInvalidID.Error())
 		return
 	}
 
