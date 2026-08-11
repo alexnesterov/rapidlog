@@ -1,9 +1,10 @@
 services:
-  api:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: api
+    container_name: app
+    image: rapidlog
     restart: always
     ports:
       - "1509:1508"
