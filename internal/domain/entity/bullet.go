@@ -12,6 +12,8 @@ var ErrContentRequired = errors.New("content is required")
 var ErrContentTooLong = errors.New("content is too long")
 var ErrTypeInvalid = errors.New("type must be task, event or note")
 
+var ErrNotOpenTask = errors.New("bullet is not an open task")
+
 type BulletType string
 
 const (
@@ -52,6 +54,18 @@ func (b *Bullet) Validate() error {
 
 	if utf8.RuneCountInString(b.Content) > 200 {
 		return &ValidationError{Err: ErrContentTooLong}
+	}
+
+	return nil
+}
+
+func (b *Bullet) ValidateMigrate() error {
+	if b.Type != BulletTask {
+		return &ValidationError{Err: ErrNotOpenTask}
+	}
+
+	if b.Signifier != SignifierOpen {
+		return &ValidationError{Err: ErrNotOpenTask}
 	}
 
 	return nil
