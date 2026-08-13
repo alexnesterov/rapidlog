@@ -9,10 +9,24 @@ import (
 
 	"github.com/alexnesterov/rapidlog-api/internal/domain/port"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type ctxKeyTx struct{}
+
+type queryer interface {
+	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
+	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+}
+
+func getQueryer(ctx context.Context, pool *pgxpool.Pool) queryer {
+	if tx, ok := ctx.Value(ctxKeyTx{}).(pgx.Tx); ok {
+		return tx
+	}
+	return pool
+}
 
 type transactionManager struct {
 	pool *pgxpool.Pool

@@ -58,6 +58,11 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
 		Once()
 
 	mockTxMgr := mocks.NewMockTransactionManager(s.T())
+	mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Once()
 
 	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
@@ -80,6 +85,11 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotFound() {
 		Once()
 
 	mockTxMgr := mocks.NewMockTransactionManager(s.T())
+	mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Once()
 
 	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
@@ -108,6 +118,11 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_UpdateError() {
 		Once()
 
 	mockTxMgr := mocks.NewMockTransactionManager(s.T())
+	mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Once()
 
 	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
@@ -140,6 +155,11 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_CreateError() {
 		Once()
 
 	mockTxMgr := mocks.NewMockTransactionManager(s.T())
+	mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Once()
 
 	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
@@ -163,6 +183,11 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotOpenTask() {
 		Once()
 
 	mockTxMgr := mocks.NewMockTransactionManager(s.T())
+	mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Once()
 
 	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
