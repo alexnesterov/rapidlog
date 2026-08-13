@@ -60,7 +60,9 @@ func TestCompleteBulletUseCase(t *testing.T) {
 			mockRepo := mocks.NewMockBulletRepository(t)
 			tc.setupMock(mockRepo)
 
-			uc := usecase.NewBulletService(mockRepo)
+			mockTxMgr := mocks.NewMockTransactionManager(t)
+
+			uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
 			got, err := uc.CompleteBullet(context.Background(), uuid.New())
 			if tc.wantErr != nil {

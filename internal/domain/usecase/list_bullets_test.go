@@ -21,7 +21,9 @@ func TestListBulletsUseCase(t *testing.T) {
 		Return(want, nil).
 		Once()
 
-	uc := usecase.NewBulletService(mockRepo)
+	mockTxMgr := mocks.NewMockTransactionManager(t)
+
+	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
 	got, err := uc.ListBullets(context.Background())
 	require.NoError(t, err)

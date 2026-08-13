@@ -33,6 +33,8 @@ func main() {
 
 	logger.Info("connected to postgres")
 
+	txMgr := postgres.NewTransactionManager(pool)
+
 	router := http.NewServeMux()
 	router.HandleFunc("/health", httpapi.NewHealthHandler(pool))
 
@@ -41,7 +43,7 @@ func main() {
 	handler = middleware.Recovery(logger)(handler)
 
 	bulletRepository := postgres.NewBulletRepository(pool)
-	bulletService := usecase.NewBulletService(bulletRepository)
+	bulletService := usecase.NewBulletService(bulletRepository, txMgr)
 	bulletHandler := httpapi.NewBulletHandler(bulletService)
 
 	router.HandleFunc("POST /api/bullets", bulletHandler.CreateBullet)

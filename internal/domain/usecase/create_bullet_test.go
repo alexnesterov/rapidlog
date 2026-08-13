@@ -73,7 +73,8 @@ func TestCreateBulletUseCase(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mockRepo := mocks.NewMockBulletRepository(t)
 			tc.setupMock(mockRepo)
-			uc := usecase.NewBulletService(mockRepo)
+			mockTxMgr := mocks.NewMockTransactionManager(t)
+			uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
 			got, err := uc.CreateBullet(context.Background(), tc.input)
 			if tc.wantErr != nil {

@@ -57,7 +57,9 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
 		Return(nil).
 		Once()
 
-	uc := usecase.NewBulletService(mockRepo)
+	mockTxMgr := mocks.NewMockTransactionManager(s.T())
+
+	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
 	got, err := uc.MigrateBullet(context.Background(), id)
 
@@ -77,7 +79,9 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotFound() {
 		Return(nil, port.ErrNotFound).
 		Once()
 
-	uc := usecase.NewBulletService(mockRepo)
+	mockTxMgr := mocks.NewMockTransactionManager(s.T())
+
+	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
 	_, err := uc.MigrateBullet(context.Background(), id)
 	s.Error(err)
@@ -103,7 +107,9 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_UpdateError() {
 		Return(wantErr).
 		Once()
 
-	uc := usecase.NewBulletService(mockRepo)
+	mockTxMgr := mocks.NewMockTransactionManager(s.T())
+
+	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
 	got, err := uc.MigrateBullet(context.Background(), id)
 	s.Nil(got)
@@ -133,7 +139,9 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_CreateError() {
 		Return(wantErr).
 		Once()
 
-	uc := usecase.NewBulletService(mockRepo)
+	mockTxMgr := mocks.NewMockTransactionManager(s.T())
+
+	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
 	got, err := uc.MigrateBullet(context.Background(), id)
 	s.Nil(got)
@@ -154,7 +162,9 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotOpenTask() {
 		Return(bullet, nil).
 		Once()
 
-	uc := usecase.NewBulletService(mockRepo)
+	mockTxMgr := mocks.NewMockTransactionManager(s.T())
+
+	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
 	got, err := uc.MigrateBullet(context.Background(), id)
 	s.Nil(got)

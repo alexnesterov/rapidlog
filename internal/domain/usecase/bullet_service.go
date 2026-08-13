@@ -5,12 +5,14 @@ import (
 )
 
 type bulletService struct {
-	repo port.BulletRepository
+	repo  port.BulletRepository
+	txMgr port.TransactionManager
 }
 
-func NewBulletService(r port.BulletRepository) *bulletService {
+func NewBulletService(r port.BulletRepository, txMgr port.TransactionManager) *bulletService {
 	return &bulletService{
-		repo: r,
+		repo:  r,
+		txMgr: txMgr,
 	}
 }
 
