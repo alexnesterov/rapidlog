@@ -3,8 +3,11 @@ package entity
 import (
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBullet_Validate(t *testing.T) {
@@ -82,8 +85,7 @@ func TestBullet_Validate(t *testing.T) {
 	}
 }
 
-func TestBullet_ValidateMigrate(t *testing.T) {
-
+func TestBullet_Migrate(t *testing.T) {
 	cases := []struct {
 		name       string
 		bulletType BulletType
@@ -127,7 +129,7 @@ func TestBullet_ValidateMigrate(t *testing.T) {
 			wantErr:    ErrNotOpenTask,
 		},
 		{
-			name:       "event cancelled",
+			name:       "event canceled",
 			bulletType: BulletEvent,
 			signifier:  SignifierCancelled,
 			wantErr:    ErrNotOpenTask,
@@ -139,7 +141,7 @@ func TestBullet_ValidateMigrate(t *testing.T) {
 			wantErr:    ErrNotOpenTask,
 		},
 		{
-			name:       "note cancelled",
+			name:       "note canceled",
 			bulletType: BulletNote,
 			signifier:  SignifierCancelled,
 			wantErr:    ErrNotOpenTask,
@@ -149,21 +151,35 @@ func TestBullet_ValidateMigrate(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			bullet := Bullet{
+				ID:        uuid.New(),
 				Type:      tc.bulletType,
 				Signifier: tc.signifier,
+				Content:   "Test task",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
 			}
 
-			err := bullet.ValidateMigrate()
+			initialUpdatedAt := bullet.UpdatedAt
+
+			got, err := bullet.Migrate()
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 
 				var validationErr *ValidationError
 				assert.ErrorAs(t, err, &validationErr)
-
 				return
 			}
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
+			assert.Equal(t, SignifierMigrated, bullet.Signifier)
+			assert.True(t, bullet.UpdatedAt.After(initialUpdatedAt))
+
+			assert.NotEqual(t, bullet.ID, got.ID)
+			assert.Equal(t, bullet.Type, got.Type)
+			assert.Equal(t, SignifierOpen, got.Signifier)
+			assert.Equal(t, bullet.Content, got.Content)
+			assert.Equal(t, bullet.UpdatedAt, got.CreatedAt)
+			assert.Equal(t, bullet.UpdatedAt, got.UpdatedAt)
 		})
 	}
 }

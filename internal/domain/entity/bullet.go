@@ -59,14 +59,23 @@ func (b *Bullet) Validate() error {
 	return nil
 }
 
-func (b *Bullet) ValidateMigrate() error {
-	if b.Type != BulletTask {
-		return &ValidationError{Err: ErrNotOpenTask}
+func (b *Bullet) Migrate() (*Bullet, error) {
+	if b.Type != BulletTask || b.Signifier != SignifierOpen {
+		return nil, &ValidationError{Err: ErrNotOpenTask}
 	}
 
-	if b.Signifier != SignifierOpen {
-		return &ValidationError{Err: ErrNotOpenTask}
+	now := time.Now()
+	b.Signifier = SignifierMigrated
+	b.UpdatedAt = now
+
+	migrated := &Bullet{
+		ID:        uuid.New(),
+		Type:      b.Type,
+		Signifier: SignifierOpen,
+		Content:   b.Content,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
-	return nil
+	return migrated, nil
 }
