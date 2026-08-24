@@ -49,6 +49,7 @@ func main() {
 	router.HandleFunc("POST /api/bullets", bulletHandler.CreateBullet)
 	router.HandleFunc("GET /api/bullets", bulletHandler.ListBullets)
 	router.HandleFunc("POST /api/bullets/{id}/complete", bulletHandler.CompleteBullet)
+	router.HandleFunc("POST /api/bullets/{id}/migrate", bulletHandler.MigrateBullet)
 
 	logger.Info("starting server", "name", cfg.App.Name, "port", cfg.HTTP.Port)
 	if err := http.ListenAndServe(":"+cfg.HTTP.Port, handler); err != nil {
