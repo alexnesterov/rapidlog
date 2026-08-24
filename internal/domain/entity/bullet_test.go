@@ -90,61 +90,78 @@ func TestBullet_Migrate(t *testing.T) {
 		name       string
 		bulletType BulletType
 		signifier  Signifier
+		createdAt  time.Time
 		wantErr    error
 	}{
 		{
 			name:       "task open",
 			bulletType: BulletTask,
 			signifier:  SignifierOpen,
+			createdAt:  time.Now().Add(-24 * time.Hour),
 			wantErr:    nil,
 		},
 		{
 			name:       "task completed",
 			bulletType: BulletTask,
 			signifier:  SignifierCompleted,
+			createdAt:  time.Now().Add(-24 * time.Hour),
 			wantErr:    ErrNotOpenTask,
 		},
 		{
 			name:       "task migrated",
 			bulletType: BulletTask,
 			signifier:  SignifierMigrated,
+			createdAt:  time.Now().Add(-24 * time.Hour),
 			wantErr:    ErrNotOpenTask,
 		},
 		{
 			name:       "task scheduled",
 			bulletType: BulletTask,
 			signifier:  SignifierScheduled,
+			createdAt:  time.Now().Add(-24 * time.Hour),
 			wantErr:    ErrNotOpenTask,
 		},
 		{
 			name:       "task cancelled",
 			bulletType: BulletTask,
 			signifier:  SignifierCancelled,
+			createdAt:  time.Now().Add(-24 * time.Hour),
 			wantErr:    ErrNotOpenTask,
 		},
 		{
 			name:       "event open",
 			bulletType: BulletEvent,
 			signifier:  SignifierOpen,
+			createdAt:  time.Now().Add(-24 * time.Hour),
 			wantErr:    ErrNotOpenTask,
 		},
 		{
 			name:       "event canceled",
 			bulletType: BulletEvent,
 			signifier:  SignifierCancelled,
+			createdAt:  time.Now().Add(-24 * time.Hour),
 			wantErr:    ErrNotOpenTask,
 		},
 		{
 			name:       "note open",
 			bulletType: BulletNote,
 			signifier:  SignifierOpen,
+			createdAt:  time.Now().Add(-24 * time.Hour),
 			wantErr:    ErrNotOpenTask,
 		},
 		{
 			name:       "note canceled",
 			bulletType: BulletNote,
 			signifier:  SignifierCancelled,
+			createdAt:  time.Now().Add(-24 * time.Hour),
 			wantErr:    ErrNotOpenTask,
+		},
+		{
+			name:       "created at today",
+			bulletType: BulletTask,
+			signifier:  SignifierOpen,
+			createdAt:  time.Now(),
+			wantErr:    ErrTodayTask,
 		},
 	}
 
@@ -155,7 +172,7 @@ func TestBullet_Migrate(t *testing.T) {
 				Type:      tc.bulletType,
 				Signifier: tc.signifier,
 				Content:   "Test task",
-				CreatedAt: time.Now(),
+				CreatedAt: tc.createdAt,
 				UpdatedAt: time.Now(),
 			}
 

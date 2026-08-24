@@ -13,6 +13,7 @@ var ErrContentTooLong = errors.New("content is too long")
 var ErrTypeInvalid = errors.New("type must be task, event or note")
 
 var ErrNotOpenTask = errors.New("bullet is not an open task")
+var ErrTodayTask = errors.New("bullet is already scheduled for today")
 
 type BulletType string
 
@@ -62,6 +63,10 @@ func (b *Bullet) Validate() error {
 func (b *Bullet) Migrate() (*Bullet, error) {
 	if b.Type != BulletTask || b.Signifier != SignifierOpen {
 		return nil, &ValidationError{Err: ErrNotOpenTask}
+	}
+
+	if b.CreatedAt.Format("2006-01-02") == time.Now().Format("2006-01-02") {
+		return nil, &ValidationError{Err: ErrTodayTask}
 	}
 
 	now := time.Now()
