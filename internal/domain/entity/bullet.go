@@ -42,6 +42,25 @@ type Bullet struct {
 	UpdatedAt time.Time  `json:"updated_at"`
 }
 
+func NewBullet(bulletType BulletType, content string) (*Bullet, error) {
+	now := time.Now()
+
+	bullet := &Bullet{
+		ID:        uuid.New(),
+		Type:      bulletType,
+		Signifier: SignifierOpen,
+		Content:   content,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+
+	if err := bullet.Validate(); err != nil {
+		return nil, err
+	}
+
+	return bullet, nil
+}
+
 func (b *Bullet) Validate() error {
 	switch b.Type {
 	case BulletTask, BulletEvent, BulletNote:

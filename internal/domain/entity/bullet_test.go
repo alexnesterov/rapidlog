@@ -10,6 +10,77 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestNewBullet(t *testing.T) {
+	cases := []struct {
+		name       string
+		bulletType BulletType
+		content    string
+		wantErr    error
+	}{
+		{
+			name:       "valid task",
+			bulletType: BulletTask,
+			content:    "Заголовок",
+			wantErr:    nil,
+		},
+		{
+			name:       "valid event",
+			bulletType: BulletEvent,
+			content:    "Заголовок",
+			wantErr:    nil,
+		},
+		{
+			name:       "valid note",
+			bulletType: BulletNote,
+			content:    "Заголовок",
+			wantErr:    nil,
+		},
+		{
+			name:       "invalid type",
+			bulletType: BulletType("invalid"),
+			content:    "Заголовок",
+			wantErr:    ErrTypeInvalid,
+		},
+		{
+			name:       "required content",
+			bulletType: BulletTask,
+			content:    "",
+			wantErr:    ErrContentRequired,
+		},
+		{
+			name:       "content too long",
+			bulletType: BulletTask,
+			content:    strings.Repeat("a", 201),
+			wantErr:    ErrContentTooLong,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := NewBullet(tc.bulletType, tc.content)
+
+			if tc.wantErr != nil {
+				require.Error(t, err)
+				var validationErr *ValidationError
+				assert.ErrorAs(t, err, &validationErr)
+				assert.ErrorIs(t, validationErr.Err, tc.wantErr)
+				assert.Nil(t, got)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+
+			assert.Equal(t, tc.bulletType, got.Type)
+			assert.Equal(t, tc.content, got.Content)
+			assert.Equal(t, SignifierOpen, got.Signifier)
+			assert.NotEqual(t, uuid.Nil, got.ID)
+			assert.WithinDuration(t, time.Now(), got.CreatedAt, 1*time.Second)
+			assert.WithinDuration(t, time.Now(), got.UpdatedAt, 1*time.Second)
+		})
+	}
+}
+
 func TestBullet_Validate(t *testing.T) {
 	cases := []struct {
 		name    string
@@ -180,10 +251,10 @@ func TestBullet_Migrate(t *testing.T) {
 
 			got, err := bullet.Migrate()
 			if tc.wantErr != nil {
-				assert.ErrorIs(t, err, tc.wantErr)
-
+				require.Error(t, err)
 				var validationErr *ValidationError
 				assert.ErrorAs(t, err, &validationErr)
+				assert.ErrorIs(t, validationErr.Err, tc.wantErr)
 				return
 			}
 
