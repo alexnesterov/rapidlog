@@ -237,3 +237,71 @@ func (_c *MockBulletService_ListBullets_Call) RunAndReturn(run func(ctx context.
 	_c.Call.Return(run)
 	return _c
 }
+
+// MigrateBullet provides a mock function for the type MockBulletService
+func (_mock *MockBulletService) MigrateBullet(ctx context.Context, id uuid.UUID) (*entity.Bullet, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MigrateBullet")
+	}
+
+	var r0 *entity.Bullet
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*entity.Bullet, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *entity.Bullet); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entity.Bullet)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockBulletService_MigrateBullet_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MigrateBullet'
+type MockBulletService_MigrateBullet_Call struct {
+	*mock.Call
+}
+
+// MigrateBullet is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+func (_e *MockBulletService_Expecter) MigrateBullet(ctx any, id any) *MockBulletService_MigrateBullet_Call {
+	return &MockBulletService_MigrateBullet_Call{Call: _e.mock.On("MigrateBullet", ctx, id)}
+}
+
+func (_c *MockBulletService_MigrateBullet_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockBulletService_MigrateBullet_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockBulletService_MigrateBullet_Call) Return(bullet *entity.Bullet, err error) *MockBulletService_MigrateBullet_Call {
+	_c.Call.Return(bullet, err)
+	return _c
+}
+
+func (_c *MockBulletService_MigrateBullet_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (*entity.Bullet, error)) *MockBulletService_MigrateBullet_Call {
+	_c.Call.Return(run)
+	return _c
+}

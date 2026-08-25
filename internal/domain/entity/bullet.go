@@ -12,6 +12,9 @@ var ErrContentRequired = errors.New("content is required")
 var ErrContentTooLong = errors.New("content is too long")
 var ErrTypeInvalid = errors.New("type must be task, event or note")
 
+var ErrNotOpenTask = errors.New("bullet is not an open task")
+var ErrTodayTask = errors.New("bullet is already scheduled for today")
+
 type BulletType string
 
 const (
@@ -39,6 +42,25 @@ type Bullet struct {
 	UpdatedAt time.Time  `json:"updated_at"`
 }
 
+func NewBullet(bulletType BulletType, content string) (*Bullet, error) {
+	now := time.Now()
+
+	bullet := &Bullet{
+		ID:        uuid.New(),
+		Type:      bulletType,
+		Signifier: SignifierOpen,
+		Content:   content,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+
+	if err := bullet.Validate(); err != nil {
+		return nil, err
+	}
+
+	return bullet, nil
+}
+
 func (b *Bullet) Validate() error {
 	switch b.Type {
 	case BulletTask, BulletEvent, BulletNote:
@@ -55,4 +77,29 @@ func (b *Bullet) Validate() error {
 	}
 
 	return nil
+}
+
+func (b *Bullet) Migrate() (*Bullet, error) {
+	if b.Type != BulletTask || b.Signifier != SignifierOpen {
+		return nil, &ValidationError{Err: ErrNotOpenTask}
+	}
+
+	if b.CreatedAt.Format("2006-01-02") == time.Now().Format("2006-01-02") {
+		return nil, &ValidationError{Err: ErrTodayTask}
+	}
+
+	now := time.Now()
+	b.Signifier = SignifierMigrated
+	b.UpdatedAt = now
+
+	migrated := &Bullet{
+		ID:        uuid.New(),
+		Type:      b.Type,
+		Signifier: SignifierOpen,
+		Content:   b.Content,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+
+	return migrated, nil
 }

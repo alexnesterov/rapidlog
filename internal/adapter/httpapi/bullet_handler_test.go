@@ -284,3 +284,116 @@ func TestCompleteBullet(t *testing.T) {
 		})
 	}
 }
+
+func TestMigrateBullet(t *testing.T) {
+	fixedID := uuid.New()
+
+	cases := []struct {
+		name       string
+		params     struct{ id string }
+		setupMock  func(m *mocks.MockBulletService)
+		wantStatus int
+		wantData   *entity.Bullet
+		wantError  *errorResponse
+	}{
+		{
+			name:   "success",
+			params: struct{ id string }{id: uuid.New().String()},
+			setupMock: func(m *mocks.MockBulletService) {
+				m.EXPECT().MigrateBullet(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+					Return(&entity.Bullet{
+						ID:        fixedID,
+						Signifier: entity.SignifierOpen,
+					}, nil).
+					Once()
+			},
+			wantStatus: http.StatusOK,
+			wantData: &entity.Bullet{
+				ID:        fixedID,
+				Signifier: entity.SignifierOpen,
+			},
+		},
+		{
+			name:       "parse id error",
+			params:     struct{ id string }{id: "123"},
+			setupMock:  func(m *mocks.MockBulletService) {},
+			wantStatus: http.StatusBadRequest,
+			wantError: &errorResponse{
+				Code:    http.StatusBadRequest,
+				Message: "invalid id",
+			},
+		},
+		{
+			name:   "service error",
+			params: struct{ id string }{id: uuid.New().String()},
+			setupMock: func(m *mocks.MockBulletService) {
+				m.EXPECT().MigrateBullet(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+					Return(nil, errors.New("service error")).
+					Once()
+			},
+			wantStatus: http.StatusInternalServerError,
+			wantError: &errorResponse{
+				Code:    http.StatusInternalServerError,
+				Message: "internal server error",
+			},
+		},
+		{
+			name:   "not found",
+			params: struct{ id string }{id: uuid.New().String()},
+			setupMock: func(m *mocks.MockBulletService) {
+				m.EXPECT().MigrateBullet(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+					Return(nil, port.ErrNotFound).
+					Once()
+			},
+			wantStatus: http.StatusNotFound,
+			wantError: &errorResponse{
+				Code:    http.StatusNotFound,
+				Message: "bullet not found",
+			},
+		},
+		{
+			name:   "validation error",
+			params: struct{ id string }{id: uuid.New().String()},
+			setupMock: func(m *mocks.MockBulletService) {
+				m.EXPECT().MigrateBullet(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+					Return(nil, &entity.ValidationError{Err: errors.New("validation error")}).
+					Once()
+			},
+			wantStatus: http.StatusBadRequest,
+			wantError: &errorResponse{
+				Code:    http.StatusBadRequest,
+				Message: "validation error",
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockBulletService := mocks.NewMockBulletService(t)
+			tc.setupMock(mockBulletService)
+			bulletHandler := NewBulletHandler(mockBulletService)
+
+			req := httptest.NewRequest(http.MethodPost, "/api/bullets/"+tc.params.id+"/migrate", nil)
+			res := httptest.NewRecorder()
+
+			req.SetPathValue("id", tc.params.id)
+
+			bulletHandler.MigrateBullet(res, req)
+
+			require.Equal(t, tc.wantStatus, res.Code)
+			assert.Equal(t, "application/json", res.Header().Get("Content-Type"))
+
+			if tc.wantData != nil {
+				var got response[entity.Bullet]
+				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
+				assert.Equal(t, *tc.wantData, got.Data)
+			}
+
+			if tc.wantError != nil {
+				var got response[any]
+				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
+				assert.Equal(t, tc.wantError, got.Error)
+			}
+		})
+	}
+}

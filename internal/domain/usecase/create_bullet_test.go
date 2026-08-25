@@ -26,8 +26,11 @@ func TestCreateBulletUseCase(t *testing.T) {
 		wantErr   error
 	}{
 		{
-			name:  "success",
-			input: port.CreateBulletInput{Content: "Заголовок", Type: entity.BulletTask},
+			name: "success",
+			input: port.CreateBulletInput{
+				Content: "Заголовок",
+				Type:    entity.BulletTask,
+			},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().
 					Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
@@ -38,19 +41,21 @@ func TestCreateBulletUseCase(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:  "type defaults to task when not provided",
-			input: port.CreateBulletInput{Content: "Заголовок"},
-			setupMock: func(m *mocks.MockBulletRepository) {
-				m.EXPECT().Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
-					Return(nil).
-					Once()
+			name: "empty type",
+			input: port.CreateBulletInput{
+				Type:    "",
+				Content: "Заголовок",
 			},
-			want:    &entity.Bullet{Content: "Заголовок", Type: entity.BulletTask},
-			wantErr: nil,
+			setupMock: func(m *mocks.MockBulletRepository) {},
+			want:      nil,
+			wantErr:   entity.ErrTypeInvalid,
 		},
 		{
-			name:  "repo error",
-			input: port.CreateBulletInput{Content: "Заголовок"},
+			name: "repo error",
+			input: port.CreateBulletInput{
+				Type:    entity.BulletTask,
+				Content: "Заголовок",
+			},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().
 					Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
@@ -61,8 +66,11 @@ func TestCreateBulletUseCase(t *testing.T) {
 			wantErr: errRepo,
 		},
 		{
-			name:      "empty content",
-			input:     port.CreateBulletInput{Content: ""},
+			name: "empty content",
+			input: port.CreateBulletInput{
+				Type:    entity.BulletTask,
+				Content: "",
+			},
 			setupMock: func(m *mocks.MockBulletRepository) {},
 			want:      nil,
 			wantErr:   entity.ErrContentRequired,
@@ -73,7 +81,8 @@ func TestCreateBulletUseCase(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mockRepo := mocks.NewMockBulletRepository(t)
 			tc.setupMock(mockRepo)
-			uc := usecase.NewBulletService(mockRepo)
+			mockTxMgr := mocks.NewMockTransactionManager(t)
+			uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
 			got, err := uc.CreateBullet(context.Background(), tc.input)
 			if tc.wantErr != nil {

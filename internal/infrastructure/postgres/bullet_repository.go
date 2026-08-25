@@ -25,7 +25,7 @@ func (r *bulletRepository) Create(ctx context.Context, bullet *entity.Bullet) er
 		VALUES ($1, $2, $3, $4, $5, $6)
 	`
 
-	_, err := r.pool.Exec(ctx, query,
+	_, err := getQueryer(ctx, r.pool).Exec(ctx, query,
 		bullet.ID,
 		bullet.Type,
 		bullet.Signifier,
@@ -44,7 +44,7 @@ func (r *bulletRepository) Get(ctx context.Context, id uuid.UUID) (*entity.Bulle
 		WHERE id = $1
 	`
 
-	row := r.pool.QueryRow(ctx, query, id)
+	row := getQueryer(ctx, r.pool).QueryRow(ctx, query, id)
 
 	bullet := &entity.Bullet{}
 	err := row.Scan(
@@ -72,7 +72,7 @@ func (r *bulletRepository) List(ctx context.Context) ([]*entity.Bullet, error) {
 		FROM bullets
 	`
 
-	rows, err := r.pool.Query(ctx, query)
+	rows, err := getQueryer(ctx, r.pool).Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func (r *bulletRepository) Update(ctx context.Context, bullet *entity.Bullet) er
 		WHERE id = $1
 	`
 
-	_, err := r.pool.Exec(ctx, query,
+	_, err := getQueryer(ctx, r.pool).Exec(ctx, query,
 		bullet.ID,
 		bullet.Type,
 		bullet.Signifier,

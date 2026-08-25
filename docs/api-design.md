@@ -23,12 +23,11 @@ side-effects (уведомления, аудит), не основной пут�
 По аналогии с нотацией Bullet Journal: `type` описывает разновидность
 записи (задача, событие, заметка), `signifier` — её состояние (открыта,
 выполнена, перенесена, запланирована, отменена). Реализованы пока
-только переходы `open` → `completed` (см. `POST
-/api/bullets/{id}/complete`); `migrated`/`scheduled`/`cancelled`
-зарезервированы под будущие операции переноса/планирования/отмены —
-эндпоинтов для них пока нет.
+переходы `open` → `completed` и `open` → `migrated` (см. `POST
+/api/bullets/{id}/complete` и `POST /api/bullets/{id}/migrate`).
+`scheduled` и `cancelled` зарезервированы под будущие операции.
 
-**Операции:** Create, List, Get, Update, Delete, Complete.
+**Операции:** Create, List, Get, Update, Delete, Complete, Migrate.
 
 ### Collection
 
@@ -212,6 +211,52 @@ healthcheck.
   "error": {
     "code": 404,
     "message": "bullet not found"
+  }
+}
+```
+
+#### POST /api/bullets/{id}/migrate
+
+**Юзкейс**: пользователь переносит незавершённую задачу на текущий
+день. Исходная строка сохраняется в журнале с признаком переноса, а в
+текущем дне появляется новая открытая задача с тем же текстом — как в
+бумажном Bullet Journal.
+
+- **Актор**: пользователь
+- **Предусловие**: bullet существует, имеет `type = task` и
+  `signifier = open`
+- **Основной поток**: исходный bullet получает
+  `signifier = migrated`; создаётся новый bullet с тем же `content`,
+  `type = task`, `signifier = open` и текущим `created_at`
+- **Ошибка**: bullet не найден → `404`; bullet не является открытой
+  задачей → `400`
+
+Тело запроса отсутствует. Перенос всегда выполняется на текущий день;
+дата исходной задачи не изменяется. `updated_at` исходного bullet
+обновляется в момент переноса. В ответе возвращается только созданная
+задача.
+
+```json
+// response 201
+{
+  "data": {
+    "id": "uuid",
+    "type": "task",
+    "content": "Оплатить хостинг",
+    "signifier": "open",
+    "created_at": "...",
+    "updated_at": "..."
+  }
+}
+```
+
+```json
+// response 400
+{
+  "data": null,
+  "error": {
+    "code": 400,
+    "message": "only open tasks can be migrated"
   }
 }
 ```
