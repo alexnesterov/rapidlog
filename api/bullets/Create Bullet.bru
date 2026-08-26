@@ -12,6 +12,7 @@ post {
 
 body:json {
   {
+    "type": "task",
     "content": "Оплатить хостинг"
   }
 }
@@ -25,16 +26,17 @@ example {
     mode: json
     body:json: {
       {
+        "type": "task",
         "content": "Оплатить хостинг"
       }
     }
   }
-
+  
   response: {
     headers: {
       content-type: application/json
-      date: Tue, 28 Jul 2026 12:32:49 GMT
-      content-length: 209
+      date: Wed, 26 Aug 2026 13:48:49 GMT
+      content-length: 224
     }
   
     status: {
@@ -47,12 +49,12 @@ example {
       content: '''
         {
           "data": {
-            "id": "3432dcdd-2fb0-403b-8d83-7b5f1cfced94",
+            "id": "a2592511-d4ab-409b-9535-1b2c2d194132",
             "type": "task",
-            "content": "Оплатить хостинг",
             "signifier": "open",
-            "created_at": "2026-07-28T15:32:49.607087+03:00",
-            "updated_at": "2026-07-28T15:32:49.607087+03:00"
+            "content": "Оплатить хостинг",
+            "created_at": "2026-08-26T13:48:49.572337881Z",
+            "updated_at": "2026-08-26T13:48:49.572337881Z"
           }
         }
       '''
