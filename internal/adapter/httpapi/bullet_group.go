@@ -14,6 +14,9 @@ type bulletDayGroup struct {
 
 func groupBulletsByDay(bullets []*entity.Bullet) []bulletDayGroup {
 	sort.Slice(bullets, func(i, j int) bool {
+		if bullets[i].CreatedAt.Equal(bullets[j].CreatedAt) {
+			return bullets[i].ID.String() < bullets[j].ID.String()
+		}
 		return bullets[i].CreatedAt.Before(bullets[j].CreatedAt)
 	})
 
