@@ -33,6 +33,11 @@ func main() {
 
 	logger.Info("connected to postgres")
 
+	if err := postgres.Migrate(cfg.DB.DSN); err != nil {
+		logger.Error("failed to run migrations", "error", err)
+		os.Exit(1)
+	}
+
 	txMgr := postgres.NewTransactionManager(pool)
 
 	router := http.NewServeMux()
