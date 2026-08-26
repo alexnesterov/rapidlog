@@ -38,6 +38,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err := postgres.Seed(ctx, pool); err != nil {
+		logger.Error("failed to run seed", "error", err)
+		os.Exit(1)
+	}
+
 	txMgr := postgres.NewTransactionManager(pool)
 
 	router := http.NewServeMux()
