@@ -2,29 +2,30 @@ name: cicd-train
 
 on:
   push:
-    branches: [ "main" ]
-    tags: ["*"]
+    branches: ['main']
+    tags: ['*']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-go@v6
-      with:
-        go-version-file: 'go.mod'
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/build-frontend
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: 'go.mod'
 
-    - name: Build
-      run: go build -v ./...
+      - name: Build
+        run: go build -v ./...
 
   test:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: ./.github/actions/build-frontend
       - uses: actions/setup-go@v6
         with:
           go-version-file: 'go.mod'
@@ -37,6 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: ./.github/actions/build-frontend
       - uses: actions/setup-go@v6
         with:
           go-version-file: 'go.mod'
