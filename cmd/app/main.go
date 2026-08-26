@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/config"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/usecase"
 	"github.com/alexnesterov/rapidlog-api/internal/infrastructure/postgres"
+	"github.com/alexnesterov/rapidlog-api/web"
 )
 
 func main() {
@@ -60,6 +62,13 @@ func main() {
 	router.HandleFunc("GET /api/bullets", bulletHandler.ListBullets)
 	router.HandleFunc("POST /api/bullets/{id}/complete", bulletHandler.CompleteBullet)
 	router.HandleFunc("POST /api/bullets/{id}/migrate", bulletHandler.MigrateBullet)
+
+	frontend, err := fs.Sub(web.Dist, "dist")
+	if err != nil {
+		logger.Error("failed to load embedded frontend", "error", err)
+		os.Exit(1)
+	}
+	router.Handle("/", http.FileServer(http.FS(frontend)))
 
 	logger.Info("starting server", "name", cfg.App.Name, "port", cfg.HTTP.Port)
 	if err := http.ListenAndServe(":"+cfg.HTTP.Port, handler); err != nil {

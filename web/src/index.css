@@ -1,0 +1,58 @@
+:root {
+  --paper: #f7f3ea;
+  --paper-line: rgba(21, 19, 22, 0.14);
+  --ink: #151316;
+  --ink-soft: #5a5560;
+  --accent: #c97a2b;
+  --accent-strong: #a85f18;
+  --done: #7a8a6f;
+  --danger: #b3432f;
+
+  --font-display: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-body: "Lora", Georgia, serif;
+  --font-hand: "Caveat", "Segoe Script", cursive;
+
+  color-scheme: light dark;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #17151b;
+    --paper-line: rgba(247, 243, 234, 0.08);
+    --ink: #ece7de;
+    --ink-soft: #a29c9a;
+    --accent: #e8a33d;
+    --accent-strong: #f0b45c;
+    --done: #8fae7d;
+    --danger: #e07a5f;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  font-family: var(--font-body);
+  font-style: italic;
+  background-color: var(--paper);
+  background-image: radial-gradient(var(--paper-line) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+}
