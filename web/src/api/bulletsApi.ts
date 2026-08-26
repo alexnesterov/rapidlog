@@ -39,3 +39,9 @@ export async function markBulletDone(id: string): Promise<Bullet> {
     method: "POST",
   });
 }
+
+export async function migrateBullet(id: string): Promise<Bullet> {
+  return request<Bullet>(`/bullets/${id}/migrate`, {
+    method: "POST",
+  });
+}

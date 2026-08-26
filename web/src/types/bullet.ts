@@ -2,6 +2,8 @@ export type BulletType = "task" | "event" | "note";
 
 export type Signifier = "open" | "completed" | "migrated" | "scheduled" | "cancelled";
 
+export type MigrateTarget = "today";
+
 export interface Bullet {
   id: string;
   type: BulletType;

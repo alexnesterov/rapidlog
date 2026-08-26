@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { listBullets, markBulletDone } from "./api/bulletsApi";
-import type { Bullet, BulletDayGroup } from "./types/bullet";
-import { todayIsoDate } from "./lib/date";
-import { waitForFonts } from "./lib/fonts";
-import { DaySection } from "./components/DaySection";
-import "./App.css";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { listBullets, markBulletDone, migrateBullet } from './api/bulletsApi';
+import type { Bullet, BulletDayGroup, MigrateTarget } from './types/bullet';
+import { todayIsoDate } from './lib/date';
+import { waitForFonts } from './lib/fonts';
+import { DaySection } from './components/DaySection';
+import './App.css';
 
 function withToday(days: BulletDayGroup[]): BulletDayGroup[] {
   const today = todayIsoDate();
@@ -24,7 +24,7 @@ function App() {
     setError(null);
     listBullets()
       .then((res) => setDays(withToday(res)))
-      .catch(() => setError("не удалось загрузить записи"))
+      .catch(() => setError('не удалось загрузить записи'))
       .finally(() => {
         fontsReady.then(() => {
           setLoading(false);
@@ -41,7 +41,17 @@ function App() {
     (bullet: Bullet) => {
       markBulletDone(bullet.id)
         .then(reload)
-        .catch(() => setError("не удалось обновить запись"));
+        .catch(() => setError('не удалось обновить запись'));
+    },
+    [reload],
+  );
+
+  const moveBullet = useCallback(
+    (bullet: Bullet, target: MigrateTarget) => {
+      if (target !== 'today') return;
+      migrateBullet(bullet.id)
+        .then(reload)
+        .catch(() => setError('не удалось перенести запись'));
     },
     [reload],
   );
@@ -81,13 +91,14 @@ function App() {
               isToday={day.day === today}
               onCreated={reload}
               onComplete={completeBullet}
+              onMigrate={moveBullet}
               animationDelay={index * 70}
             />
           ))}
         </div>
       )}
 
-      <footer className="page__footer">данные не сохраняются — демо-режим на моках</footer>
+      <footer className="page__footer">демо</footer>
     </div>
   );
 }

@@ -63,7 +63,7 @@ export function BulletForm({ onCreated }: BulletFormProps) {
   }
 
   return (
-    <form className="scribble" onSubmit={handleSubmit}>
+    <form className={`scribble ${typeOpen ? "scribble--type-open" : ""}`} onSubmit={handleSubmit}>
       <div className="scribble__type" ref={typeRef}>
         <button
           type="button"

@@ -152,6 +152,11 @@
   gap: 4px;
 }
 
+.day:has(.scribble--type-open) {
+  position: relative;
+  z-index: 5;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .day {
     animation: rise 0.5s ease both;
@@ -211,6 +216,10 @@
   align-items: baseline;
   gap: 10px;
   padding: 10px 2px;
+}
+
+.scribble--type-open {
+  z-index: 5;
 }
 
 .scribble::before {
@@ -392,6 +401,7 @@
 }
 
 .log-line {
+  position: relative;
   display: flex;
   align-items: baseline;
   gap: 12px;
@@ -423,14 +433,99 @@ button.log-line__mark:hover {
 }
 
 .log-line__title {
+  flex: 1;
+  min-width: 0;
   font-size: 16px;
   color: var(--ink);
 }
 
-.log-line.is-done .log-line__mark {
+.log-line__migrate {
+  position: relative;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.log-line__migrate-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: var(--ink-soft);
+  cursor: pointer;
+  opacity: 0.45;
+  transition:
+    opacity 0.15s ease,
+    color 0.15s ease;
+}
+
+.log-line__migrate-icon {
+  display: block;
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+}
+
+.log-line:hover .log-line__migrate-trigger,
+.log-line:focus-within .log-line__migrate-trigger,
+.log-line.is-picking .log-line__migrate-trigger {
+  opacity: 1;
+  color: var(--accent);
+}
+
+.log-line__migrate-trigger:hover {
+  color: var(--accent-strong);
+}
+
+.log-line__migrate-menu {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 6px);
+  right: -8px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 120px;
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.log-line__migrate-option {
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.log-line__migrate-option:hover {
+  background: var(--paper-line);
+}
+
+.log-line.is-picking {
+  z-index: 2;
+}
+
+.log-line.is-closed .log-line__mark {
   color: var(--done);
 }
 
-.log-line.is-done .log-line__title {
+.log-line.is-closed .log-line__title {
   color: var(--ink-soft);
 }
