@@ -7,5 +7,5 @@ import (
 )
 
 type UserService interface {
-	Resolve(ctx context.Context, id uuid.UUID) (uuid.UUID, error)
+	ResolveUser(ctx context.Context, id uuid.UUID) (uuid.UUID, error)
 }

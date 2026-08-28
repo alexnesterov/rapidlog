@@ -38,12 +38,12 @@ func (_m *MockUserService) EXPECT() *MockUserService_Expecter {
 	return &MockUserService_Expecter{mock: &_m.Mock}
 }
 
-// Resolve provides a mock function for the type MockUserService
-func (_mock *MockUserService) Resolve(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
+// ResolveUser provides a mock function for the type MockUserService
+func (_mock *MockUserService) ResolveUser(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Resolve")
+		panic("no return value specified for ResolveUser")
 	}
 
 	var r0 uuid.UUID
@@ -66,19 +66,19 @@ func (_mock *MockUserService) Resolve(ctx context.Context, id uuid.UUID) (uuid.U
 	return r0, r1
 }
 
-// MockUserService_Resolve_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Resolve'
-type MockUserService_Resolve_Call struct {
+// MockUserService_ResolveUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ResolveUser'
+type MockUserService_ResolveUser_Call struct {
 	*mock.Call
 }
 
-// Resolve is a helper method to define mock.On call
+// ResolveUser is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id uuid.UUID
-func (_e *MockUserService_Expecter) Resolve(ctx any, id any) *MockUserService_Resolve_Call {
-	return &MockUserService_Resolve_Call{Call: _e.mock.On("Resolve", ctx, id)}
+func (_e *MockUserService_Expecter) ResolveUser(ctx any, id any) *MockUserService_ResolveUser_Call {
+	return &MockUserService_ResolveUser_Call{Call: _e.mock.On("ResolveUser", ctx, id)}
 }
 
-func (_c *MockUserService_Resolve_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockUserService_Resolve_Call {
+func (_c *MockUserService_ResolveUser_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockUserService_ResolveUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -96,12 +96,12 @@ func (_c *MockUserService_Resolve_Call) Run(run func(ctx context.Context, id uui
 	return _c
 }
 
-func (_c *MockUserService_Resolve_Call) Return(uUID uuid.UUID, err error) *MockUserService_Resolve_Call {
+func (_c *MockUserService_ResolveUser_Call) Return(uUID uuid.UUID, err error) *MockUserService_ResolveUser_Call {
 	_c.Call.Return(uUID, err)
 	return _c
 }
 
-func (_c *MockUserService_Resolve_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (uuid.UUID, error)) *MockUserService_Resolve_Call {
+func (_c *MockUserService_ResolveUser_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (uuid.UUID, error)) *MockUserService_ResolveUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
