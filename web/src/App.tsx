@@ -71,6 +71,10 @@ function App() {
 
   return (
     <div className="page">
+      <div className="page__stamp" aria-hidden="true">
+        preview
+      </div>
+
       <header className="page__header">
         <h1>
           Rapid<span className="page__accent">Log</span>
@@ -98,7 +102,6 @@ function App() {
         </div>
       )}
 
-      <footer className="page__footer">демо</footer>
     </div>
   );
 }
