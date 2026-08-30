@@ -44,7 +44,7 @@ export function BulletList({ bullets, canMigrate, onComplete, onMigrate }: Bulle
   }, [openId]);
 
   if (bullets.length === 0) {
-    return <p className="log-state">страница пуста — запиши первую мысль</p>;
+    return <p className="log-state">новый день — с чего начнёшь?</p>;
   }
 
   return (
