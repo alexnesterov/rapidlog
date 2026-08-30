@@ -10,6 +10,7 @@ interface BulletFormProps {
 }
 
 export function BulletForm({ onCreated }: BulletFormProps) {
+  const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState("");
   const [type, setType] = useState<BulletType>("task");
   const [typeOpen, setTypeOpen] = useState(false);
@@ -17,6 +18,7 @@ export function BulletForm({ onCreated }: BulletFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const typeRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (!typeOpen) return;
@@ -38,6 +40,11 @@ export function BulletForm({ onCreated }: BulletFormProps) {
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [typeOpen]);
+
+  useEffect(() => {
+    if (!expanded) return;
+    inputRef.current?.focus();
+  }, [expanded]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -62,43 +69,33 @@ export function BulletForm({ onCreated }: BulletFormProps) {
     }
   }
 
+  function handleCancel() {
+    setExpanded(false);
+    setTitle("");
+    setError(null);
+  }
+
+  if (!expanded) {
+    return (
+      <button type="button" className="scribble-trigger" onClick={() => setExpanded(true)}>
+        <span className="scribble-trigger__mark">+</span>
+        Добавить запись
+      </button>
+    );
+  }
+
   return (
-    <form className={`scribble ${typeOpen ? "scribble--type-open" : ""}`} onSubmit={handleSubmit}>
-      <div className="scribble__type" ref={typeRef}>
-        <button
-          type="button"
-          className="scribble__type-trigger"
-          onClick={() => setTypeOpen((v) => !v)}
-          disabled={submitting}
-          aria-haspopup="listbox"
-          aria-expanded={typeOpen}
-          aria-label={`Тип записи: ${TYPE_LABELS[type]}`}
-        >
-          {TYPE_MARKS[type]}
-        </button>
-        {typeOpen && (
-          <ul className="scribble__type-menu" role="listbox" aria-label="Тип записи">
-            {TYPES.map((t) => (
-              <li
-                key={t}
-                role="option"
-                aria-selected={t === type}
-                className={`scribble__type-option ${t === type ? "scribble__type-option--selected" : ""}`}
-                onClick={() => {
-                  setType(t);
-                  setTypeOpen(false);
-                }}
-              >
-                <span className="scribble__type-option-mark">{TYPE_MARKS[t]}</span>
-                <span className="scribble__type-option-label">{TYPE_LABELS[t]}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+    <form
+      ref={formRef}
+      className={`scribble-card ${typeOpen ? "scribble-card--type-open" : ""}`}
+      onSubmit={handleSubmit}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") handleCancel();
+      }}
+    >
       <input
         ref={inputRef}
-        className="scribble__input"
+        className="scribble-card__input"
         type="text"
         placeholder="записать новое…"
         value={title}
@@ -110,15 +107,62 @@ export function BulletForm({ onCreated }: BulletFormProps) {
         disabled={submitting}
         aria-label="Название новой записи"
       />
-      <button
-        className="scribble__submit"
-        type="submit"
-        disabled={submitting || title.trim().length === 0}
-        aria-label="Добавить запись"
-      >
-        ↵
-      </button>
-      {error && <span className="scribble__error">{error}</span>}
+      <div className="scribble-card__footer">
+        <div className="scribble-card__type" ref={typeRef}>
+          <button
+            type="button"
+            className="scribble-card__type-trigger"
+            onClick={() => setTypeOpen((v) => !v)}
+            disabled={submitting}
+            aria-haspopup="listbox"
+            aria-expanded={typeOpen}
+            aria-label={`Тип записи: ${TYPE_LABELS[type]}`}
+          >
+            <span className="scribble-card__type-mark">{TYPE_MARKS[type]}</span>
+            {TYPE_LABELS[type]}
+          </button>
+          {typeOpen && (
+            <ul className="scribble__type-menu" role="listbox" aria-label="Тип записи">
+              {TYPES.map((t) => (
+                <li
+                  key={t}
+                  role="option"
+                  aria-selected={t === type}
+                  className={`scribble__type-option ${t === type ? "scribble__type-option--selected" : ""}`}
+                  onClick={() => {
+                    setType(t);
+                    setTypeOpen(false);
+                  }}
+                >
+                  <span className="scribble__type-option-mark">{TYPE_MARKS[t]}</span>
+                  <span className="scribble__type-option-label">{TYPE_LABELS[t]}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <div className="scribble-card__actions">
+          <button
+            type="button"
+            className="scribble-card__cancel"
+            onClick={handleCancel}
+            aria-label="Отменить"
+            data-tooltip="Отменить"
+          >
+            ×
+          </button>
+          <button
+            className="scribble-card__submit"
+            type="submit"
+            disabled={submitting || title.trim().length === 0}
+            aria-label="Добавить запись"
+            data-tooltip="Добавить запись"
+          >
+            ↑
+          </button>
+        </div>
+      </div>
+      {error && <span className="scribble-card__error">{error}</span>}
     </form>
   );
 }

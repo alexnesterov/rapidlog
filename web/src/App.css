@@ -182,7 +182,8 @@
   gap: 4px;
 }
 
-.day:has(.scribble--type-open) {
+.day:has(.scribble--type-open),
+.day:has(.scribble-card--type-open) {
   position: relative;
   z-index: 5;
 }
@@ -237,65 +238,220 @@
   color: var(--ink-soft);
 }
 
-/* capture line — reads as the next line on the page, not a form widget */
+/* collapsed capture line — a plain "+" prompt until clicked */
 
-.scribble {
-  position: relative;
-  z-index: 0;
+.scribble-trigger {
   display: flex;
   align-items: baseline;
   gap: 10px;
+  width: 100%;
   padding: 10px 2px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ink-soft);
+  text-align: left;
+  transition: color 0.15s ease;
 }
 
-.scribble--type-open {
-  z-index: 5;
+.scribble-trigger:hover {
+  color: var(--danger);
 }
 
-.scribble::before {
-  content: "";
-  position: absolute;
-  inset: 4px -6px;
-  z-index: -1;
-  background: var(--accent);
-  opacity: 0;
-  border-radius: 4px;
-  transition: opacity 0.25s ease;
-}
-
-.scribble:focus-within::before {
-  opacity: 0.12;
-}
-
-.scribble__type {
-  position: relative;
+.scribble-trigger__mark {
   flex-shrink: 0;
-}
-
-.scribble__type-trigger {
   width: 14px;
   text-align: center;
   font-family: var(--font-mono);
   font-style: normal;
   font-size: 16px;
-  font-weight: 600;
-  line-height: 1;
-  color: var(--accent);
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: color 0.15s ease;
+  font-weight: 400;
+  color: var(--danger);
 }
 
-.scribble__type-trigger:hover:not(:disabled) {
+/* capture card — expanded form: title line + type pill + actions */
+
+.scribble-card {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 4px 0;
+  padding: 12px;
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.scribble-card--type-open {
+  z-index: 5;
+}
+
+.scribble-card__input {
+  width: 100%;
+  font: inherit;
+  font-size: 16px;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  padding: 2px 0;
+}
+
+.scribble-card__input::placeholder {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.scribble-card__input:focus {
+  outline: none;
+}
+
+.scribble-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.scribble-card__type {
+  position: relative;
+}
+
+.scribble-card__type-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--paper-line);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.scribble-card__type-trigger:hover:not(:disabled) {
+  border-color: var(--accent);
   color: var(--accent-strong);
 }
 
-.scribble__type-trigger:disabled {
+.scribble-card__type-trigger:disabled {
   cursor: default;
   opacity: 0.6;
 }
+
+.scribble-card__type-mark {
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.scribble-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  z-index: 20;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  padding: 5px 10px;
+  background: var(--ink);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--paper);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.scribble-card__cancel {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.scribble-card__cancel:hover {
+  color: var(--ink);
+  background: var(--paper-line);
+}
+
+.scribble-card__submit {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--danger);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--paper);
+  cursor: pointer;
+  transition:
+    filter 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.scribble-card__submit:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+
+.scribble-card__submit:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.scribble-card__error {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--danger);
+}
+
+/* type dropdown menu — opens under the type pill in the capture card */
 
 .scribble__type-menu {
   position: absolute;
@@ -348,67 +504,6 @@
 .scribble__type-option--selected .scribble__type-option-label {
   color: var(--accent-strong);
   font-weight: 500;
-}
-
-.scribble__input {
-  flex: 1;
-  min-width: 0;
-  font: inherit;
-  font-size: 16px;
-  color: var(--ink);
-  background: transparent;
-  border: none;
-  padding: 2px 0;
-}
-
-.scribble__input::placeholder {
-  color: var(--ink-soft);
-  font-style: italic;
-}
-
-.scribble__input:focus {
-  outline: none;
-}
-
-.scribble__submit {
-  flex-shrink: 0;
-  border: none;
-  background: transparent;
-  color: var(--accent);
-  font-size: 17px;
-  line-height: 1;
-  padding: 0 2px;
-  cursor: pointer;
-  opacity: 0;
-  transform: translateX(-4px);
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease,
-    color 0.15s ease;
-}
-
-.scribble:focus-within .scribble__submit,
-.scribble__submit:not(:disabled) {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.scribble__submit:disabled {
-  opacity: 0;
-  cursor: default;
-}
-
-.scribble__submit:hover:not(:disabled) {
-  color: var(--accent-strong);
-}
-
-.scribble__error {
-  position: absolute;
-  right: 2px;
-  bottom: -16px;
-  font-size: 12px;
-  font-style: italic;
-  color: var(--danger);
 }
 
 /* rapid-logged lines — plain ruled entries, no card chrome */
