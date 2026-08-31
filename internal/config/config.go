@@ -3,12 +3,6 @@ package config
 
 import "time"
 
-type Config struct {
-	App  AppConfig
-	HTTP HTTPConfig
-	DB   DBConfig
-}
-
 type AppConfig struct {
 	Name string `mapstructure:"name"`
 }
@@ -22,4 +16,18 @@ type HTTPConfig struct {
 
 type DBConfig struct {
 	DSN string `mapstructure:"dsn"`
+}
+
+type SessionConfig struct {
+	CookieName     string        `mapstructure:"cookie_name"`
+	CookieTTL      time.Duration `mapstructure:"cookie_ttl"`
+	CookieSecure   bool          `mapstructure:"cookie_secure"`
+	CookieHTTPOnly bool          `mapstructure:"cookie_http_only"`
+}
+
+type Config struct {
+	App     AppConfig
+	HTTP    HTTPConfig
+	DB      DBConfig
+	Session SessionConfig
 }
