@@ -23,7 +23,7 @@ func NewBulletHandler(uc port.BulletService) *bulletHandler {
 func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 	var input port.CreateBulletInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		RespondError(w, http.StatusBadRequest, errInvalidRequestBody.Error())
+		RespondError(w, http.StatusBadRequest, ErrInvalidRequestBody.Error())
 		return
 	}
 
@@ -35,7 +35,7 @@ func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		RespondError(w, http.StatusInternalServerError, errInternal.Error())
+		RespondError(w, http.StatusInternalServerError, ErrInternal.Error())
 		return
 	}
 
@@ -45,7 +45,7 @@ func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 func (h *bulletHandler) ListBullets(w http.ResponseWriter, r *http.Request) {
 	bullets, err := h.usecase.ListBullets(r.Context())
 	if err != nil {
-		RespondError(w, http.StatusInternalServerError, errInternal.Error())
+		RespondError(w, http.StatusInternalServerError, ErrInternal.Error())
 		return
 	}
 
@@ -59,7 +59,7 @@ func (h *bulletHandler) ListBullets(w http.ResponseWriter, r *http.Request) {
 func (h *bulletHandler) CompleteBullet(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		RespondError(w, http.StatusBadRequest, errInvalidID.Error())
+		RespondError(w, http.StatusBadRequest, ErrInvalidID.Error())
 		return
 	}
 
@@ -70,7 +70,7 @@ func (h *bulletHandler) CompleteBullet(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		RespondError(w, http.StatusInternalServerError, errInternal.Error())
+		RespondError(w, http.StatusInternalServerError, ErrInternal.Error())
 		return
 	}
 
@@ -97,7 +97,7 @@ func (h *bulletHandler) MigrateBullet(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		RespondError(w, http.StatusInternalServerError, errInternal.Error())
+		RespondError(w, http.StatusInternalServerError, ErrInternal.Error())
 		return
 	}
 
