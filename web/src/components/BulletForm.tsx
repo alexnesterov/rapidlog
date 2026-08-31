@@ -149,7 +149,9 @@ export function BulletForm({ onCreated }: BulletFormProps) {
             aria-label="Отменить"
             data-tooltip="Отменить"
           >
-            ×
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4 4L12 12M12 4L4 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </button>
           <button
             className="scribble-card__submit"
@@ -158,7 +160,9 @@ export function BulletForm({ onCreated }: BulletFormProps) {
             aria-label="Добавить запись"
             data-tooltip="Добавить запись"
           >
-            ↑
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M8 13V3M8 3L3 8M8 3L13 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </button>
         </div>
       </div>
