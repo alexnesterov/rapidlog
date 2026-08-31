@@ -30,6 +30,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 			input: port.CreateBulletInput{
 				Content: "Заголовок",
 				Type:    entity.BulletTask,
+				UserID:  uuid.New(),
 			},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().
@@ -55,6 +56,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 			input: port.CreateBulletInput{
 				Type:    entity.BulletTask,
 				Content: "Заголовок",
+				UserID:  uuid.New(),
 			},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().

@@ -27,7 +27,7 @@ func TestCompleteBulletUseCase(t *testing.T) {
 		{
 			name: "success",
 			setupMock: func(m *mocks.MockBulletRepository) {
-				m.EXPECT().Get(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+				m.EXPECT().Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
 					Return(&entity.Bullet{Signifier: entity.SignifierOpen, UpdatedAt: oldUpdatedAt}, nil).
 					Once()
 				m.EXPECT().Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
@@ -39,7 +39,7 @@ func TestCompleteBulletUseCase(t *testing.T) {
 		{
 			name: "already completed",
 			setupMock: func(m *mocks.MockBulletRepository) {
-				m.EXPECT().Get(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+				m.EXPECT().Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
 					Return(&entity.Bullet{Signifier: entity.SignifierCompleted, UpdatedAt: oldUpdatedAt}, nil).
 					Once()
 			},
@@ -47,7 +47,7 @@ func TestCompleteBulletUseCase(t *testing.T) {
 		{
 			name: "not found",
 			setupMock: func(m *mocks.MockBulletRepository) {
-				m.EXPECT().Get(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+				m.EXPECT().Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
 					Return(nil, port.ErrNotFound).
 					Once()
 			},
@@ -64,7 +64,7 @@ func TestCompleteBulletUseCase(t *testing.T) {
 
 			uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
-			got, err := uc.CompleteBullet(context.Background(), uuid.New())
+			got, err := uc.CompleteBullet(context.Background(), uuid.New(), uuid.New())
 			if tc.wantErr != nil {
 				require.Error(t, err)
 				assert.Nil(t, got)

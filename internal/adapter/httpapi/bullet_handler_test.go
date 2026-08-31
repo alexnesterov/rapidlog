@@ -19,6 +19,7 @@ import (
 
 func TestCreateBullet(t *testing.T) {
 	fixedID := uuid.New()
+	userID := uuid.New()
 
 	cases := []struct {
 		name       string
@@ -33,7 +34,7 @@ func TestCreateBullet(t *testing.T) {
 			body: `{"content": "Заголовок"}`,
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
-					CreateBullet(mock.Anything, port.CreateBulletInput{Content: "Заголовок"}).
+					CreateBullet(mock.Anything, port.CreateBulletInput{Content: "Заголовок", UserID: userID}).
 					Return(&entity.Bullet{
 						ID:      fixedID,
 						Content: "Заголовок",
@@ -61,7 +62,7 @@ func TestCreateBullet(t *testing.T) {
 			body: `{"content": "Заголовок"}`,
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
-					CreateBullet(mock.Anything, port.CreateBulletInput{Content: "Заголовок"}).
+					CreateBullet(mock.Anything, port.CreateBulletInput{Content: "Заголовок", UserID: userID}).
 					Return(nil, errors.New("service error")).
 					Once()
 			},
@@ -76,7 +77,7 @@ func TestCreateBullet(t *testing.T) {
 			body: `{"content": ""}`,
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
-					CreateBullet(mock.Anything, port.CreateBulletInput{Content: ""}).
+					CreateBullet(mock.Anything, port.CreateBulletInput{Content: "", UserID: userID}).
 					Return(nil, &entity.ValidationError{Err: errors.New("some validation error")}).
 					Once()
 			},
@@ -95,6 +96,7 @@ func TestCreateBullet(t *testing.T) {
 			bulletHandler := NewBulletHandler(mockBulletService)
 
 			req := httptest.NewRequest(http.MethodPost, "/api/bullets", bytes.NewBufferString(tc.body))
+			req = req.WithContext(WithUserID(req.Context(), userID))
 			res := httptest.NewRecorder()
 			bulletHandler.CreateBullet(res, req)
 
@@ -118,6 +120,8 @@ func TestCreateBullet(t *testing.T) {
 }
 
 func TestListBullets(t *testing.T) {
+	userID := uuid.New()
+
 	cases := []struct {
 		name       string
 		setupMock  func(m *mocks.MockBulletService)
@@ -128,7 +132,7 @@ func TestListBullets(t *testing.T) {
 		{
 			name: "success",
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().ListBullets(mock.Anything).
+				m.EXPECT().ListBullets(mock.Anything, userID).
 					Return([]*entity.Bullet{{Content: "Заголовок"}}, nil).
 					Once()
 			},
@@ -140,7 +144,7 @@ func TestListBullets(t *testing.T) {
 		{
 			name: "empty list",
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().ListBullets(mock.Anything).
+				m.EXPECT().ListBullets(mock.Anything, userID).
 					Return(nil, nil).
 					Once()
 			},
@@ -150,7 +154,7 @@ func TestListBullets(t *testing.T) {
 		{
 			name: "service error",
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().ListBullets(mock.Anything).
+				m.EXPECT().ListBullets(mock.Anything, userID).
 					Return(nil, errors.New("service error")).
 					Once()
 			},
@@ -169,6 +173,7 @@ func TestListBullets(t *testing.T) {
 			bulletHandler := NewBulletHandler(mockBulletService)
 
 			req := httptest.NewRequest(http.MethodGet, "/api/bullets", nil)
+			req = req.WithContext(WithUserID(req.Context(), userID))
 			res := httptest.NewRecorder()
 			bulletHandler.ListBullets(res, req)
 
@@ -192,6 +197,8 @@ func TestListBullets(t *testing.T) {
 }
 
 func TestCompleteBullet(t *testing.T) {
+	userID := uuid.New()
+
 	cases := []struct {
 		name       string
 		params     struct{ id string }
@@ -204,7 +211,7 @@ func TestCompleteBullet(t *testing.T) {
 			name:   "success",
 			params: struct{ id string }{id: uuid.New().String()},
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().CompleteBullet(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+				m.EXPECT().CompleteBullet(mock.Anything, mock.AnythingOfType("uuid.UUID"), userID).
 					Return(&entity.Bullet{Signifier: entity.SignifierCompleted}, nil).
 					Once()
 			},
@@ -227,7 +234,7 @@ func TestCompleteBullet(t *testing.T) {
 			name:   "service error",
 			params: struct{ id string }{id: uuid.New().String()},
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().CompleteBullet(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+				m.EXPECT().CompleteBullet(mock.Anything, mock.AnythingOfType("uuid.UUID"), userID).
 					Return(nil, errors.New("service error")).
 					Once()
 			},
@@ -241,7 +248,7 @@ func TestCompleteBullet(t *testing.T) {
 			name:   "not found",
 			params: struct{ id string }{id: uuid.New().String()},
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().CompleteBullet(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+				m.EXPECT().CompleteBullet(mock.Anything, mock.AnythingOfType("uuid.UUID"), userID).
 					Return(nil, port.ErrNotFound).
 					Once()
 			},
@@ -260,6 +267,7 @@ func TestCompleteBullet(t *testing.T) {
 			bulletHandler := NewBulletHandler(mockBulletService)
 
 			req := httptest.NewRequest(http.MethodPost, "/api/bullets/"+tc.params.id+"/complete", nil)
+			req = req.WithContext(WithUserID(req.Context(), userID))
 			res := httptest.NewRecorder()
 
 			req.SetPathValue("id", tc.params.id)
@@ -287,6 +295,7 @@ func TestCompleteBullet(t *testing.T) {
 
 func TestMigrateBullet(t *testing.T) {
 	fixedID := uuid.New()
+	userID := uuid.New()
 
 	cases := []struct {
 		name       string
@@ -300,7 +309,7 @@ func TestMigrateBullet(t *testing.T) {
 			name:   "success",
 			params: struct{ id string }{id: uuid.New().String()},
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().MigrateBullet(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+				m.EXPECT().MigrateBullet(mock.Anything, mock.AnythingOfType("uuid.UUID"), userID).
 					Return(&entity.Bullet{
 						ID:        fixedID,
 						Signifier: entity.SignifierOpen,
@@ -327,7 +336,7 @@ func TestMigrateBullet(t *testing.T) {
 			name:   "service error",
 			params: struct{ id string }{id: uuid.New().String()},
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().MigrateBullet(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+				m.EXPECT().MigrateBullet(mock.Anything, mock.AnythingOfType("uuid.UUID"), userID).
 					Return(nil, errors.New("service error")).
 					Once()
 			},
@@ -341,7 +350,7 @@ func TestMigrateBullet(t *testing.T) {
 			name:   "not found",
 			params: struct{ id string }{id: uuid.New().String()},
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().MigrateBullet(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+				m.EXPECT().MigrateBullet(mock.Anything, mock.AnythingOfType("uuid.UUID"), userID).
 					Return(nil, port.ErrNotFound).
 					Once()
 			},
@@ -355,7 +364,7 @@ func TestMigrateBullet(t *testing.T) {
 			name:   "validation error",
 			params: struct{ id string }{id: uuid.New().String()},
 			setupMock: func(m *mocks.MockBulletService) {
-				m.EXPECT().MigrateBullet(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+				m.EXPECT().MigrateBullet(mock.Anything, mock.AnythingOfType("uuid.UUID"), userID).
 					Return(nil, &entity.ValidationError{Err: errors.New("validation error")}).
 					Once()
 			},
@@ -374,6 +383,7 @@ func TestMigrateBullet(t *testing.T) {
 			bulletHandler := NewBulletHandler(mockBulletService)
 
 			req := httptest.NewRequest(http.MethodPost, "/api/bullets/"+tc.params.id+"/migrate", nil)
+			req = req.WithContext(WithUserID(req.Context(), userID))
 			res := httptest.NewRecorder()
 
 			req.SetPathValue("id", tc.params.id)

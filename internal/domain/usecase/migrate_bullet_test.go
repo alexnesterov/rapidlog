@@ -25,6 +25,7 @@ func TestMigrateBulletUseCaseSuite(t *testing.T) {
 
 func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
 	id := uuid.New()
+	userID := uuid.New()
 	initialUpdatedAt := time.Now().Add(-24 * time.Hour)
 
 	bullet := &entity.Bullet{
@@ -36,7 +37,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
 	}
 
 	mockRepo := mocks.NewMockBulletRepository(s.T())
-	mockRepo.EXPECT().Get(mock.Anything, id).
+	mockRepo.EXPECT().Get(mock.Anything, id, userID).
 		Return(bullet, nil).
 		Once()
 
@@ -66,7 +67,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
 
 	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
-	got, err := uc.MigrateBullet(context.Background(), id)
+	got, err := uc.MigrateBullet(context.Background(), id, userID)
 
 	s.NoError(err)
 	s.NotEqual(bullet.ID, got.ID)
@@ -78,9 +79,10 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
 
 func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotFound() {
 	id := uuid.New()
+	userID := uuid.New()
 
 	mockRepo := mocks.NewMockBulletRepository(s.T())
-	mockRepo.EXPECT().Get(mock.Anything, id).
+	mockRepo.EXPECT().Get(mock.Anything, id, userID).
 		Return(nil, port.ErrNotFound).
 		Once()
 
@@ -93,13 +95,14 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotFound() {
 
 	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
-	_, err := uc.MigrateBullet(context.Background(), id)
+	_, err := uc.MigrateBullet(context.Background(), id, userID)
 	s.Error(err)
 	s.ErrorIs(err, port.ErrNotFound)
 }
 
 func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_UpdateError() {
 	id := uuid.New()
+	userID := uuid.New()
 	wantErr := errors.New("update failed")
 
 	bullet := &entity.Bullet{
@@ -109,7 +112,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_UpdateError() {
 	}
 
 	mockRepo := mocks.NewMockBulletRepository(s.T())
-	mockRepo.EXPECT().Get(mock.Anything, id).
+	mockRepo.EXPECT().Get(mock.Anything, id, userID).
 		Return(bullet, nil).
 		Once()
 
@@ -126,13 +129,14 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_UpdateError() {
 
 	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
-	got, err := uc.MigrateBullet(context.Background(), id)
+	got, err := uc.MigrateBullet(context.Background(), id, userID)
 	s.Nil(got)
 	s.ErrorIs(err, wantErr)
 }
 
 func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_CreateError() {
 	id := uuid.New()
+	userID := uuid.New()
 	wantErr := errors.New("create failed")
 
 	bullet := &entity.Bullet{
@@ -142,7 +146,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_CreateError() {
 	}
 
 	mockRepo := mocks.NewMockBulletRepository(s.T())
-	mockRepo.EXPECT().Get(mock.Anything, id).
+	mockRepo.EXPECT().Get(mock.Anything, id, userID).
 		Return(bullet, nil).
 		Once()
 
@@ -163,13 +167,14 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_CreateError() {
 
 	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
-	got, err := uc.MigrateBullet(context.Background(), id)
+	got, err := uc.MigrateBullet(context.Background(), id, userID)
 	s.Nil(got)
 	s.ErrorIs(err, wantErr)
 }
 
 func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotOpenTask() {
 	id := uuid.New()
+	userID := uuid.New()
 
 	bullet := &entity.Bullet{
 		ID:        id,
@@ -178,7 +183,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotOpenTask() {
 	}
 
 	mockRepo := mocks.NewMockBulletRepository(s.T())
-	mockRepo.EXPECT().Get(mock.Anything, id).
+	mockRepo.EXPECT().Get(mock.Anything, id, userID).
 		Return(bullet, nil).
 		Once()
 
@@ -191,7 +196,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotOpenTask() {
 
 	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
-	got, err := uc.MigrateBullet(context.Background(), id)
+	got, err := uc.MigrateBullet(context.Background(), id, userID)
 	s.Nil(got)
 	s.ErrorIs(err, entity.ErrNotOpenTask)
 }
