@@ -14,6 +14,7 @@ var ErrTypeInvalid = errors.New("type must be task, event or note")
 
 var ErrNotOpenTask = errors.New("bullet is not an open task")
 var ErrTodayTask = errors.New("bullet is already scheduled for today")
+var ErrUserIDRequired = errors.New("user id is required")
 
 type BulletType string
 
@@ -38,11 +39,12 @@ type Bullet struct {
 	Type      BulletType `json:"type"`
 	Signifier Signifier  `json:"signifier"`
 	Content   string     `json:"content"`
+	UserID    uuid.UUID  `json:"user_id"`
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`
 }
 
-func NewBullet(bulletType BulletType, content string) (*Bullet, error) {
+func NewBullet(userID uuid.UUID, bulletType BulletType, content string) (*Bullet, error) {
 	now := time.Now()
 
 	bullet := &Bullet{
@@ -50,6 +52,7 @@ func NewBullet(bulletType BulletType, content string) (*Bullet, error) {
 		Type:      bulletType,
 		Signifier: SignifierOpen,
 		Content:   content,
+		UserID:    userID,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
@@ -76,6 +79,10 @@ func (b *Bullet) Validate() error {
 		return &ValidationError{Err: ErrContentTooLong}
 	}
 
+	if b.UserID == uuid.Nil {
+		return &ValidationError{Err: ErrUserIDRequired}
+	}
+
 	return nil
 }
 
@@ -97,6 +104,7 @@ func (b *Bullet) Migrate() (*Bullet, error) {
 		Type:      b.Type,
 		Signifier: SignifierOpen,
 		Content:   b.Content,
+		UserID:    b.UserID,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}

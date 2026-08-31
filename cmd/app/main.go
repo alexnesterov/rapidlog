@@ -40,28 +40,30 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := postgres.Seed(ctx, pool); err != nil {
-		logger.Error("failed to run seed", "error", err)
-		os.Exit(1)
-	}
-
 	txMgr := postgres.NewTransactionManager(pool)
-
-	router := http.NewServeMux()
-	router.HandleFunc("/health", httpapi.NewHealthHandler(pool))
-
-	var handler http.Handler = router
-	handler = middleware.Logging(logger)(handler)
-	handler = middleware.Recovery(logger)(handler)
 
 	bulletRepository := postgres.NewBulletRepository(pool)
 	bulletService := usecase.NewBulletService(bulletRepository, txMgr)
 	bulletHandler := httpapi.NewBulletHandler(bulletService)
 
+	userRepository := postgres.NewUserRepository(pool)
+	userService := usecase.NewUserService(
+		userRepository,
+		bulletRepository,
+		txMgr,
+	)
+
+	router := http.NewServeMux()
+	router.HandleFunc("/health", httpapi.NewHealthHandler(pool))
 	router.HandleFunc("POST /api/bullets", bulletHandler.CreateBullet)
 	router.HandleFunc("GET /api/bullets", bulletHandler.ListBullets)
 	router.HandleFunc("POST /api/bullets/{id}/complete", bulletHandler.CompleteBullet)
 	router.HandleFunc("POST /api/bullets/{id}/migrate", bulletHandler.MigrateBullet)
+
+	var handler http.Handler = router
+	handler = middleware.Session(userService, cfg.Session.CookieName, cfg.Session.CookieTTL, cfg.Session.CookieSecure)(handler)
+	handler = middleware.Logging(logger)(handler)
+	handler = middleware.Recovery(logger)(handler)
 
 	frontend, err := fs.Sub(web.Dist, "dist")
 	if err != nil {

@@ -23,9 +23,12 @@ func NewBulletHandler(uc port.BulletService) *bulletHandler {
 func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 	var input port.CreateBulletInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		RespondError(w, http.StatusBadRequest, errInvalidRequestBody.Error())
+		RespondError(w, http.StatusBadRequest, ErrInvalidRequestBody.Error())
 		return
 	}
+
+	userID, _ := UserIDFromContext(r.Context())
+	input.UserID = userID
 
 	createdBullet, err := h.usecase.CreateBullet(r.Context(), input)
 	if err != nil {
@@ -35,7 +38,7 @@ func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		RespondError(w, http.StatusInternalServerError, errInternal.Error())
+		RespondError(w, http.StatusInternalServerError, ErrInternal.Error())
 		return
 	}
 
@@ -43,9 +46,11 @@ func (h *bulletHandler) CreateBullet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *bulletHandler) ListBullets(w http.ResponseWriter, r *http.Request) {
-	bullets, err := h.usecase.ListBullets(r.Context())
+	userID, _ := UserIDFromContext(r.Context())
+
+	bullets, err := h.usecase.ListBullets(r.Context(), userID)
 	if err != nil {
-		RespondError(w, http.StatusInternalServerError, errInternal.Error())
+		RespondError(w, http.StatusInternalServerError, ErrInternal.Error())
 		return
 	}
 
@@ -57,20 +62,22 @@ func (h *bulletHandler) ListBullets(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *bulletHandler) CompleteBullet(w http.ResponseWriter, r *http.Request) {
+	userID, _ := UserIDFromContext(r.Context())
+
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		RespondError(w, http.StatusBadRequest, errInvalidID.Error())
+		RespondError(w, http.StatusBadRequest, ErrInvalidID.Error())
 		return
 	}
 
-	completedBullet, err := h.usecase.CompleteBullet(r.Context(), id)
+	completedBullet, err := h.usecase.CompleteBullet(r.Context(), id, userID)
 	if err != nil {
 		if errors.Is(err, port.ErrNotFound) {
 			RespondError(w, http.StatusNotFound, "bullet not found")
 			return
 		}
 
-		RespondError(w, http.StatusInternalServerError, errInternal.Error())
+		RespondError(w, http.StatusInternalServerError, ErrInternal.Error())
 		return
 	}
 
@@ -78,13 +85,15 @@ func (h *bulletHandler) CompleteBullet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *bulletHandler) MigrateBullet(w http.ResponseWriter, r *http.Request) {
+	userID, _ := UserIDFromContext(r.Context())
+
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		RespondError(w, http.StatusBadRequest, "invalid id")
 		return
 	}
 
-	migratedBullet, err := h.usecase.MigrateBullet(r.Context(), id)
+	migratedBullet, err := h.usecase.MigrateBullet(r.Context(), id, userID)
 	if err != nil {
 		if errors.Is(err, port.ErrNotFound) {
 			RespondError(w, http.StatusNotFound, "bullet not found")
@@ -97,7 +106,7 @@ func (h *bulletHandler) MigrateBullet(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		RespondError(w, http.StatusInternalServerError, errInternal.Error())
+		RespondError(w, http.StatusInternalServerError, ErrInternal.Error())
 		return
 	}
 

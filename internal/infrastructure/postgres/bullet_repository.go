@@ -21,8 +21,8 @@ func NewBulletRepository(pool *pgxpool.Pool) *bulletRepository {
 
 func (r *bulletRepository) Create(ctx context.Context, bullet *entity.Bullet) error {
 	query := `
-		INSERT INTO bullets (id, type, signifier, content, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO bullets (id, type, signifier, content, user_id, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`
 
 	_, err := getQueryer(ctx, r.pool).Exec(ctx, query,
@@ -30,6 +30,7 @@ func (r *bulletRepository) Create(ctx context.Context, bullet *entity.Bullet) er
 		bullet.Type,
 		bullet.Signifier,
 		bullet.Content,
+		bullet.UserID,
 		bullet.CreatedAt,
 		bullet.UpdatedAt,
 	)
@@ -37,14 +38,14 @@ func (r *bulletRepository) Create(ctx context.Context, bullet *entity.Bullet) er
 	return err
 }
 
-func (r *bulletRepository) Get(ctx context.Context, id uuid.UUID) (*entity.Bullet, error) {
+func (r *bulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
 	query := `
-		SELECT id, type, signifier, content, created_at, updated_at
+		SELECT id, type, signifier, content, user_id, created_at, updated_at
 		FROM bullets
-		WHERE id = $1
+		WHERE id = $1 AND user_id = $2
 	`
 
-	row := getQueryer(ctx, r.pool).QueryRow(ctx, query, id)
+	row := getQueryer(ctx, r.pool).QueryRow(ctx, query, id, userID)
 
 	bullet := &entity.Bullet{}
 	err := row.Scan(
@@ -52,6 +53,7 @@ func (r *bulletRepository) Get(ctx context.Context, id uuid.UUID) (*entity.Bulle
 		&bullet.Type,
 		&bullet.Signifier,
 		&bullet.Content,
+		&bullet.UserID,
 		&bullet.CreatedAt,
 		&bullet.UpdatedAt,
 	)
@@ -66,13 +68,14 @@ func (r *bulletRepository) Get(ctx context.Context, id uuid.UUID) (*entity.Bulle
 	return bullet, nil
 }
 
-func (r *bulletRepository) List(ctx context.Context) ([]*entity.Bullet, error) {
+func (r *bulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error) {
 	query := `
-		SELECT id, type, signifier, content, created_at, updated_at
+		SELECT id, type, signifier, content, user_id, created_at, updated_at
 		FROM bullets
+		WHERE user_id = $1
 	`
 
-	rows, err := getQueryer(ctx, r.pool).Query(ctx, query)
+	rows, err := getQueryer(ctx, r.pool).Query(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -86,6 +89,7 @@ func (r *bulletRepository) List(ctx context.Context) ([]*entity.Bullet, error) {
 				&bullet.Type,
 				&bullet.Signifier,
 				&bullet.Content,
+				&bullet.UserID,
 				&bullet.CreatedAt,
 				&bullet.UpdatedAt,
 			)
@@ -106,7 +110,7 @@ func (r *bulletRepository) Update(ctx context.Context, bullet *entity.Bullet) er
 	query := `
 		UPDATE bullets
 		SET type = $2, signifier = $3, content = $4, updated_at = $5
-		WHERE id = $1
+		WHERE id = $1 AND user_id = $6
 	`
 
 	_, err := getQueryer(ctx, r.pool).Exec(ctx, query,
@@ -115,6 +119,7 @@ func (r *bulletRepository) Update(ctx context.Context, bullet *entity.Bullet) er
 		bullet.Signifier,
 		bullet.Content,
 		bullet.UpdatedAt,
+		bullet.UserID,
 	)
 
 	return err

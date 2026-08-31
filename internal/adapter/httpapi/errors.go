@@ -2,6 +2,6 @@ package httpapi
 
 import "errors"
 
-var errInvalidRequestBody = errors.New("invalid request body")
-var errInvalidID = errors.New("invalid id")
-var errInternal = errors.New("internal server error")
+var ErrInvalidRequestBody = errors.New("invalid request body")
+var ErrInvalidID = errors.New("invalid id")
+var ErrInternal = errors.New("internal server error")

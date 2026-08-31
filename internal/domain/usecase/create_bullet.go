@@ -8,8 +8,7 @@ import (
 )
 
 func (s *bulletService) CreateBullet(ctx context.Context, input port.CreateBulletInput) (*entity.Bullet, error) {
-
-	bullet, err := entity.NewBullet(input.Type, input.Content)
+	bullet, err := entity.NewBullet(input.UserID, input.Type, input.Content)
 	if err != nil {
 		return nil, err
 	}

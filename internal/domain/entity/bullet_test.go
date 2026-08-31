@@ -11,53 +11,69 @@ import (
 )
 
 func TestNewBullet(t *testing.T) {
+	userID := uuid.New()
+
 	cases := []struct {
 		name       string
+		userID     uuid.UUID
 		bulletType BulletType
 		content    string
 		wantErr    error
 	}{
 		{
 			name:       "valid task",
+			userID:     userID,
 			bulletType: BulletTask,
 			content:    "Заголовок",
 			wantErr:    nil,
 		},
 		{
 			name:       "valid event",
+			userID:     userID,
 			bulletType: BulletEvent,
 			content:    "Заголовок",
 			wantErr:    nil,
 		},
 		{
 			name:       "valid note",
+			userID:     userID,
 			bulletType: BulletNote,
 			content:    "Заголовок",
 			wantErr:    nil,
 		},
 		{
 			name:       "invalid type",
+			userID:     userID,
 			bulletType: BulletType("invalid"),
 			content:    "Заголовок",
 			wantErr:    ErrTypeInvalid,
 		},
 		{
 			name:       "required content",
+			userID:     userID,
 			bulletType: BulletTask,
 			content:    "",
 			wantErr:    ErrContentRequired,
 		},
 		{
 			name:       "content too long",
+			userID:     userID,
 			bulletType: BulletTask,
 			content:    strings.Repeat("a", 201),
 			wantErr:    ErrContentTooLong,
+		},
+		{
+			name:       "user id required",
+			userID:     uuid.Nil,
+			bulletType: BulletTask,
+			content:    "Заголовок",
+			wantErr:    ErrUserIDRequired,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := NewBullet(tc.bulletType, tc.content)
+			got, err := NewBullet(tc.userID, tc.bulletType, tc.content)
 
 			if tc.wantErr != nil {
 				require.Error(t, err)
@@ -71,6 +87,7 @@ func TestNewBullet(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, got)
 
+			assert.Equal(t, tc.userID, got.UserID)
 			assert.Equal(t, tc.bulletType, got.Type)
 			assert.Equal(t, tc.content, got.Content)
 			assert.Equal(t, SignifierOpen, got.Signifier)
@@ -90,6 +107,7 @@ func TestBullet_Validate(t *testing.T) {
 		{
 			name: "type invalid",
 			bullet: Bullet{
+				UserID:  uuid.New(),
 				Content: "Заголовок",
 				Type:    "invalid",
 			},
@@ -98,6 +116,7 @@ func TestBullet_Validate(t *testing.T) {
 		{
 			name: "type empty",
 			bullet: Bullet{
+				UserID:  uuid.New(),
 				Content: "Заголовок",
 				Type:    "",
 			},
@@ -106,6 +125,7 @@ func TestBullet_Validate(t *testing.T) {
 		{
 			name: "valid content",
 			bullet: Bullet{
+				UserID:  uuid.New(),
 				Content: "Заголовок",
 				Type:    BulletTask,
 			},
@@ -114,6 +134,7 @@ func TestBullet_Validate(t *testing.T) {
 		{
 			name: "empty content",
 			bullet: Bullet{
+				UserID:  uuid.New(),
 				Content: "",
 				Type:    BulletTask,
 			},
@@ -122,6 +143,7 @@ func TestBullet_Validate(t *testing.T) {
 		{
 			name: "content too long",
 			bullet: Bullet{
+				UserID:  uuid.New(),
 				Content: strings.Repeat("а", 201),
 				Type:    BulletTask,
 			},
@@ -130,10 +152,20 @@ func TestBullet_Validate(t *testing.T) {
 		{
 			name: "200 cyrillic chars is valid",
 			bullet: Bullet{
+				UserID:  uuid.New(),
 				Content: strings.Repeat("ф", 200),
 				Type:    BulletTask,
 			},
 			wantErr: nil,
+		},
+		{
+			name: "user id required",
+			bullet: Bullet{
+				UserID:  uuid.Nil,
+				Content: "Заголовок",
+				Type:    BulletTask,
+			},
+			wantErr: ErrUserIDRequired,
 		},
 	}
 
@@ -243,6 +275,7 @@ func TestBullet_Migrate(t *testing.T) {
 				Type:      tc.bulletType,
 				Signifier: tc.signifier,
 				Content:   "Test task",
+				UserID:    uuid.New(),
 				CreatedAt: tc.createdAt,
 				UpdatedAt: time.Now(),
 			}
@@ -262,6 +295,7 @@ func TestBullet_Migrate(t *testing.T) {
 			assert.Equal(t, SignifierMigrated, bullet.Signifier)
 			assert.True(t, bullet.UpdatedAt.After(initialUpdatedAt))
 
+			assert.Equal(t, bullet.UserID, got.UserID)
 			assert.NotEqual(t, bullet.ID, got.ID)
 			assert.Equal(t, bullet.Type, got.Type)
 			assert.Equal(t, SignifierOpen, got.Signifier)
