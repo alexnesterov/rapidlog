@@ -19,10 +19,9 @@ type DBConfig struct {
 }
 
 type SessionConfig struct {
-	CookieName     string        `mapstructure:"cookie_name"`
-	CookieTTL      time.Duration `mapstructure:"cookie_ttl"`
-	CookieSecure   bool          `mapstructure:"cookie_secure"`
-	CookieHTTPOnly bool          `mapstructure:"cookie_http_only"`
+	CookieName   string        `mapstructure:"cookie_name"`
+	CookieTTL    time.Duration `mapstructure:"cookie_ttl"`
+	CookieSecure bool          `mapstructure:"cookie_secure"`
 }
 
 type Config struct {

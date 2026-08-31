@@ -23,7 +23,6 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("session.cookie_name", "session_id")
 	v.SetDefault("session.cookie_ttl", 365*24*time.Hour)
 	v.SetDefault("session.cookie_secure", true)
-	v.SetDefault("session.cookie_http_only", true)
 
 	v.SetDefault("db.dsn", "postgres://rapidlog:rapidlog@localhost:5432/rapidlog")
 }

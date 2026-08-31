@@ -75,7 +75,6 @@ func TestLoad_Defaults(t *testing.T) {
 	assert.Equal(t, "session_id", cfg.Session.CookieName)
 	assert.Equal(t, 365*24*time.Hour, cfg.Session.CookieTTL)
 	assert.True(t, cfg.Session.CookieSecure)
-	assert.True(t, cfg.Session.CookieHTTPOnly)
 
 	assert.Equal(t, "postgres://rapidlog:rapidlog@localhost:5432/rapidlog", cfg.DB.DSN)
 }
