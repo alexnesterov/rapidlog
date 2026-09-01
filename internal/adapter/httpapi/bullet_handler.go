@@ -110,5 +110,5 @@ func (h *bulletHandler) MigrateBullet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	RespondData(w, http.StatusOK, migratedBullet)
+	RespondData(w, http.StatusCreated, migratedBullet)
 }

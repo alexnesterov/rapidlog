@@ -316,7 +316,7 @@ func TestMigrateBullet(t *testing.T) {
 					}, nil).
 					Once()
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusCreated,
 			wantData: &entity.Bullet{
 				ID:        fixedID,
 				Signifier: entity.SignifierOpen,
