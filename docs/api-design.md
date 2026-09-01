@@ -8,7 +8,7 @@
 | ------------- | --------- | ----------------------------------------------------------------- |
 | id            | UUID      |                                                                   |
 | user_id       | UUID      | анонимный владелец (см. привязку к сессии)                       |
-| type          | string    | `task` \| `event` \| `note`, необязательное, по умолчанию `task`  |
+| type          | string    | `task` \| `event` \| `note`, обязательное                         |
 | signifier     | string    | `open` \| `completed` \| `migrated` \| `scheduled` \| `cancelled` |
 | content       | string    | обязательное, ≤200 символов                                       |
 | created_at    | timestamp |                                                                   |
@@ -106,14 +106,16 @@ healthcheck.
 
 - **Актор**: пользователь
 - **Предусловие**: нет (bullet создаётся с нуля)
-- **Основной поток**: `content` не пустой → создаётся bullet со
-  `signifier = open`; `type` не передан → по умолчанию `task`
-- **Ошибка**: `content` пустой/невалидный, либо `type` не `task`/`event`/`note` → `400`
+- **Основной поток**: `content` и `type` не пустые → создаётся bullet
+  со `signifier = open`
+- **Ошибка**: `content` пустой/невалидный, либо `type` не
+  `task`/`event`/`note` → `400`
 
 ```json
 // request
 {
-  "content": "Оплатить хостинг"
+  "content": "Оплатить хостинг",
+  "type": "task"
 }
 ```
 
