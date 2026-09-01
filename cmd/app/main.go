@@ -72,8 +72,16 @@ func main() {
 	}
 	router.Handle("/", http.FileServer(http.FS(frontend)))
 
+	server := &http.Server{
+		Addr:         ":" + cfg.HTTP.Port,
+		Handler:      handler,
+		ReadTimeout:  cfg.HTTP.ReadTimeout,
+		WriteTimeout: cfg.HTTP.WriteTimeout,
+		IdleTimeout:  cfg.HTTP.IdleTimeout,
+	}
+
 	logger.Info("starting server", "name", cfg.App.Name, "port", cfg.HTTP.Port)
-	if err := http.ListenAndServe(":"+cfg.HTTP.Port, handler); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		logger.Error("failed to start server", "error", err)
 		os.Exit(1)
 	}
