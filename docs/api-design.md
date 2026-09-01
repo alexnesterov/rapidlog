@@ -1,24 +1,18 @@
 # API — проектирование
 
-Слоистая архитектура: `handler → service → repository (interface)`.
-PostgreSQL (`pgx`) — единственное место записи (service layer). RabbitMQ —
-side-effects (уведомления, аудит), не основной путь записи.
-
----
-
 ## 1. Сущности
 
 ### Bullet
 
-| Поле | Тип | Описание |
-| --- | --- | --- |
-| id | UUID | |
-| collection_id | UUID | коллекция-владелец (FK → Collection) |
-| type | string | `task` \| `event` \| `note`, необязательное, по умолчанию `task` |
-| signifier | string | `open` \| `completed` \| `migrated` \| `scheduled` \| `cancelled` |
-| content | string | обязательное, ≤200 символов |
-| created_at | timestamp | |
-| updated_at | timestamp | |
+| Поле          | Тип       | Описание                                                          |
+| ------------- | --------- | ----------------------------------------------------------------- |
+| id            | UUID      |                                                                   |
+| user_id       | UUID      | анонимный владелец (см. привязку к сессии)                       |
+| type          | string    | `task` \| `event` \| `note`, необязательное, по умолчанию `task`  |
+| signifier     | string    | `open` \| `completed` \| `migrated` \| `scheduled` \| `cancelled` |
+| content       | string    | обязательное, ≤200 символов                                       |
+| created_at    | timestamp |                                                                   |
+| updated_at    | timestamp |                                                                   |
 
 По аналогии с нотацией Bullet Journal: `type` описывает разновидность
 записи (задача, событие, заметка), `signifier` — её состояние (открыта,
@@ -27,7 +21,7 @@ side-effects (уведомления, аудит), не основной пут�
 /api/bullets/{id}/complete` и `POST /api/bullets/{id}/migrate`).
 `scheduled` и `cancelled` зарезервированы под будущие операции.
 
-**Операции:** Create, List, Get, Update, Delete, Complete, Migrate.
+**Операции:** Create, List, Complete, Migrate.
 
 ### Collection
 
@@ -37,12 +31,12 @@ side-effects (уведомления, аудит), не основной пут�
 По аналогии с Bullet Journal: каждый bullet живёт в какой-то
 коллекции — произвольном именованном списке.
 
-| Поле | Тип | Описание |
-| --- | --- | --- |
-| id | UUID | |
-| topic | string | обязательное, ≤100 символов |
-| created_at | timestamp | |
-| updated_at | timestamp | |
+| Поле       | Тип       | Описание                    |
+| ---------- | --------- | --------------------------- |
+| id         | UUID      |                             |
+| topic      | string    | обязательное, ≤100 символов |
+| created_at | timestamp |                             |
+| updated_at | timestamp |                             |
 
 **Операции:** Create, List, Get, Update, Delete.
 
@@ -53,13 +47,21 @@ side-effects (уведомления, аудит), не основной пут�
 **Успех — одиночный объект:**
 
 ```json
-{ "data": { /* сущность */ } }
+{
+  "data": {
+    /* сущность */
+  }
+}
 ```
 
 **Успех — список:**
 
 ```json
-{ "data": [ /* Bullet[] */ ] }
+{
+  "data": [
+    /* Bullet[] */
+  ]
+}
 ```
 
 **Ошибка:**
@@ -77,16 +79,14 @@ side-effects (уведомления, аудит), не основной пут�
 `error.code` — числовой HTTP-статус (дублирует статус-код ответа),
 отдельного строкового кода ошибки нет.
 
-| Код | Когда |
-| --- | --- |
-| 200 | успешный GET/PUT/POST без создания ресурса |
-| 201 | ресурс создан |
-| 204 | успешное удаление, тело пустое |
-| 400 | некорректный запрос (невалидный JSON) |
-| 401 | требуется аутентификация или она не пройдена |
-| 403 | запрос аутентифицирован, но доступ к ресурсу запрещён |
-| 404 | ресурс не найден |
-| 500 | внутренняя ошибка |
+| Код | Когда                                                 |
+| --- | ----------------------------------------------------- |
+| 200 | успешный GET/PUT/POST без создания ресурса            |
+| 201 | ресурс создан                                         |
+| 204 | успешное удаление, тело пустое                        |
+| 400 | некорректный запрос (невалидный JSON)                 |
+| 404 | ресурс не найден                                      |
+| 500 | внутренняя ошибка                                     |
 
 ---
 
@@ -113,7 +113,7 @@ healthcheck.
 ```json
 // request
 {
-  "collection_id": "uuid", "content": "Оплатить хостинг"
+  "content": "Оплатить хостинг"
 }
 ```
 
@@ -122,7 +122,7 @@ healthcheck.
 {
   "data": {
     "id": "uuid",
-    "collection_id": "uuid",
+    "user_id": "uuid",
     "type": "task",
     "content": "Оплатить хостинг",
     "signifier": "open",
@@ -143,7 +143,7 @@ healthcheck.
 }
 ```
 
-#### GET /api/bullets?collection_id=
+#### GET /api/bullets
 
 **Юзкейс**: пользователь просматривает свои задачи, сгруппированные
 по дням — как разворот страниц в bullet journal.
@@ -155,8 +155,6 @@ healthcheck.
 - **Альтернативный поток**: bullets отсутствуют → `200` с пустым
   списком групп (`"data": []`), не `null`
 
-- `collection_id` — фильтр по коллекции (опционально)
-
 Ответ группирует bullets по календарному дню (`created_at`, дата без
 времени): группы отсортированы от нового дня к старому, а bullets
 внутри группы — от старого к новому (новые снизу).
@@ -167,7 +165,9 @@ healthcheck.
   "data": [
     {
       "day": "2026-07-28",
-      "bullets": [ /* Bullet[] */ ]
+      "bullets": [
+        /* Bullet[] */
+      ]
     }
   ]
 }
@@ -195,6 +195,7 @@ healthcheck.
 {
   "data": {
     "id": "uuid",
+    "user_id": "uuid",
     "type": "task",
     "content": "Оплатить хостинг",
     "signifier": "completed",
@@ -223,13 +224,15 @@ healthcheck.
 бумажном Bullet Journal.
 
 - **Актор**: пользователь
-- **Предусловие**: bullet существует, имеет `type = task` и
-  `signifier = open`
+- **Предусловие**: bullet существует, имеет `type = task`,
+  `signifier = open` и создан не сегодня
 - **Основной поток**: исходный bullet получает
   `signifier = migrated`; создаётся новый bullet с тем же `content`,
   `type = task`, `signifier = open` и текущим `created_at`
 - **Ошибка**: bullet не найден → `404`; bullet не является открытой
-  задачей → `400`
+  задачей (`type != task` или `signifier != open`) → `400`
+  (`"bullet is not an open task"`); bullet уже создан сегодня → `400`
+  (`"bullet is already scheduled for today"`)
 
 Тело запроса отсутствует. Перенос всегда выполняется на текущий день;
 дата исходной задачи не изменяется. `updated_at` исходного bullet
@@ -241,6 +244,7 @@ healthcheck.
 {
   "data": {
     "id": "uuid",
+    "user_id": "uuid",
     "type": "task",
     "content": "Оплатить хостинг",
     "signifier": "open",
@@ -251,12 +255,23 @@ healthcheck.
 ```
 
 ```json
-// response 400
+// response 400 — bullet не открытая задача
 {
   "data": null,
   "error": {
     "code": 400,
-    "message": "only open tasks can be migrated"
+    "message": "bullet is not an open task"
+  }
+}
+```
+
+```json
+// response 400 — bullet уже создан сегодня
+{
+  "data": null,
+  "error": {
+    "code": 400,
+    "message": "bullet is already scheduled for today"
   }
 }
 ```
@@ -307,7 +322,11 @@ healthcheck.
 
 ```json
 // response 200
-{ "data": [ /* Collection[] */ ] }
+{
+  "data": [
+    /* Collection[] */
+  ]
+}
 ```
 
 #### GET /api/collections/{id}
