@@ -21,6 +21,6 @@ RUN CGO_ENABLED=0 go build -o rapidlog ./cmd/app
 
 FROM scratch
 COPY --from=builder /app/rapidlog /rapidlog
-
+EXPOSE 8080
 CMD ["/rapidlog"]
 
