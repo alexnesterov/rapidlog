@@ -30,7 +30,6 @@ Docker-сборка выполняет эти шаги автоматическ�
 
 ```text
 cmd/app                             — точка входа сервера
-cmd/client                          — вспомогательный HTTP-клиент для ручных запросов
 internal/adapter/httpapi            — HTTP-хендлеры и middleware
 internal/config                     — конфигурация приложения
 internal/domain/entity              — доменные сущности
