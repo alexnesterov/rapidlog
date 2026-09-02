@@ -171,15 +171,13 @@ func TestBullet_Validate(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			bullet := tc.bullet
-			err := bullet.Validate()
+			err := tc.bullet.Validate()
 
 			if tc.wantErr != nil {
-				assert.ErrorIs(t, err, tc.wantErr)
-
+				require.Error(t, err)
 				var validationErr *ValidationError
 				assert.ErrorAs(t, err, &validationErr)
-
+				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
 
