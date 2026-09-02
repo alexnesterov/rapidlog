@@ -58,6 +58,22 @@ func (s *ResolveUserUseCaseSuite) TestResolveUser_NotExists() {
 		Return(nil).
 		Once()
 
+	s.mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Once()
+
+	s.mockBulletRepo.EXPECT().Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Return(nil).
+		Once()
+	s.mockBulletRepo.EXPECT().Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Return(nil).
+		Once()
+	s.mockBulletRepo.EXPECT().Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Return(nil).
+		Once()
+
 	got, err := s.uc.ResolveUser(context.Background(), id)
 	s.NoError(err)
 	s.NotEqual(uuid.Nil, got)
@@ -88,6 +104,41 @@ func (s *ResolveUserUseCaseSuite) TestResolveUser_CreateError() {
 	s.mockUserRepo.EXPECT().Create(mock.Anything, mock.MatchedBy(func(u *entity.User) bool {
 		return u != nil && u.ID != uuid.Nil
 	})).
+		Return(wantErr).
+		Once()
+
+	s.mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Once()
+
+	got, err := s.uc.ResolveUser(context.Background(), id)
+	s.Equal(uuid.Nil, got)
+	s.Error(err)
+	s.ErrorIs(err, wantErr)
+}
+
+func (s *ResolveUserUseCaseSuite) TestResolveUser_SeedBulletsError() {
+	id := uuid.New()
+	wantErr := errors.New("seed bullets failed")
+
+	s.mockUserRepo.EXPECT().Get(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+		Return(nil, port.ErrNotFound).
+		Once()
+	s.mockUserRepo.EXPECT().Create(mock.Anything, mock.MatchedBy(func(u *entity.User) bool {
+		return u != nil && u.ID != uuid.Nil
+	})).
+		Return(nil).
+		Once()
+
+	s.mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Once()
+
+	s.mockBulletRepo.EXPECT().Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(wantErr).
 		Once()
 
