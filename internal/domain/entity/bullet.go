@@ -11,10 +11,10 @@ import (
 var ErrContentRequired = errors.New("content is required")
 var ErrContentTooLong = errors.New("content is too long")
 var ErrTypeInvalid = errors.New("type must be task, event or note")
-
 var ErrNotOpenTask = errors.New("bullet is not an open task")
 var ErrTodayTask = errors.New("bullet is already scheduled for today")
 var ErrUserIDRequired = errors.New("user id is required")
+var ErrNotOpenBullet = errors.New("bullet is not an open bullet")
 
 type BulletType string
 
@@ -110,4 +110,18 @@ func (b *Bullet) Migrate() (*Bullet, error) {
 	}
 
 	return migrated, nil
+}
+
+func (b *Bullet) Cancel() error {
+	switch b.Signifier {
+	case SignifierOpen:
+	default:
+		return &ValidationError{Err: ErrNotOpenBullet}
+	}
+
+	now := time.Now()
+	b.Signifier = SignifierCancelled
+	b.UpdatedAt = now
+
+	return nil
 }
