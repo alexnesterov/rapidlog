@@ -14,7 +14,9 @@ var ErrTypeInvalid = errors.New("type must be task, event or note")
 var ErrNotOpenTask = errors.New("bullet is not an open task")
 var ErrTodayTask = errors.New("bullet is already scheduled for today")
 var ErrUserIDRequired = errors.New("user id is required")
-var ErrNotOpenBullet = errors.New("bullet is not an open bullet")
+
+var ErrBulletAlreadyCancelled = errors.New("bullet already cancelled")
+var ErrBulletNotOpen = errors.New("bullet must be open to be cancelled")
 
 type BulletType string
 
@@ -114,14 +116,15 @@ func (b *Bullet) Migrate() (*Bullet, error) {
 
 func (b *Bullet) Cancel() error {
 	switch b.Signifier {
+	case SignifierCancelled:
+		return &ValidationError{Err: ErrBulletAlreadyCancelled}
 	case SignifierOpen:
 	default:
-		return &ValidationError{Err: ErrNotOpenBullet}
+		return &ValidationError{Err: ErrBulletNotOpen}
 	}
 
-	now := time.Now()
 	b.Signifier = SignifierCancelled
-	b.UpdatedAt = now
+	b.UpdatedAt = time.Now()
 
 	return nil
 }
