@@ -40,6 +40,80 @@ func (_m *MockBulletService) EXPECT() *MockBulletService_Expecter {
 	return &MockBulletService_Expecter{mock: &_m.Mock}
 }
 
+// CancelBullet provides a mock function for the type MockBulletService
+func (_mock *MockBulletService) CancelBullet(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*entity.Bullet, error) {
+	ret := _mock.Called(ctx, id, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CancelBullet")
+	}
+
+	var r0 *entity.Bullet
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) (*entity.Bullet, error)); ok {
+		return returnFunc(ctx, id, userID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) *entity.Bullet); ok {
+		r0 = returnFunc(ctx, id, userID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entity.Bullet)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, id, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockBulletService_CancelBullet_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CancelBullet'
+type MockBulletService_CancelBullet_Call struct {
+	*mock.Call
+}
+
+// CancelBullet is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+//   - userID uuid.UUID
+func (_e *MockBulletService_Expecter) CancelBullet(ctx any, id any, userID any) *MockBulletService_CancelBullet_Call {
+	return &MockBulletService_CancelBullet_Call{Call: _e.mock.On("CancelBullet", ctx, id, userID)}
+}
+
+func (_c *MockBulletService_CancelBullet_Call) Run(run func(ctx context.Context, id uuid.UUID, userID uuid.UUID)) *MockBulletService_CancelBullet_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 uuid.UUID
+		if args[2] != nil {
+			arg2 = args[2].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockBulletService_CancelBullet_Call) Return(bullet *entity.Bullet, err error) *MockBulletService_CancelBullet_Call {
+	_c.Call.Return(bullet, err)
+	return _c
+}
+
+func (_c *MockBulletService_CancelBullet_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*entity.Bullet, error)) *MockBulletService_CancelBullet_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CompleteBullet provides a mock function for the type MockBulletService
 func (_mock *MockBulletService) CompleteBullet(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*entity.Bullet, error) {
 	ret := _mock.Called(ctx, id, userID)

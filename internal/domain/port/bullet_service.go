@@ -18,4 +18,5 @@ type BulletService interface {
 	ListBullets(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error)
 	CompleteBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error)
 	MigrateBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error)
+	CancelBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error)
 }
