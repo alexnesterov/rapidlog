@@ -84,6 +84,8 @@ export function BulletForm({ onCreated }: BulletFormProps) {
     );
   }
 
+  const CurrentTypeMark = TYPE_MARKS[type];
+
   return (
     <form
       ref={formRef}
@@ -118,26 +120,33 @@ export function BulletForm({ onCreated }: BulletFormProps) {
             aria-expanded={typeOpen}
             aria-label={`Тип записи: ${TYPE_LABELS[type]}`}
           >
-            <span className="scribble-card__type-mark">{TYPE_MARKS[type]}</span>
+            <span className="scribble-card__type-mark">
+              <CurrentTypeMark />
+            </span>
             {TYPE_LABELS[type]}
           </button>
           {typeOpen && (
             <ul className="scribble__type-menu" role="listbox" aria-label="Тип записи">
-              {TYPES.map((t) => (
-                <li
-                  key={t}
-                  role="option"
-                  aria-selected={t === type}
-                  className={`scribble__type-option ${t === type ? "scribble__type-option--selected" : ""}`}
-                  onClick={() => {
-                    setType(t);
-                    setTypeOpen(false);
-                  }}
-                >
-                  <span className="scribble__type-option-mark">{TYPE_MARKS[t]}</span>
-                  <span className="scribble__type-option-label">{TYPE_LABELS[t]}</span>
-                </li>
-              ))}
+              {TYPES.map((t) => {
+                const OptionMark = TYPE_MARKS[t];
+                return (
+                  <li
+                    key={t}
+                    role="option"
+                    aria-selected={t === type}
+                    className={`scribble__type-option ${t === type ? "scribble__type-option--selected" : ""}`}
+                    onClick={() => {
+                      setType(t);
+                      setTypeOpen(false);
+                    }}
+                  >
+                    <span className="scribble__type-option-mark">
+                      <OptionMark />
+                    </span>
+                    <span className="scribble__type-option-label">{TYPE_LABELS[t]}</span>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
