@@ -54,13 +54,14 @@ export function BulletList({ bullets, canMigrate, onComplete, onMigrate }: Bulle
         const canComplete = bullet.type === "task" && bullet.signifier === "open";
         const showMigrate = canMigrate && canComplete;
         const pickerOpen = openId === bullet.id;
-        const closedMark = SIGNIFIER_MARKS[bullet.signifier];
+        const ClosedMark = SIGNIFIER_MARKS[bullet.signifier];
+        const TypeMark = TYPE_MARKS[bullet.type];
 
         return (
           <li className={`log-line ${closed ? "is-closed" : ""} ${pickerOpen ? "is-picking" : ""}`} key={bullet.id}>
-            {closedMark ? (
+            {ClosedMark ? (
               <span className="log-line__mark" aria-hidden="true">
-                {closedMark}
+                <ClosedMark />
               </span>
             ) : canComplete ? (
               <button
@@ -69,11 +70,11 @@ export function BulletList({ bullets, canMigrate, onComplete, onMigrate }: Bulle
                 onClick={() => onComplete(bullet)}
                 aria-label="Отметить выполненным"
               >
-                {TYPE_MARKS[bullet.type]}
+                <TypeMark />
               </button>
             ) : (
               <span className="log-line__mark" aria-hidden="true">
-                {TYPE_MARKS[bullet.type]}
+                <TypeMark />
               </span>
             )}
             <span className="log-line__title">{bullet.content}</span>
