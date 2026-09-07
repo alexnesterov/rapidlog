@@ -17,11 +17,12 @@
 По аналогии с нотацией Bullet Journal: `type` описывает разновидность
 записи (задача, событие, заметка), `signifier` — её состояние (открыта,
 выполнена, перенесена, запланирована, отменена). Реализованы пока
-переходы `open` → `completed` и `open` → `migrated` (см. `POST
-/api/bullets/{id}/complete` и `POST /api/bullets/{id}/migrate`).
-`scheduled` и `cancelled` зарезервированы под будущие операции.
+переходы `open` → `completed`, `open` → `migrated` и `open` →
+`cancelled` (см. `POST /api/bullets/{id}/complete`, `POST
+/api/bullets/{id}/migrate` и `POST /api/bullets/{id}/cancel`).
+`scheduled` зарезервирован под будущие операции.
 
-**Операции:** Create, List, Complete, Migrate.
+**Операции:** Create, List, Complete, Migrate, Cancel.
 
 ### Collection
 
@@ -274,6 +275,59 @@ healthcheck.
   "error": {
     "code": 400,
     "message": "bullet is already scheduled for today"
+  }
+}
+```
+
+#### POST /api/bullets/{id}/cancel
+
+**Юзкейс**: пользователь отменяет запись, которая больше не актуальна,
+не удаляя её — как зачёркнутая строка в бумажном bullet journal.
+
+- **Актор**: пользователь
+- **Предусловие**: bullet с данным `id` существует, имеет
+  `signifier = open` (любой `type`, не только `task`)
+- **Основной поток**: bullet переводится в `signifier = cancelled`
+- **Альтернативный поток**: bullet уже `cancelled` → `200` без
+  изменений (идемпотентность)
+- **Ошибка**: bullet с данным `id` не найден → `404`; bullet не
+  `open` → `400` (`"bullet must be open to be cancelled"`)
+
+Тело запроса отсутствует.
+
+```json
+// response 200
+{
+  "data": {
+    "id": "bac1e168-356d-41f5-ab1b-c5c1046a6158",
+    "type": "task",
+    "signifier": "cancelled",
+    "content": "Оплатить хостинг",
+    "user_id": "2f168d69-2bd3-4691-ad7f-72addb4270e0",
+    "created_at": "2026-09-07T08:20:51.871177Z",
+    "updated_at": "2026-09-07T08:23:20.751189209Z"
+  }
+}
+```
+
+```json
+// response 404
+{
+  "data": null,
+  "error": {
+    "code": 404,
+    "message": "bullet not found"
+  }
+}
+```
+
+```json
+// response 400
+{
+  "data": null,
+  "error": {
+    "code": 400,
+    "message": "bullet must be open to be cancelled"
   }
 }
 ```
