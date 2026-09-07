@@ -59,6 +59,7 @@ func main() {
 	router.HandleFunc("GET /api/bullets", bulletHandler.ListBullets)
 	router.HandleFunc("POST /api/bullets/{id}/complete", bulletHandler.CompleteBullet)
 	router.HandleFunc("POST /api/bullets/{id}/migrate", bulletHandler.MigrateBullet)
+	router.HandleFunc("POST /api/bullets/{id}/cancel", bulletHandler.CancelBullet)
 
 	var handler http.Handler = router
 	handler = middleware.Session(userService, cfg.Session.CookieName, cfg.Session.CookieTTL, cfg.Session.CookieSecure)(handler)

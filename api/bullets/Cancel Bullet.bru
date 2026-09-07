@@ -1,0 +1,58 @@
+meta {
+  name: Cancel Bullet
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/bullets/:id/cancel
+  body: none
+  auth: none
+}
+
+params:path {
+  id: bac1e168-356d-41f5-ab1b-c5c1046a6158
+}
+
+example {
+  name: success
+  
+  request: {
+    url: {{baseUrl}}/api/bullets/:id/cancel
+    method: POST
+    mode: none
+    params:path: {
+      id: bac1e168-356d-41f5-ab1b-c5c1046a6158
+    }
+  }
+  
+  response: {
+    headers: {
+      content-type: application/json
+      date: Mon, 07 Sep 2026 08:23:20 GMT
+      content-length: 275
+    }
+  
+    status: {
+      code: 200
+      text: OK
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "data": {
+            "id": "bac1e168-356d-41f5-ab1b-c5c1046a6158",
+            "type": "task",
+            "signifier": "cancelled",
+            "content": "Оплатить хостинг",
+            "user_id": "2f168d69-2bd3-4691-ad7f-72addb4270e0",
+            "created_at": "2026-09-07T08:20:51.871177Z",
+            "updated_at": "2026-09-07T08:23:20.751189209Z"
+          }
+        }
+      '''
+    }
+  }
+}
