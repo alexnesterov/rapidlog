@@ -46,6 +46,11 @@ export function BulletForm({ onCreated }: BulletFormProps) {
     inputRef.current?.focus();
   }, [expanded]);
 
+  useEffect(() => {
+    if (submitting) return;
+    inputRef.current?.focus();
+  }, [submitting]);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
@@ -61,7 +66,6 @@ export function BulletForm({ onCreated }: BulletFormProps) {
       setTitle("");
       setType("task");
       onCreated();
-      inputRef.current?.focus();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "не удалось создать запись");
     } finally {
