@@ -599,6 +599,35 @@ button.log-line__mark:hover {
   stroke-linejoin: round;
 }
 
+.log-line__entry {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.log-line__strike {
+  position: absolute;
+  height: 12px;
+  transform: translateY(-50%);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.log-line__strike-stroke {
+  fill: none;
+  stroke: var(--ink-soft);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.log-line__strike-stroke--accent {
+  stroke-width: 0.75;
+  opacity: 0.75;
+}
+
 .log-line__title {
   flex: 1;
   min-width: 0;
@@ -606,13 +635,18 @@ button.log-line__mark:hover {
   color: var(--ink);
 }
 
-.log-line__migrate {
+.log-line__menu {
   position: relative;
   flex-shrink: 0;
   align-self: center;
+  /* Reserved even when a row has no actions, so the title's available
+     width — and therefore how many lines it wraps to — stays the same
+     across signifier changes instead of reflowing the rows below it. */
+  width: 22px;
+  height: 22px;
 }
 
-.log-line__migrate-trigger {
+.log-line__menu-trigger {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -620,39 +654,37 @@ button.log-line__mark:hover {
   height: 22px;
   border: none;
   background: transparent;
+  border-radius: 5px;
   padding: 0;
   color: var(--ink-soft);
   cursor: pointer;
   opacity: 0.45;
   transition:
     opacity 0.15s ease,
-    color 0.15s ease;
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
-.log-line__migrate-icon {
+.log-line__menu-icon {
   display: block;
   width: 15px;
   height: 15px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.1;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  fill: currentColor;
   overflow: visible;
 }
 
-.log-line:hover .log-line__migrate-trigger,
-.log-line:focus-within .log-line__migrate-trigger,
-.log-line.is-picking .log-line__migrate-trigger {
+.log-line:hover .log-line__menu-trigger,
+.log-line:focus-within .log-line__menu-trigger,
+.log-line.is-picking .log-line__menu-trigger {
   opacity: 1;
-  color: var(--accent);
 }
 
-.log-line__migrate-trigger:hover {
-  color: var(--accent-strong);
+.log-line__menu .log-line__menu-trigger:hover {
+  color: var(--ink);
+  background: var(--paper-line);
 }
 
-.log-line__migrate-menu {
+.log-line__menu-list {
   position: absolute;
   z-index: 10;
   top: calc(100% + 6px);
@@ -663,14 +695,14 @@ button.log-line__mark:hover {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  min-width: 120px;
+  min-width: 160px;
   background: var(--paper);
   border: 1px solid var(--paper-line);
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
-.log-line__migrate-option {
+.log-line__menu-option {
   padding: 6px 10px;
   border-radius: 5px;
   font-family: var(--font-body);
@@ -681,8 +713,12 @@ button.log-line__mark:hover {
   transition: background 0.12s ease;
 }
 
-.log-line__migrate-option:hover {
+.log-line__menu-option:hover {
   background: var(--paper-line);
+}
+
+.log-line__menu-option--danger {
+  color: var(--danger);
 }
 
 .log-line.is-picking {

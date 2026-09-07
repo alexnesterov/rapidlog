@@ -45,3 +45,9 @@ export async function migrateBullet(id: string): Promise<Bullet> {
     method: "POST",
   });
 }
+
+export async function cancelBullet(id: string): Promise<Bullet> {
+  return request<Bullet>(`/bullets/${id}/cancel`, {
+    method: "POST",
+  });
+}

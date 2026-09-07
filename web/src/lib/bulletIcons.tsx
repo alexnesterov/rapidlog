@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 export function TaskMark() {
   return (
     <svg className="mark-icon mark-icon--task" viewBox="0 0 16 16" aria-hidden="true">
@@ -35,6 +37,27 @@ export function MigratedMark() {
   return (
     <svg className="mark-icon mark-icon--migrated" viewBox="0 0 16 16" aria-hidden="true">
       <path d="M5.8 3.5c1.7 1.4 3.2 2.9 4.5 4.6-1.5 1.6-3.1 3.1-4.8 4.4" />
+    </svg>
+  );
+}
+
+interface StrikeLineProps {
+  style?: CSSProperties;
+}
+
+export function StrikeLine({ style }: StrikeLineProps) {
+  return (
+    <svg className="log-line__strike" style={style} viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true">
+      <path
+        className="log-line__strike-stroke"
+        d="M2 7.3Q11 6.3 19 7.5T36 7T53 7.3T70 6.9T87 7.2T98 7"
+        vectorEffect="non-scaling-stroke"
+      />
+      <path
+        className="log-line__strike-stroke log-line__strike-stroke--accent"
+        d="M48 7.9Q62 7 75 7.9T98 7.5"
+        vectorEffect="non-scaling-stroke"
+      />
     </svg>
   );
 }
