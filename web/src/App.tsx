@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { listBullets, markBulletDone, migrateBullet } from './api/bulletsApi';
+import { cancelBullet, listBullets, markBulletDone, migrateBullet } from './api/bulletsApi';
 import type { Bullet, BulletDayGroup, MigrateTarget } from './types/bullet';
 import { todayIsoDate } from './lib/date';
 import { waitForFonts } from './lib/fonts';
@@ -56,6 +56,15 @@ function App() {
     [reload],
   );
 
+  const cancelBulletEntry = useCallback(
+    (bullet: Bullet) => {
+      cancelBullet(bullet.id)
+        .then(reload)
+        .catch(() => setError('не удалось отменить запись'));
+    },
+    [reload],
+  );
+
   const today = todayIsoDate();
 
   if (!initialized) {
@@ -96,6 +105,7 @@ function App() {
               onCreated={reload}
               onComplete={completeBullet}
               onMigrate={moveBullet}
+              onCancel={cancelBulletEntry}
               animationDelay={index * 70}
             />
           ))}

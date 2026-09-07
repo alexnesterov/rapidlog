@@ -20,5 +20,5 @@ export const TYPE_LABELS: Record<BulletType, string> = {
 };
 
 export const MIGRATE_TARGETS: { id: MigrateTarget; label: string }[] = [
-  { id: "today", label: "сегодня" },
+  { id: "today", label: "Сегодня" },
 ];

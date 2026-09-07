@@ -10,6 +10,7 @@ interface DaySectionProps {
   onCreated: () => void;
   onComplete: (bullet: Bullet) => void;
   onMigrate: (bullet: Bullet, target: MigrateTarget) => void;
+  onCancel: (bullet: Bullet) => void;
   animationDelay: number;
 }
 
@@ -20,6 +21,7 @@ export function DaySection({
   onCreated,
   onComplete,
   onMigrate,
+  onCancel,
   animationDelay,
 }: DaySectionProps) {
   return (
@@ -29,7 +31,13 @@ export function DaySection({
         <span className="day__head-day">{dayNumber(date)}</span>
         <span className="day__head-weekday">{weekday(date)}</span>
       </header>
-      <BulletList bullets={bullets} canMigrate={!isToday} onComplete={onComplete} onMigrate={onMigrate} />
+      <BulletList
+        bullets={bullets}
+        canMigrate={!isToday}
+        onComplete={onComplete}
+        onMigrate={onMigrate}
+        onCancel={onCancel}
+      />
       {isToday && <BulletForm onCreated={onCreated} />}
     </section>
   );
