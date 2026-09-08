@@ -24,7 +24,7 @@ func Migrate(dsn string) error {
 	}
 	defer func() {
 		if sourceErr, databaseErr := m.Close(); sourceErr != nil || databaseErr != nil {
-			slog.Error("close migrator", "sourceError", sourceErr, "dbError", databaseErr)
+			slog.Error("close migrator", "sourceError", sourceErr, "databaseError", databaseErr)
 		}
 	}()
 
