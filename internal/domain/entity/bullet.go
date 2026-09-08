@@ -18,6 +18,10 @@ var ErrUserIDRequired = errors.New("user id is required")
 var ErrBulletAlreadyCancelled = errors.New("bullet already cancelled")
 var ErrBulletNotOpen = errors.New("bullet must be open to be cancelled")
 
+var ErrAlreadyCompleted = errors.New("bullet already completed")
+var ErrMustBeTaskToBeCompleted = errors.New("bullet must be task to be completed")
+var ErrMustBeOpenToBeCompleted = errors.New("bullet must be open to be completed")
+
 type BulletType string
 
 const (
@@ -88,6 +92,38 @@ func (b *Bullet) Validate() error {
 	return nil
 }
 
+func (b *Bullet) Complete() error {
+	if b.Signifier == SignifierCompleted {
+		return &ValidationError{Err: ErrAlreadyCompleted}
+	}
+	if b.Signifier != SignifierOpen {
+		return &ValidationError{Err: ErrMustBeOpenToBeCompleted}
+	}
+
+	if b.Type != BulletTask {
+		return &ValidationError{Err: ErrMustBeTaskToBeCompleted}
+	}
+
+	b.Signifier = SignifierCompleted
+	b.UpdatedAt = time.Now()
+
+	return nil
+}
+
+func (b *Bullet) Cancel() error {
+	if b.Signifier == SignifierCancelled {
+		return &ValidationError{Err: ErrBulletAlreadyCancelled}
+	}
+	if b.Signifier != SignifierOpen {
+		return &ValidationError{Err: ErrBulletNotOpen}
+	}
+
+	b.Signifier = SignifierCancelled
+	b.UpdatedAt = time.Now()
+
+	return nil
+}
+
 func (b *Bullet) Migrate() (*Bullet, error) {
 	if b.Type != BulletTask || b.Signifier != SignifierOpen {
 		return nil, &ValidationError{Err: ErrNotOpenTask}
@@ -112,19 +148,4 @@ func (b *Bullet) Migrate() (*Bullet, error) {
 	}
 
 	return migrated, nil
-}
-
-func (b *Bullet) Cancel() error {
-	switch b.Signifier {
-	case SignifierCancelled:
-		return &ValidationError{Err: ErrBulletAlreadyCancelled}
-	case SignifierOpen:
-	default:
-		return &ValidationError{Err: ErrBulletNotOpen}
-	}
-
-	b.Signifier = SignifierCancelled
-	b.UpdatedAt = time.Now()
-
-	return nil
 }
