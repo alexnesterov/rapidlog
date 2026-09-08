@@ -3,6 +3,7 @@ package postgres
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/alexnesterov/rapidlog-api/migrations"
@@ -21,7 +22,11 @@ func Migrate(dsn string) error {
 	if err != nil {
 		return fmt.Errorf("init migrator: %w", err)
 	}
-	defer m.Close()
+	defer func() {
+		if sourceErr, databaseErr := m.Close(); sourceErr != nil || databaseErr != nil {
+			slog.Error("close migrator", "sourceError", sourceErr, "databaseError", databaseErr)
+		}
+	}()
 
 	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return fmt.Errorf("run migrations: %w", err)
