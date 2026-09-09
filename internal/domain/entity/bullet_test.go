@@ -46,28 +46,28 @@ func TestNewBullet(t *testing.T) {
 			userID:     userID,
 			bulletType: BulletType("invalid"),
 			content:    "Заголовок",
-			wantErr:    ErrTypeInvalid,
+			wantErr:    ErrBulletTypeInvalid,
 		},
 		{
 			name:       "required content",
 			userID:     userID,
 			bulletType: BulletTask,
 			content:    "",
-			wantErr:    ErrContentRequired,
+			wantErr:    ErrBulletContentRequired,
 		},
 		{
 			name:       "content too long",
 			userID:     userID,
 			bulletType: BulletTask,
 			content:    strings.Repeat("a", 201),
-			wantErr:    ErrContentTooLong,
+			wantErr:    ErrBulletContentTooLong,
 		},
 		{
 			name:       "user id required",
 			userID:     uuid.Nil,
 			bulletType: BulletTask,
 			content:    "Заголовок",
-			wantErr:    ErrUserIDRequired,
+			wantErr:    ErrBulletUserIDRequired,
 		},
 	}
 
@@ -111,7 +111,7 @@ func TestBullet_Validate(t *testing.T) {
 				Content: "Заголовок",
 				Type:    "invalid",
 			},
-			wantErr: ErrTypeInvalid,
+			wantErr: ErrBulletTypeInvalid,
 		},
 		{
 			name: "type empty",
@@ -120,7 +120,7 @@ func TestBullet_Validate(t *testing.T) {
 				Content: "Заголовок",
 				Type:    "",
 			},
-			wantErr: ErrTypeInvalid,
+			wantErr: ErrBulletTypeInvalid,
 		},
 		{
 			name: "valid content",
@@ -138,7 +138,7 @@ func TestBullet_Validate(t *testing.T) {
 				Content: "",
 				Type:    BulletTask,
 			},
-			wantErr: ErrContentRequired,
+			wantErr: ErrBulletContentRequired,
 		},
 		{
 			name: "content too long",
@@ -147,7 +147,7 @@ func TestBullet_Validate(t *testing.T) {
 				Content: strings.Repeat("а", 201),
 				Type:    BulletTask,
 			},
-			wantErr: ErrContentTooLong,
+			wantErr: ErrBulletContentTooLong,
 		},
 		{
 			name: "200 cyrillic chars is valid",
@@ -165,7 +165,7 @@ func TestBullet_Validate(t *testing.T) {
 				Content: "Заголовок",
 				Type:    BulletTask,
 			},
-			wantErr: ErrUserIDRequired,
+			wantErr: ErrBulletUserIDRequired,
 		},
 	}
 
@@ -396,7 +396,7 @@ func TestBullet_Migrate(t *testing.T) {
 			bulletType: BulletTask,
 			signifier:  SignifierOpen,
 			createdAt:  time.Now(),
-			wantErr:    ErrTodayTask,
+			wantErr:    ErrBulletTodayTask,
 		},
 	}
 

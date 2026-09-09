@@ -8,11 +8,11 @@ import (
 	"github.com/google/uuid"
 )
 
-var ErrContentRequired = errors.New("content is required")
-var ErrContentTooLong = errors.New("content is too long")
-var ErrTypeInvalid = errors.New("type must be task, event or note")
-var ErrTodayTask = errors.New("bullet is already scheduled for today")
-var ErrUserIDRequired = errors.New("user id is required")
+var ErrBulletContentRequired = errors.New("content is required")
+var ErrBulletContentTooLong = errors.New("content is too long")
+var ErrBulletTypeInvalid = errors.New("type must be task, event or note")
+var ErrBulletTodayTask = errors.New("bullet is already scheduled for today")
+var ErrBulletUserIDRequired = errors.New("user id is required")
 
 var ErrBulletAlreadyCompleted = errors.New("bullet already completed")
 var ErrBulletMustBeTaskToBeCompleted = errors.New("bullet must be task to be completed")
@@ -75,19 +75,19 @@ func (b *Bullet) Validate() error {
 	switch b.Type {
 	case BulletTask, BulletEvent, BulletNote:
 	default:
-		return &ValidationError{Err: ErrTypeInvalid}
+		return &ValidationError{Err: ErrBulletTypeInvalid}
 	}
 
 	if b.Content == "" {
-		return &ValidationError{Err: ErrContentRequired}
+		return &ValidationError{Err: ErrBulletContentRequired}
 	}
 
 	if utf8.RuneCountInString(b.Content) > 200 {
-		return &ValidationError{Err: ErrContentTooLong}
+		return &ValidationError{Err: ErrBulletContentTooLong}
 	}
 
 	if b.UserID == uuid.Nil {
-		return &ValidationError{Err: ErrUserIDRequired}
+		return &ValidationError{Err: ErrBulletUserIDRequired}
 	}
 
 	return nil
@@ -131,7 +131,7 @@ func (b *Bullet) Migrate() (*Bullet, error) {
 	}
 
 	if b.CreatedAt.Format("2006-01-02") == time.Now().Format("2006-01-02") {
-		return nil, &ValidationError{Err: ErrTodayTask}
+		return nil, &ValidationError{Err: ErrBulletTodayTask}
 	}
 
 	now := time.Now()
