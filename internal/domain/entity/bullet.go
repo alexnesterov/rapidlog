@@ -109,20 +109,6 @@ func (b *Bullet) Complete() error {
 	return nil
 }
 
-func (b *Bullet) Cancel() error {
-	if b.Signifier == SignifierCancelled {
-		return &ValidationError{Err: ErrBulletAlreadyCancelled}
-	}
-	if b.Signifier != SignifierOpen {
-		return &ValidationError{Err: ErrBulletNotOpen}
-	}
-
-	b.Signifier = SignifierCancelled
-	b.UpdatedAt = time.Now()
-
-	return nil
-}
-
 func (b *Bullet) Migrate() (*Bullet, error) {
 	if b.Type != BulletTask || b.Signifier != SignifierOpen {
 		return nil, &ValidationError{Err: ErrBulletNotOpenTask}
@@ -147,4 +133,18 @@ func (b *Bullet) Migrate() (*Bullet, error) {
 	}
 
 	return migrated, nil
+}
+
+func (b *Bullet) Cancel() error {
+	if b.Signifier == SignifierCancelled {
+		return &ValidationError{Err: ErrBulletAlreadyCancelled}
+	}
+	if b.Signifier != SignifierOpen {
+		return &ValidationError{Err: ErrBulletNotOpen}
+	}
+
+	b.Signifier = SignifierCancelled
+	b.UpdatedAt = time.Now()
+
+	return nil
 }
