@@ -198,5 +198,5 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotOpenTask() {
 
 	got, err := uc.MigrateBullet(context.Background(), id, userID)
 	s.Nil(got)
-	s.ErrorIs(err, entity.ErrNotOpenTask)
+	s.ErrorIs(err, entity.ErrBulletNotOpenTask)
 }

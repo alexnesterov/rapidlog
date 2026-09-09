@@ -49,7 +49,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 			},
 			setupMock: func(m *mocks.MockBulletRepository) {},
 			want:      nil,
-			wantErr:   entity.ErrTypeInvalid,
+			wantErr:   entity.ErrBulletTypeInvalid,
 		},
 		{
 			name: "repo error",
@@ -75,7 +75,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 			},
 			setupMock: func(m *mocks.MockBulletRepository) {},
 			want:      nil,
-			wantErr:   entity.ErrContentRequired,
+			wantErr:   entity.ErrBulletContentRequired,
 		},
 	}
 

@@ -2,86 +2,111 @@ package usecase_test
 
 import (
 	"context"
+	"errors"
 	"testing"
-	"time"
 
 	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/port"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/port/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/domain/usecase"
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestCompleteBulletUseCase(t *testing.T) {
-	oldUpdatedAt := time.Now().Add(-24 * time.Hour)
+type CompleteBulletUseCaseSuite struct {
+	suite.Suite
+	mockBulletRepo *mocks.MockBulletRepository
+	mockTxMgr      *mocks.MockTransactionManager
+	uc             port.BulletService
+}
 
-	cases := []struct {
-		name                 string
-		setupMock            func(m *mocks.MockBulletRepository)
-		wantUpdatedAtChanged bool
-		wantErr              error
-	}{
-		{
-			name: "success",
-			setupMock: func(m *mocks.MockBulletRepository) {
-				m.EXPECT().Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
-					Return(&entity.Bullet{Signifier: entity.SignifierOpen, UpdatedAt: oldUpdatedAt}, nil).
-					Once()
-				m.EXPECT().Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
-					Return(nil).
-					Once()
-			},
-			wantUpdatedAtChanged: true,
-		},
-		{
-			name: "already completed",
-			setupMock: func(m *mocks.MockBulletRepository) {
-				m.EXPECT().Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
-					Return(&entity.Bullet{Signifier: entity.SignifierCompleted, UpdatedAt: oldUpdatedAt}, nil).
-					Once()
-			},
-		},
-		{
-			name: "not found",
-			setupMock: func(m *mocks.MockBulletRepository) {
-				m.EXPECT().Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
-					Return(nil, port.ErrNotFound).
-					Once()
-			},
-			wantErr: port.ErrNotFound,
-		},
-	}
+func TestCompleteBulletUseCaseSuite(t *testing.T) {
+	suite.Run(t, new(CompleteBulletUseCaseSuite))
+}
 
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			mockRepo := mocks.NewMockBulletRepository(t)
-			tc.setupMock(mockRepo)
+func (s *CompleteBulletUseCaseSuite) SetupTest() {
+	s.mockBulletRepo = &mocks.MockBulletRepository{}
+	s.mockTxMgr = &mocks.MockTransactionManager{}
+	s.uc = usecase.NewBulletService(s.mockBulletRepo, s.mockTxMgr)
+}
 
-			mockTxMgr := mocks.NewMockTransactionManager(t)
+func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_Success() {
+	s.mockBulletRepo.EXPECT().
+		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
+		Return(&entity.Bullet{
+			Type:      entity.BulletTask,
+			Signifier: entity.SignifierOpen,
+		}, nil).
+		Once()
 
-			uc := usecase.NewBulletService(mockRepo, mockTxMgr)
+	s.mockBulletRepo.EXPECT().
+		Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Return(nil).
+		Once()
 
-			got, err := uc.CompleteBullet(context.Background(), uuid.New(), uuid.New())
-			if tc.wantErr != nil {
-				require.Error(t, err)
-				assert.Nil(t, got)
-				assert.ErrorIs(t, err, tc.wantErr)
-				return
-			}
+	got, err := s.uc.CompleteBullet(context.Background(), uuid.New(), uuid.New())
+	s.NoError(err)
+	s.Equal(entity.SignifierCompleted, got.Signifier)
+}
 
-			require.NoError(t, err)
-			assert.Equal(t, entity.SignifierCompleted, got.Signifier)
+func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_NotFound() {
+	s.mockBulletRepo.EXPECT().
+		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
+		Return(nil, port.ErrNotFound).
+		Once()
 
-			if tc.wantUpdatedAtChanged {
-				assert.True(t, got.UpdatedAt.After(oldUpdatedAt))
-			}
+	got, err := s.uc.CompleteBullet(context.Background(), uuid.New(), uuid.New())
+	s.Nil(got)
+	s.ErrorIs(err, port.ErrNotFound)
+}
 
-			if !tc.wantUpdatedAtChanged {
-				assert.Equal(t, oldUpdatedAt, got.UpdatedAt)
-			}
-		})
-	}
+func (s *CompleteBulletUseCaseSuite) TestComleteBullet_AlreadyCompleted() {
+	s.mockBulletRepo.EXPECT().
+		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
+		Return(&entity.Bullet{
+			Type:      entity.BulletTask,
+			Signifier: entity.SignifierCompleted,
+		}, nil).
+		Once()
+
+	got, err := s.uc.CompleteBullet(context.Background(), uuid.New(), uuid.New())
+	s.NoError(err)
+	s.Equal(entity.SignifierCompleted, got.Signifier)
+}
+
+func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_ValidationError() {
+	s.mockBulletRepo.EXPECT().
+		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
+		Return(&entity.Bullet{
+			Type:      entity.BulletNote,
+			Signifier: entity.SignifierCancelled,
+		}, nil).
+		Once()
+
+	got, err := s.uc.CompleteBullet(context.Background(), uuid.New(), uuid.New())
+	s.Nil(got)
+	var validationErr *entity.ValidationError
+	s.ErrorAs(err, &validationErr)
+}
+
+func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_UpdateError() {
+	wantErr := errors.New("update failed")
+
+	s.mockBulletRepo.EXPECT().
+		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
+		Return(&entity.Bullet{
+			Type:      entity.BulletTask,
+			Signifier: entity.SignifierOpen,
+		}, nil).
+		Once()
+
+	s.mockBulletRepo.EXPECT().
+		Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Return(wantErr).
+		Once()
+
+	got, err := s.uc.CompleteBullet(context.Background(), uuid.New(), uuid.New())
+	s.Nil(got)
+	s.ErrorIs(err, wantErr)
 }

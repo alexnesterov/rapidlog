@@ -8,15 +8,18 @@ import (
 	"github.com/google/uuid"
 )
 
-var ErrContentRequired = errors.New("content is required")
-var ErrContentTooLong = errors.New("content is too long")
-var ErrTypeInvalid = errors.New("type must be task, event or note")
-var ErrNotOpenTask = errors.New("bullet is not an open task")
-var ErrTodayTask = errors.New("bullet is already scheduled for today")
-var ErrUserIDRequired = errors.New("user id is required")
+var ErrBulletContentRequired = errors.New("bullet content is required")
+var ErrBulletContentTooLong = errors.New("bullet content is too long")
+var ErrBulletTypeInvalid = errors.New("bullet type must be task, event or note")
+var ErrBulletCreatedToday = errors.New("bullet was created today")
+var ErrBulletUserIDRequired = errors.New("bullet user id is required")
 
+var ErrBulletNotOpen = errors.New("bullet is not open")
+var ErrBulletNotTask = errors.New("bullet is not a task")
+var ErrBulletNotOpenTask = errors.New("bullet is not an open task")
+
+var ErrBulletAlreadyCompleted = errors.New("bullet already completed")
 var ErrBulletAlreadyCancelled = errors.New("bullet already cancelled")
-var ErrBulletNotOpen = errors.New("bullet must be open to be cancelled")
 
 type BulletType string
 
@@ -70,31 +73,63 @@ func (b *Bullet) Validate() error {
 	switch b.Type {
 	case BulletTask, BulletEvent, BulletNote:
 	default:
-		return &ValidationError{Err: ErrTypeInvalid}
+		return &ValidationError{Err: ErrBulletTypeInvalid}
 	}
 
 	if b.Content == "" {
-		return &ValidationError{Err: ErrContentRequired}
+		return &ValidationError{Err: ErrBulletContentRequired}
 	}
 
 	if utf8.RuneCountInString(b.Content) > 200 {
-		return &ValidationError{Err: ErrContentTooLong}
+		return &ValidationError{Err: ErrBulletContentTooLong}
 	}
 
 	if b.UserID == uuid.Nil {
-		return &ValidationError{Err: ErrUserIDRequired}
+		return &ValidationError{Err: ErrBulletUserIDRequired}
 	}
+
+	return nil
+}
+
+func (b *Bullet) Complete() error {
+	if b.Signifier == SignifierCompleted {
+		return &ValidationError{Err: ErrBulletAlreadyCompleted}
+	}
+	if b.Signifier != SignifierOpen {
+		return &ValidationError{Err: ErrBulletNotOpen}
+	}
+
+	if b.Type != BulletTask {
+		return &ValidationError{Err: ErrBulletNotTask}
+	}
+
+	b.Signifier = SignifierCompleted
+	b.UpdatedAt = time.Now()
+
+	return nil
+}
+
+func (b *Bullet) Cancel() error {
+	if b.Signifier == SignifierCancelled {
+		return &ValidationError{Err: ErrBulletAlreadyCancelled}
+	}
+	if b.Signifier != SignifierOpen {
+		return &ValidationError{Err: ErrBulletNotOpen}
+	}
+
+	b.Signifier = SignifierCancelled
+	b.UpdatedAt = time.Now()
 
 	return nil
 }
 
 func (b *Bullet) Migrate() (*Bullet, error) {
 	if b.Type != BulletTask || b.Signifier != SignifierOpen {
-		return nil, &ValidationError{Err: ErrNotOpenTask}
+		return nil, &ValidationError{Err: ErrBulletNotOpenTask}
 	}
 
 	if b.CreatedAt.Format("2006-01-02") == time.Now().Format("2006-01-02") {
-		return nil, &ValidationError{Err: ErrTodayTask}
+		return nil, &ValidationError{Err: ErrBulletCreatedToday}
 	}
 
 	now := time.Now()
@@ -112,19 +147,4 @@ func (b *Bullet) Migrate() (*Bullet, error) {
 	}
 
 	return migrated, nil
-}
-
-func (b *Bullet) Cancel() error {
-	switch b.Signifier {
-	case SignifierCancelled:
-		return &ValidationError{Err: ErrBulletAlreadyCancelled}
-	case SignifierOpen:
-	default:
-		return &ValidationError{Err: ErrBulletNotOpen}
-	}
-
-	b.Signifier = SignifierCancelled
-	b.UpdatedAt = time.Now()
-
-	return nil
 }

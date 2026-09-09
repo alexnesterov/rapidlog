@@ -46,28 +46,28 @@ func TestNewBullet(t *testing.T) {
 			userID:     userID,
 			bulletType: BulletType("invalid"),
 			content:    "Заголовок",
-			wantErr:    ErrTypeInvalid,
+			wantErr:    ErrBulletTypeInvalid,
 		},
 		{
 			name:       "required content",
 			userID:     userID,
 			bulletType: BulletTask,
 			content:    "",
-			wantErr:    ErrContentRequired,
+			wantErr:    ErrBulletContentRequired,
 		},
 		{
 			name:       "content too long",
 			userID:     userID,
 			bulletType: BulletTask,
 			content:    strings.Repeat("a", 201),
-			wantErr:    ErrContentTooLong,
+			wantErr:    ErrBulletContentTooLong,
 		},
 		{
 			name:       "user id required",
 			userID:     uuid.Nil,
 			bulletType: BulletTask,
 			content:    "Заголовок",
-			wantErr:    ErrUserIDRequired,
+			wantErr:    ErrBulletUserIDRequired,
 		},
 	}
 
@@ -111,7 +111,7 @@ func TestBullet_Validate(t *testing.T) {
 				Content: "Заголовок",
 				Type:    "invalid",
 			},
-			wantErr: ErrTypeInvalid,
+			wantErr: ErrBulletTypeInvalid,
 		},
 		{
 			name: "type empty",
@@ -120,7 +120,7 @@ func TestBullet_Validate(t *testing.T) {
 				Content: "Заголовок",
 				Type:    "",
 			},
-			wantErr: ErrTypeInvalid,
+			wantErr: ErrBulletTypeInvalid,
 		},
 		{
 			name: "valid content",
@@ -138,7 +138,7 @@ func TestBullet_Validate(t *testing.T) {
 				Content: "",
 				Type:    BulletTask,
 			},
-			wantErr: ErrContentRequired,
+			wantErr: ErrBulletContentRequired,
 		},
 		{
 			name: "content too long",
@@ -147,7 +147,7 @@ func TestBullet_Validate(t *testing.T) {
 				Content: strings.Repeat("а", 201),
 				Type:    BulletTask,
 			},
-			wantErr: ErrContentTooLong,
+			wantErr: ErrBulletContentTooLong,
 		},
 		{
 			name: "200 cyrillic chars is valid",
@@ -165,7 +165,7 @@ func TestBullet_Validate(t *testing.T) {
 				Content: "Заголовок",
 				Type:    BulletTask,
 			},
-			wantErr: ErrUserIDRequired,
+			wantErr: ErrBulletUserIDRequired,
 		},
 	}
 
@@ -186,120 +186,78 @@ func TestBullet_Validate(t *testing.T) {
 	}
 }
 
-func TestBullet_Migrate(t *testing.T) {
+func TestBullet_Complete(t *testing.T) {
 	cases := []struct {
-		name       string
-		bulletType BulletType
-		signifier  Signifier
-		createdAt  time.Time
-		wantErr    error
+		name    string
+		bullet  Bullet
+		wantErr error
 	}{
 		{
-			name:       "task open",
-			bulletType: BulletTask,
-			signifier:  SignifierOpen,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    nil,
+			name: "task open",
+			bullet: Bullet{
+				Type:      BulletTask,
+				Signifier: SignifierOpen,
+			},
+			wantErr: nil,
 		},
 		{
-			name:       "task completed",
-			bulletType: BulletTask,
-			signifier:  SignifierCompleted,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrNotOpenTask,
+			name: "task completed",
+			bullet: Bullet{
+				Type:      BulletTask,
+				Signifier: SignifierCompleted,
+			},
+			wantErr: ErrBulletAlreadyCompleted,
 		},
 		{
-			name:       "task migrated",
-			bulletType: BulletTask,
-			signifier:  SignifierMigrated,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrNotOpenTask,
+			name: "task canceled",
+			bullet: Bullet{
+				Type:      BulletTask,
+				Signifier: SignifierCancelled,
+			},
+			wantErr: ErrBulletNotOpen,
 		},
 		{
-			name:       "task scheduled",
-			bulletType: BulletTask,
-			signifier:  SignifierScheduled,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrNotOpenTask,
+			name: "task migrated",
+			bullet: Bullet{
+				Type:      BulletTask,
+				Signifier: SignifierMigrated,
+			},
+			wantErr: ErrBulletNotOpen,
 		},
 		{
-			name:       "task cancelled",
-			bulletType: BulletTask,
-			signifier:  SignifierCancelled,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrNotOpenTask,
+			name: "event open",
+			bullet: Bullet{
+				Type:      BulletEvent,
+				Signifier: SignifierOpen,
+			},
+			wantErr: ErrBulletNotTask,
 		},
 		{
-			name:       "event open",
-			bulletType: BulletEvent,
-			signifier:  SignifierOpen,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrNotOpenTask,
-		},
-		{
-			name:       "event canceled",
-			bulletType: BulletEvent,
-			signifier:  SignifierCancelled,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrNotOpenTask,
-		},
-		{
-			name:       "note open",
-			bulletType: BulletNote,
-			signifier:  SignifierOpen,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrNotOpenTask,
-		},
-		{
-			name:       "note canceled",
-			bulletType: BulletNote,
-			signifier:  SignifierCancelled,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrNotOpenTask,
-		},
-		{
-			name:       "created at today",
-			bulletType: BulletTask,
-			signifier:  SignifierOpen,
-			createdAt:  time.Now(),
-			wantErr:    ErrTodayTask,
+			name: "note open",
+			bullet: Bullet{
+				Type:      BulletNote,
+				Signifier: SignifierOpen,
+			},
+			wantErr: ErrBulletNotTask,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			bullet := Bullet{
-				ID:        uuid.New(),
-				Type:      tc.bulletType,
-				Signifier: tc.signifier,
-				Content:   "Test task",
-				UserID:    uuid.New(),
-				CreatedAt: tc.createdAt,
-				UpdatedAt: time.Now(),
-			}
+			initialUpdatedAt := tc.bullet.UpdatedAt
 
-			initialUpdatedAt := bullet.UpdatedAt
-
-			got, err := bullet.Migrate()
+			err := tc.bullet.Complete()
 			if tc.wantErr != nil {
 				require.Error(t, err)
 				var validationErr *ValidationError
 				assert.ErrorAs(t, err, &validationErr)
-				assert.ErrorIs(t, validationErr.Err, tc.wantErr)
+				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
 
-			require.NoError(t, err)
-			assert.Equal(t, SignifierMigrated, bullet.Signifier)
-			assert.True(t, bullet.UpdatedAt.After(initialUpdatedAt))
-
-			assert.Equal(t, bullet.UserID, got.UserID)
-			assert.NotEqual(t, bullet.ID, got.ID)
-			assert.Equal(t, bullet.Type, got.Type)
-			assert.Equal(t, SignifierOpen, got.Signifier)
-			assert.Equal(t, bullet.Content, got.Content)
-			assert.Equal(t, bullet.UpdatedAt, got.CreatedAt)
-			assert.Equal(t, bullet.UpdatedAt, got.UpdatedAt)
+			assert.NoError(t, err)
+			assert.Equal(t, SignifierCompleted, tc.bullet.Signifier)
+			assert.True(t, tc.bullet.UpdatedAt.After(initialUpdatedAt))
 		})
 	}
 }
@@ -358,6 +316,124 @@ func TestBullet_Cancel(t *testing.T) {
 			require.NoError(t, err)
 			assert.Equal(t, SignifierCancelled, tc.bullet.Signifier)
 			assert.True(t, tc.bullet.UpdatedAt.After(initialUpdatedAt))
+		})
+	}
+}
+
+func TestBullet_Migrate(t *testing.T) {
+	cases := []struct {
+		name       string
+		bulletType BulletType
+		signifier  Signifier
+		createdAt  time.Time
+		wantErr    error
+	}{
+		{
+			name:       "task open",
+			bulletType: BulletTask,
+			signifier:  SignifierOpen,
+			createdAt:  time.Now().Add(-24 * time.Hour),
+			wantErr:    nil,
+		},
+		{
+			name:       "task completed",
+			bulletType: BulletTask,
+			signifier:  SignifierCompleted,
+			createdAt:  time.Now().Add(-24 * time.Hour),
+			wantErr:    ErrBulletNotOpenTask,
+		},
+		{
+			name:       "task migrated",
+			bulletType: BulletTask,
+			signifier:  SignifierMigrated,
+			createdAt:  time.Now().Add(-24 * time.Hour),
+			wantErr:    ErrBulletNotOpenTask,
+		},
+		{
+			name:       "task scheduled",
+			bulletType: BulletTask,
+			signifier:  SignifierScheduled,
+			createdAt:  time.Now().Add(-24 * time.Hour),
+			wantErr:    ErrBulletNotOpenTask,
+		},
+		{
+			name:       "task cancelled",
+			bulletType: BulletTask,
+			signifier:  SignifierCancelled,
+			createdAt:  time.Now().Add(-24 * time.Hour),
+			wantErr:    ErrBulletNotOpenTask,
+		},
+		{
+			name:       "event open",
+			bulletType: BulletEvent,
+			signifier:  SignifierOpen,
+			createdAt:  time.Now().Add(-24 * time.Hour),
+			wantErr:    ErrBulletNotOpenTask,
+		},
+		{
+			name:       "event canceled",
+			bulletType: BulletEvent,
+			signifier:  SignifierCancelled,
+			createdAt:  time.Now().Add(-24 * time.Hour),
+			wantErr:    ErrBulletNotOpenTask,
+		},
+		{
+			name:       "note open",
+			bulletType: BulletNote,
+			signifier:  SignifierOpen,
+			createdAt:  time.Now().Add(-24 * time.Hour),
+			wantErr:    ErrBulletNotOpenTask,
+		},
+		{
+			name:       "note canceled",
+			bulletType: BulletNote,
+			signifier:  SignifierCancelled,
+			createdAt:  time.Now().Add(-24 * time.Hour),
+			wantErr:    ErrBulletNotOpenTask,
+		},
+		{
+			name:       "created at today",
+			bulletType: BulletTask,
+			signifier:  SignifierOpen,
+			createdAt:  time.Now(),
+			wantErr:    ErrBulletCreatedToday,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			bullet := Bullet{
+				ID:        uuid.New(),
+				Type:      tc.bulletType,
+				Signifier: tc.signifier,
+				Content:   "Test task",
+				UserID:    uuid.New(),
+				CreatedAt: tc.createdAt,
+				UpdatedAt: time.Now(),
+			}
+
+			initialUpdatedAt := bullet.UpdatedAt
+
+			got, err := bullet.Migrate()
+			if tc.wantErr != nil {
+				require.Error(t, err)
+				var validationErr *ValidationError
+				assert.ErrorAs(t, err, &validationErr)
+				assert.ErrorIs(t, validationErr.Err, tc.wantErr)
+				return
+			}
+
+			require.NoError(t, err)
+			assert.Equal(t, SignifierMigrated, bullet.Signifier)
+			assert.True(t, bullet.UpdatedAt.After(initialUpdatedAt))
+
+			assert.Equal(t, bullet.UserID, got.UserID)
+			assert.NotEqual(t, bullet.ID, got.ID)
+			assert.Equal(t, bullet.Type, got.Type)
+			assert.Equal(t, SignifierOpen, got.Signifier)
+			assert.Equal(t, bullet.Content, got.Content)
+			assert.Equal(t, bullet.UpdatedAt, got.CreatedAt)
+			assert.Equal(t, bullet.UpdatedAt, got.UpdatedAt)
 		})
 	}
 }
