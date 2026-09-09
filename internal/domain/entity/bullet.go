@@ -18,9 +18,9 @@ var ErrUserIDRequired = errors.New("user id is required")
 var ErrBulletAlreadyCancelled = errors.New("bullet already cancelled")
 var ErrBulletNotOpen = errors.New("bullet must be open to be cancelled")
 
-var ErrAlreadyCompleted = errors.New("bullet already completed")
-var ErrMustBeTaskToBeCompleted = errors.New("bullet must be task to be completed")
-var ErrMustBeOpenToBeCompleted = errors.New("bullet must be open to be completed")
+var ErrBulletAlreadyCompleted = errors.New("bullet already completed")
+var ErrBulletMustBeTaskToBeCompleted = errors.New("bullet must be task to be completed")
+var ErrBulletMustBeOpenToBeCompleted = errors.New("bullet must be open to be completed")
 
 type BulletType string
 
@@ -94,14 +94,14 @@ func (b *Bullet) Validate() error {
 
 func (b *Bullet) Complete() error {
 	if b.Signifier == SignifierCompleted {
-		return &ValidationError{Err: ErrAlreadyCompleted}
+		return &ValidationError{Err: ErrBulletAlreadyCompleted}
 	}
 	if b.Signifier != SignifierOpen {
-		return &ValidationError{Err: ErrMustBeOpenToBeCompleted}
+		return &ValidationError{Err: ErrBulletMustBeOpenToBeCompleted}
 	}
 
 	if b.Type != BulletTask {
-		return &ValidationError{Err: ErrMustBeTaskToBeCompleted}
+		return &ValidationError{Err: ErrBulletMustBeTaskToBeCompleted}
 	}
 
 	b.Signifier = SignifierCompleted

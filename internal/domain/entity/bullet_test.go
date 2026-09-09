@@ -206,7 +206,7 @@ func TestBullet_Complete(t *testing.T) {
 				Type:      BulletTask,
 				Signifier: SignifierCompleted,
 			},
-			wantErr: ErrAlreadyCompleted,
+			wantErr: ErrBulletAlreadyCompleted,
 		},
 		{
 			name: "task canceled",
@@ -214,7 +214,7 @@ func TestBullet_Complete(t *testing.T) {
 				Type:      BulletTask,
 				Signifier: SignifierCancelled,
 			},
-			wantErr: ErrMustBeOpenToBeCompleted,
+			wantErr: ErrBulletMustBeOpenToBeCompleted,
 		},
 		{
 			name: "task migrated",
@@ -222,7 +222,7 @@ func TestBullet_Complete(t *testing.T) {
 				Type:      BulletTask,
 				Signifier: SignifierMigrated,
 			},
-			wantErr: ErrMustBeOpenToBeCompleted,
+			wantErr: ErrBulletMustBeOpenToBeCompleted,
 		},
 		{
 			name: "event open",
@@ -230,7 +230,7 @@ func TestBullet_Complete(t *testing.T) {
 				Type:      BulletEvent,
 				Signifier: SignifierOpen,
 			},
-			wantErr: ErrMustBeTaskToBeCompleted,
+			wantErr: ErrBulletMustBeTaskToBeCompleted,
 		},
 		{
 			name: "note open",
@@ -238,7 +238,7 @@ func TestBullet_Complete(t *testing.T) {
 				Type:      BulletNote,
 				Signifier: SignifierOpen,
 			},
-			wantErr: ErrMustBeTaskToBeCompleted,
+			wantErr: ErrBulletMustBeTaskToBeCompleted,
 		},
 	}
 

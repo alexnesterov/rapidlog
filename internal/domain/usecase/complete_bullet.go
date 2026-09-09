@@ -15,7 +15,7 @@ func (s *bulletService) CompleteBullet(ctx context.Context, id, userID uuid.UUID
 	}
 
 	err = bullet.Complete()
-	if errors.Is(err, entity.ErrAlreadyCompleted) {
+	if errors.Is(err, entity.ErrBulletAlreadyCompleted) {
 		return bullet, nil
 	}
 	if err != nil {
