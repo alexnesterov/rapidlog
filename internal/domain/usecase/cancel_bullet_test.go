@@ -83,7 +83,7 @@ func (s *CancelBulletUseCaseSuite) TestCancelBullet_NotOpen() {
 
 	got, err := s.uc.CancelBullet(context.Background(), uuid.New(), uuid.New())
 	s.Nil(got)
-	s.ErrorIs(err, entity.ErrBulletNotOpen)
+	s.ErrorIs(err, entity.ErrBulletMustBeOpenToBeCancelled)
 }
 
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_UpdateError() {

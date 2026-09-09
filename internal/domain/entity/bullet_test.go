@@ -291,12 +291,12 @@ func TestBullet_Cancel(t *testing.T) {
 		{
 			name:    "task completed",
 			bullet:  Bullet{Type: BulletTask, Signifier: SignifierCompleted},
-			wantErr: ErrBulletNotOpen,
+			wantErr: ErrBulletMustBeOpenToBeCancelled,
 		},
 		{
 			name:    "task migrated",
 			bullet:  Bullet{Type: BulletTask, Signifier: SignifierMigrated},
-			wantErr: ErrBulletNotOpen,
+			wantErr: ErrBulletMustBeOpenToBeCancelled,
 		},
 	}
 

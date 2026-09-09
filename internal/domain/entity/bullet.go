@@ -16,7 +16,7 @@ var ErrTodayTask = errors.New("bullet is already scheduled for today")
 var ErrUserIDRequired = errors.New("user id is required")
 
 var ErrBulletAlreadyCancelled = errors.New("bullet already cancelled")
-var ErrBulletNotOpen = errors.New("bullet must be open to be cancelled")
+var ErrBulletMustBeOpenToBeCancelled = errors.New("bullet must be open to be cancelled")
 
 var ErrBulletAlreadyCompleted = errors.New("bullet already completed")
 var ErrBulletMustBeTaskToBeCompleted = errors.New("bullet must be task to be completed")
@@ -115,7 +115,7 @@ func (b *Bullet) Cancel() error {
 		return &ValidationError{Err: ErrBulletAlreadyCancelled}
 	}
 	if b.Signifier != SignifierOpen {
-		return &ValidationError{Err: ErrBulletNotOpen}
+		return &ValidationError{Err: ErrBulletMustBeOpenToBeCancelled}
 	}
 
 	b.Signifier = SignifierCancelled
