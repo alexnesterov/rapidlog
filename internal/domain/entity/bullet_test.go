@@ -214,7 +214,7 @@ func TestBullet_Complete(t *testing.T) {
 				Type:      BulletTask,
 				Signifier: SignifierCancelled,
 			},
-			wantErr: ErrBulletMustBeOpenToBeCompleted,
+			wantErr: ErrBulletNotOpen,
 		},
 		{
 			name: "task migrated",
@@ -222,7 +222,7 @@ func TestBullet_Complete(t *testing.T) {
 				Type:      BulletTask,
 				Signifier: SignifierMigrated,
 			},
-			wantErr: ErrBulletMustBeOpenToBeCompleted,
+			wantErr: ErrBulletNotOpen,
 		},
 		{
 			name: "event open",
@@ -230,7 +230,7 @@ func TestBullet_Complete(t *testing.T) {
 				Type:      BulletEvent,
 				Signifier: SignifierOpen,
 			},
-			wantErr: ErrBulletMustBeTaskToBeCompleted,
+			wantErr: ErrBulletNotTask,
 		},
 		{
 			name: "note open",
@@ -238,7 +238,7 @@ func TestBullet_Complete(t *testing.T) {
 				Type:      BulletNote,
 				Signifier: SignifierOpen,
 			},
-			wantErr: ErrBulletMustBeTaskToBeCompleted,
+			wantErr: ErrBulletNotTask,
 		},
 	}
 
@@ -291,12 +291,12 @@ func TestBullet_Cancel(t *testing.T) {
 		{
 			name:    "task completed",
 			bullet:  Bullet{Type: BulletTask, Signifier: SignifierCompleted},
-			wantErr: ErrBulletMustBeOpenToBeCancelled,
+			wantErr: ErrBulletNotOpen,
 		},
 		{
 			name:    "task migrated",
 			bullet:  Bullet{Type: BulletTask, Signifier: SignifierMigrated},
-			wantErr: ErrBulletMustBeOpenToBeCancelled,
+			wantErr: ErrBulletNotOpen,
 		},
 	}
 
@@ -340,56 +340,56 @@ func TestBullet_Migrate(t *testing.T) {
 			bulletType: BulletTask,
 			signifier:  SignifierCompleted,
 			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletMustBeOpenTaskToBeMigrated,
+			wantErr:    ErrBulletNotOpenTask,
 		},
 		{
 			name:       "task migrated",
 			bulletType: BulletTask,
 			signifier:  SignifierMigrated,
 			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletMustBeOpenTaskToBeMigrated,
+			wantErr:    ErrBulletNotOpenTask,
 		},
 		{
 			name:       "task scheduled",
 			bulletType: BulletTask,
 			signifier:  SignifierScheduled,
 			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletMustBeOpenTaskToBeMigrated,
+			wantErr:    ErrBulletNotOpenTask,
 		},
 		{
 			name:       "task cancelled",
 			bulletType: BulletTask,
 			signifier:  SignifierCancelled,
 			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletMustBeOpenTaskToBeMigrated,
+			wantErr:    ErrBulletNotOpenTask,
 		},
 		{
 			name:       "event open",
 			bulletType: BulletEvent,
 			signifier:  SignifierOpen,
 			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletMustBeOpenTaskToBeMigrated,
+			wantErr:    ErrBulletNotOpenTask,
 		},
 		{
 			name:       "event canceled",
 			bulletType: BulletEvent,
 			signifier:  SignifierCancelled,
 			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletMustBeOpenTaskToBeMigrated,
+			wantErr:    ErrBulletNotOpenTask,
 		},
 		{
 			name:       "note open",
 			bulletType: BulletNote,
 			signifier:  SignifierOpen,
 			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletMustBeOpenTaskToBeMigrated,
+			wantErr:    ErrBulletNotOpenTask,
 		},
 		{
 			name:       "note canceled",
 			bulletType: BulletNote,
 			signifier:  SignifierCancelled,
 			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletMustBeOpenTaskToBeMigrated,
+			wantErr:    ErrBulletNotOpenTask,
 		},
 		{
 			name:       "created at today",

@@ -14,14 +14,12 @@ var ErrBulletTypeInvalid = errors.New("bullet type must be task, event or note")
 var ErrBulletCreatedToday = errors.New("bullet was created today")
 var ErrBulletUserIDRequired = errors.New("bullet user id is required")
 
+var ErrBulletNotOpen = errors.New("bullet is not open")
+var ErrBulletNotTask = errors.New("bullet is not a task")
+var ErrBulletNotOpenTask = errors.New("bullet is not an open task")
+
 var ErrBulletAlreadyCompleted = errors.New("bullet already completed")
-var ErrBulletMustBeTaskToBeCompleted = errors.New("bullet must be task to be completed")
-var ErrBulletMustBeOpenToBeCompleted = errors.New("bullet must be open to be completed")
-
 var ErrBulletAlreadyCancelled = errors.New("bullet already cancelled")
-var ErrBulletMustBeOpenToBeCancelled = errors.New("bullet must be open to be cancelled")
-
-var ErrBulletMustBeOpenTaskToBeMigrated = errors.New("bullet must be open task to be migrated")
 
 type BulletType string
 
@@ -98,11 +96,11 @@ func (b *Bullet) Complete() error {
 		return &ValidationError{Err: ErrBulletAlreadyCompleted}
 	}
 	if b.Signifier != SignifierOpen {
-		return &ValidationError{Err: ErrBulletMustBeOpenToBeCompleted}
+		return &ValidationError{Err: ErrBulletNotOpen}
 	}
 
 	if b.Type != BulletTask {
-		return &ValidationError{Err: ErrBulletMustBeTaskToBeCompleted}
+		return &ValidationError{Err: ErrBulletNotTask}
 	}
 
 	b.Signifier = SignifierCompleted
@@ -116,7 +114,7 @@ func (b *Bullet) Cancel() error {
 		return &ValidationError{Err: ErrBulletAlreadyCancelled}
 	}
 	if b.Signifier != SignifierOpen {
-		return &ValidationError{Err: ErrBulletMustBeOpenToBeCancelled}
+		return &ValidationError{Err: ErrBulletNotOpen}
 	}
 
 	b.Signifier = SignifierCancelled
@@ -127,7 +125,7 @@ func (b *Bullet) Cancel() error {
 
 func (b *Bullet) Migrate() (*Bullet, error) {
 	if b.Type != BulletTask || b.Signifier != SignifierOpen {
-		return nil, &ValidationError{Err: ErrBulletMustBeOpenTaskToBeMigrated}
+		return nil, &ValidationError{Err: ErrBulletNotOpenTask}
 	}
 
 	if b.CreatedAt.Format("2006-01-02") == time.Now().Format("2006-01-02") {

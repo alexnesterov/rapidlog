@@ -291,7 +291,7 @@ healthcheck.
 - **Альтернативный поток**: bullet уже `cancelled` → `200` без
   изменений (идемпотентность)
 - **Ошибка**: bullet с данным `id` не найден → `404`; bullet не
-  `open` → `400` (`"bullet must be open to be cancelled"`)
+  `open` → `400` (`"bullet is not open"`)
 
 Тело запроса отсутствует.
 
@@ -327,7 +327,7 @@ healthcheck.
   "data": null,
   "error": {
     "code": 400,
-    "message": "bullet must be open to be cancelled"
+    "message": "bullet is not open"
   }
 }
 ```
