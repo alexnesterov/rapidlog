@@ -8,11 +8,11 @@ import (
 	"github.com/google/uuid"
 )
 
-var ErrBulletContentRequired = errors.New("content is required")
-var ErrBulletContentTooLong = errors.New("content is too long")
-var ErrBulletTypeInvalid = errors.New("type must be task, event or note")
+var ErrBulletContentRequired = errors.New("bullet content is required")
+var ErrBulletContentTooLong = errors.New("bullet content is too long")
+var ErrBulletTypeInvalid = errors.New("bullet type must be task, event or note")
 var ErrBulletTodayTask = errors.New("bullet is already scheduled for today")
-var ErrBulletUserIDRequired = errors.New("user id is required")
+var ErrBulletUserIDRequired = errors.New("bullet user id is required")
 
 var ErrBulletAlreadyCompleted = errors.New("bullet already completed")
 var ErrBulletMustBeTaskToBeCompleted = errors.New("bullet must be task to be completed")
