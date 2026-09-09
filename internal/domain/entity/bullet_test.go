@@ -396,7 +396,7 @@ func TestBullet_Migrate(t *testing.T) {
 			bulletType: BulletTask,
 			signifier:  SignifierOpen,
 			createdAt:  time.Now(),
-			wantErr:    ErrBulletTodayTask,
+			wantErr:    ErrBulletCreatedToday,
 		},
 	}
 

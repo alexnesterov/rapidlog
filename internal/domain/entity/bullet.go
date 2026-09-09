@@ -11,7 +11,7 @@ import (
 var ErrBulletContentRequired = errors.New("bullet content is required")
 var ErrBulletContentTooLong = errors.New("bullet content is too long")
 var ErrBulletTypeInvalid = errors.New("bullet type must be task, event or note")
-var ErrBulletTodayTask = errors.New("bullet is already scheduled for today")
+var ErrBulletCreatedToday = errors.New("bullet was created today")
 var ErrBulletUserIDRequired = errors.New("bullet user id is required")
 
 var ErrBulletAlreadyCompleted = errors.New("bullet already completed")
@@ -131,7 +131,7 @@ func (b *Bullet) Migrate() (*Bullet, error) {
 	}
 
 	if b.CreatedAt.Format("2006-01-02") == time.Now().Format("2006-01-02") {
-		return nil, &ValidationError{Err: ErrBulletTodayTask}
+		return nil, &ValidationError{Err: ErrBulletCreatedToday}
 	}
 
 	now := time.Now()
