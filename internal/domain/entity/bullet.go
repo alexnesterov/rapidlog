@@ -11,16 +11,17 @@ import (
 var ErrContentRequired = errors.New("content is required")
 var ErrContentTooLong = errors.New("content is too long")
 var ErrTypeInvalid = errors.New("type must be task, event or note")
-var ErrNotOpenTask = errors.New("bullet is not an open task")
 var ErrTodayTask = errors.New("bullet is already scheduled for today")
 var ErrUserIDRequired = errors.New("user id is required")
-
-var ErrBulletAlreadyCancelled = errors.New("bullet already cancelled")
-var ErrBulletMustBeOpenToBeCancelled = errors.New("bullet must be open to be cancelled")
 
 var ErrBulletAlreadyCompleted = errors.New("bullet already completed")
 var ErrBulletMustBeTaskToBeCompleted = errors.New("bullet must be task to be completed")
 var ErrBulletMustBeOpenToBeCompleted = errors.New("bullet must be open to be completed")
+
+var ErrBulletAlreadyCancelled = errors.New("bullet already cancelled")
+var ErrBulletMustBeOpenToBeCancelled = errors.New("bullet must be open to be cancelled")
+
+var ErrBulletMustBeOpenTaskToBeMigrated = errors.New("bullet must be open task to be migrated")
 
 type BulletType string
 
@@ -126,7 +127,7 @@ func (b *Bullet) Cancel() error {
 
 func (b *Bullet) Migrate() (*Bullet, error) {
 	if b.Type != BulletTask || b.Signifier != SignifierOpen {
-		return nil, &ValidationError{Err: ErrNotOpenTask}
+		return nil, &ValidationError{Err: ErrBulletMustBeOpenTaskToBeMigrated}
 	}
 
 	if b.CreatedAt.Format("2006-01-02") == time.Now().Format("2006-01-02") {
