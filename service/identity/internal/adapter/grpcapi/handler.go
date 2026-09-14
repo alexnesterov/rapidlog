@@ -9,6 +9,7 @@ import (
 )
 
 type Handler struct {
+	identityv1.UnimplementedIdentityServer
 	usecase port.IdentityService
 }
 
