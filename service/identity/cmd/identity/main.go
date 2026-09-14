@@ -5,6 +5,9 @@ import (
 	"log/slog"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	identityv1 "github.com/alexnesterov/rapidlog-api/gen/identity/v1"
 	"github.com/alexnesterov/rapidlog-api/service/identity/internal/adapter/grpcapi"
@@ -14,9 +17,10 @@ import (
 )
 
 func main() {
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
-	ctx := context.Background()
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	dsn := os.Getenv("IDENTITY_DB_DSN")
 
@@ -47,6 +51,25 @@ func main() {
 		logger.Error("failed to listen", "error", err)
 		os.Exit(1)
 	}
+
+	go func() {
+		<-ctx.Done()
+		logger.Info("shutting down identity gRPC server")
+
+		stopped := make(chan struct{})
+		go func() {
+			grpcServer.GracefulStop()
+			close(stopped)
+		}()
+
+		select {
+		case <-stopped:
+			logger.Info("graceful shutdown completed")
+		case <-time.After(15 * time.Second):
+			logger.Info("graceful shutdown timed out, forcing stop")
+			grpcServer.Stop()
+		}
+	}()
 
 	logger.Info("starting identity grpc server")
 	if err := grpcServer.Serve(lis); err != nil {
