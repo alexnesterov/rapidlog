@@ -12,11 +12,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func TestResolveSession(t *testing.T) {
 	fixedSessionID := uuid.New()
-	errUsecase := errors.New("usecase error")
 
 	cases := []struct {
 		name      string
@@ -28,10 +29,10 @@ func TestResolveSession(t *testing.T) {
 			setupMock: func(m *mocks.MockIdentityService) {
 				m.EXPECT().
 					ResolveSession(mock.Anything, mock.AnythingOfType("uuid.UUID")).
-					Return(uuid.Nil, errUsecase).
+					Return(uuid.Nil, errors.New("usecase error")).
 					Once()
 			},
-			wantErr: errUsecase,
+			wantErr: status.Error(codes.Internal, "internal error"),
 		},
 		{
 			name: "success",
