@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/alexnesterov/rapidlog-api/internal/domain/entity"
-	"github.com/alexnesterov/rapidlog-api/internal/domain/port/mocks"
-	"github.com/alexnesterov/rapidlog-api/internal/domain/usecase"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gate/internal/domain/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gate/internal/domain/port/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gate/internal/domain/usecase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
