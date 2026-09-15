@@ -18,7 +18,7 @@ const testCookieName = "session_id"
 
 type SessionMiddlewareSuite struct {
 	suite.Suite
-	mockUserService *mocks.MockUserService
+	mockIdentityClient *mocks.MockIdentityClient
 }
 
 func TestSessionMiddlewareSuite(t *testing.T) {
@@ -26,13 +26,13 @@ func TestSessionMiddlewareSuite(t *testing.T) {
 }
 
 func (s *SessionMiddlewareSuite) SetupTest() {
-	s.mockUserService = mocks.NewMockUserService(s.T())
+	s.mockIdentityClient = mocks.NewMockIdentityClient(s.T())
 }
 
 func (s *SessionMiddlewareSuite) TestSession_NoCookie_SetsNewCookie() {
 	newID := uuid.New()
 
-	s.mockUserService.EXPECT().ResolveUser(mock.Anything, uuid.Nil).
+	s.mockIdentityClient.EXPECT().ResolveSession(mock.Anything, uuid.Nil).
 		Return(newID, nil).
 		Once()
 
@@ -43,7 +43,7 @@ func (s *SessionMiddlewareSuite) TestSession_NoCookie_SetsNewCookie() {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	handler := Session(s.mockUserService, testCookieName, 365*24*time.Hour, true)(next)
+	handler := Session(s.mockIdentityClient, testCookieName, 365*24*time.Hour, true)(next)
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	res := httptest.NewRecorder()
 
@@ -66,7 +66,7 @@ func (s *SessionMiddlewareSuite) TestSession_NoCookie_SetsNewCookie() {
 func (s *SessionMiddlewareSuite) TestSession_ValidCookie_NoNewCookie() {
 	id := uuid.New()
 
-	s.mockUserService.EXPECT().ResolveUser(mock.Anything, id).
+	s.mockIdentityClient.EXPECT().ResolveSession(mock.Anything, id).
 		Return(id, nil).
 		Once()
 
@@ -74,7 +74,7 @@ func (s *SessionMiddlewareSuite) TestSession_ValidCookie_NoNewCookie() {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	handler := Session(s.mockUserService, testCookieName, 365*24*time.Hour, true)(next)
+	handler := Session(s.mockIdentityClient, testCookieName, 365*24*time.Hour, true)(next)
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	req.AddCookie(&http.Cookie{Name: testCookieName, Value: id.String()})
 	res := httptest.NewRecorder()
@@ -88,7 +88,7 @@ func (s *SessionMiddlewareSuite) TestSession_StaleCookie_SetsNewCookie() {
 	staleID := uuid.New()
 	newID := uuid.New()
 
-	s.mockUserService.EXPECT().ResolveUser(mock.Anything, staleID).
+	s.mockIdentityClient.EXPECT().ResolveSession(mock.Anything, staleID).
 		Return(newID, nil).
 		Once()
 
@@ -96,7 +96,7 @@ func (s *SessionMiddlewareSuite) TestSession_StaleCookie_SetsNewCookie() {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	handler := Session(s.mockUserService, testCookieName, 365*24*time.Hour, true)(next)
+	handler := Session(s.mockIdentityClient, testCookieName, 365*24*time.Hour, true)(next)
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	req.AddCookie(&http.Cookie{Name: testCookieName, Value: staleID.String()})
 	res := httptest.NewRecorder()
@@ -115,20 +115,20 @@ func (s *SessionMiddlewareSuite) TestSession_HealthPath_Bypassed() {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	handler := Session(s.mockUserService, testCookieName, 365*24*time.Hour, true)(next)
+	handler := Session(s.mockIdentityClient, testCookieName, 365*24*time.Hour, true)(next)
 	req := httptest.NewRequest(http.MethodGet, "/health", nil)
 	res := httptest.NewRecorder()
 
 	handler.ServeHTTP(res, req)
 
 	s.True(nextCalled)
-	s.mockUserService.AssertNotCalled(s.T(), "ResolveUser", mock.Anything, mock.Anything)
+	s.mockIdentityClient.AssertNotCalled(s.T(), "ResolveUser", mock.Anything, mock.Anything)
 }
 
 func (s *SessionMiddlewareSuite) TestSession_ResolveError_Returns500() {
 	wantErr := errors.New("resolve failed")
 
-	s.mockUserService.EXPECT().ResolveUser(mock.Anything, uuid.Nil).
+	s.mockIdentityClient.EXPECT().ResolveSession(mock.Anything, uuid.Nil).
 		Return(uuid.Nil, wantErr).
 		Once()
 
@@ -137,7 +137,7 @@ func (s *SessionMiddlewareSuite) TestSession_ResolveError_Returns500() {
 		nextCalled = true
 	})
 
-	handler := Session(s.mockUserService, testCookieName, 365*24*time.Hour, true)(next)
+	handler := Session(s.mockIdentityClient, testCookieName, 365*24*time.Hour, true)(next)
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	res := httptest.NewRecorder()
 

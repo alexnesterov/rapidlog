@@ -18,6 +18,10 @@ type DBConfig struct {
 	DSN string `mapstructure:"dsn"`
 }
 
+type IdentityConfig struct {
+	Addr string `mapstructure:"addr"`
+}
+
 type SessionConfig struct {
 	CookieName   string        `mapstructure:"cookie_name"`
 	CookieTTL    time.Duration `mapstructure:"cookie_ttl"`
@@ -25,8 +29,9 @@ type SessionConfig struct {
 }
 
 type Config struct {
-	App     AppConfig
-	HTTP    HTTPConfig
-	DB      DBConfig
-	Session SessionConfig
+	App      AppConfig
+	HTTP     HTTPConfig
+	DB       DBConfig
+	Identity IdentityConfig
+	Session  SessionConfig
 }

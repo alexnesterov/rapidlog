@@ -20,6 +20,8 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("http.write_timeout", 10*time.Second)
 	v.SetDefault("http.idle_timeout", 15*time.Second)
 
+	v.SetDefault("identity.addr", "localhost:50051")
+
 	v.SetDefault("session.cookie_name", "session_id")
 	v.SetDefault("session.cookie_ttl", 365*24*time.Hour)
 	v.SetDefault("session.cookie_secure", true)
