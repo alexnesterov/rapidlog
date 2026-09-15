@@ -1,5 +1,10 @@
 # API — проектирование
 
+> Этот контракт обслуживает сервис `gate` (`internal/service/gate/`) — единственная точка
+> входа для браузера. Резолюция сессии внутри `gate` теперь идёт через gRPC-вызов к сервису
+> `identity`, но сам REST-контракт ниже не изменился ни на бит — для клиента (браузера)
+> ничего не поменялось.
+
 ## 1. Сущности
 
 ### Bullet
@@ -95,8 +100,8 @@
 
 ### Health
 
-**GET /health** → `200 { "status": "ok" }` — для Docker/orchestrator
-healthcheck.
+**GET /health** → `200 { "status": "ok", "db": "ok" }` (или `503` с `"error"` в обоих полях,
+если пинг БД не прошёл) — для Docker/orchestrator healthcheck.
 
 ### Bullets
 
