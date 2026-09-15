@@ -9,12 +9,12 @@ pkgname: mocks
 recursive: false
 template: testify
 packages:
-  github.com/alexnesterov/rapidlog-api/internal/domain/port:
+  github.com/alexnesterov/rapidlog-api/internal/service/gate/internal/domain/port:
     config:
       all: true
-  github.com/alexnesterov/rapidlog-api/internal/adapter/httpapi:
+  github.com/alexnesterov/rapidlog-api/internal/service/gate/internal/adapter/httpapi:
     config:
       all: true
-  github.com/alexnesterov/rapidlog-api/service/identity/internal/domain/port:
+  github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/domain/port:
     config:
       all: true
