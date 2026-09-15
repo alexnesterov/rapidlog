@@ -43,12 +43,6 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	bulletService := usecase.NewBulletService(bulletRepository, txMgr)
 	bulletHandler := httpapi.NewBulletHandler(bulletService)
 
-	// userRepository := postgres.NewUserRepository(pool)
-	// userService := usecase.NewUserService(
-	// 	userRepository,
-	// 	bulletRepository,
-	// 	txMgr,
-	// )
 	identityConn, err := grpc.NewClient(cfg.Identity.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return fmt.Errorf("failed to connect to identity service: %w", err)
