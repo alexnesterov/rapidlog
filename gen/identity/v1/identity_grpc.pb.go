@@ -8,7 +8,6 @@ package identityv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -20,101 +19,101 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Identity_ResolveSession_FullMethodName = "/identity.v1.Identity/ResolveSession"
+	IdentityService_ResolveSession_FullMethodName = "/identity.v1.IdentityService/ResolveSession"
 )
 
-// IdentityClient is the client API for Identity service.
+// IdentityServiceClient is the client API for IdentityService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type IdentityClient interface {
-	ResolveSession(ctx context.Context, in *ResolveSessionRequest, opts ...grpc.CallOption) (*ResolveSessionReply, error)
+type IdentityServiceClient interface {
+	ResolveSession(ctx context.Context, in *ResolveSessionRequest, opts ...grpc.CallOption) (*ResolveSessionResponse, error)
 }
 
-type identityClient struct {
+type identityServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewIdentityClient(cc grpc.ClientConnInterface) IdentityClient {
-	return &identityClient{cc}
+func NewIdentityServiceClient(cc grpc.ClientConnInterface) IdentityServiceClient {
+	return &identityServiceClient{cc}
 }
 
-func (c *identityClient) ResolveSession(ctx context.Context, in *ResolveSessionRequest, opts ...grpc.CallOption) (*ResolveSessionReply, error) {
+func (c *identityServiceClient) ResolveSession(ctx context.Context, in *ResolveSessionRequest, opts ...grpc.CallOption) (*ResolveSessionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ResolveSessionReply)
-	err := c.cc.Invoke(ctx, Identity_ResolveSession_FullMethodName, in, out, cOpts...)
+	out := new(ResolveSessionResponse)
+	err := c.cc.Invoke(ctx, IdentityService_ResolveSession_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// IdentityServer is the server API for Identity service.
-// All implementations must embed UnimplementedIdentityServer
+// IdentityServiceServer is the server API for IdentityService service.
+// All implementations must embed UnimplementedIdentityServiceServer
 // for forward compatibility.
-type IdentityServer interface {
-	ResolveSession(context.Context, *ResolveSessionRequest) (*ResolveSessionReply, error)
-	mustEmbedUnimplementedIdentityServer()
+type IdentityServiceServer interface {
+	ResolveSession(context.Context, *ResolveSessionRequest) (*ResolveSessionResponse, error)
+	mustEmbedUnimplementedIdentityServiceServer()
 }
 
-// UnimplementedIdentityServer must be embedded to have
+// UnimplementedIdentityServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedIdentityServer struct{}
+type UnimplementedIdentityServiceServer struct{}
 
-func (UnimplementedIdentityServer) ResolveSession(context.Context, *ResolveSessionRequest) (*ResolveSessionReply, error) {
+func (UnimplementedIdentityServiceServer) ResolveSession(context.Context, *ResolveSessionRequest) (*ResolveSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ResolveSession not implemented")
 }
-func (UnimplementedIdentityServer) mustEmbedUnimplementedIdentityServer() {}
-func (UnimplementedIdentityServer) testEmbeddedByValue()                  {}
+func (UnimplementedIdentityServiceServer) mustEmbedUnimplementedIdentityServiceServer() {}
+func (UnimplementedIdentityServiceServer) testEmbeddedByValue()                         {}
 
-// UnsafeIdentityServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to IdentityServer will
+// UnsafeIdentityServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to IdentityServiceServer will
 // result in compilation errors.
-type UnsafeIdentityServer interface {
-	mustEmbedUnimplementedIdentityServer()
+type UnsafeIdentityServiceServer interface {
+	mustEmbedUnimplementedIdentityServiceServer()
 }
 
-func RegisterIdentityServer(s grpc.ServiceRegistrar, srv IdentityServer) {
-	// If the following call panics, it indicates UnimplementedIdentityServer was
+func RegisterIdentityServiceServer(s grpc.ServiceRegistrar, srv IdentityServiceServer) {
+	// If the following call panics, it indicates UnimplementedIdentityServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&Identity_ServiceDesc, srv)
+	s.RegisterService(&IdentityService_ServiceDesc, srv)
 }
 
-func _Identity_ResolveSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _IdentityService_ResolveSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ResolveSessionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(IdentityServer).ResolveSession(ctx, in)
+		return srv.(IdentityServiceServer).ResolveSession(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Identity_ResolveSession_FullMethodName,
+		FullMethod: IdentityService_ResolveSession_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IdentityServer).ResolveSession(ctx, req.(*ResolveSessionRequest))
+		return srv.(IdentityServiceServer).ResolveSession(ctx, req.(*ResolveSessionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Identity_ServiceDesc is the grpc.ServiceDesc for Identity service.
+// IdentityService_ServiceDesc is the grpc.ServiceDesc for IdentityService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Identity_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "identity.v1.Identity",
-	HandlerType: (*IdentityServer)(nil),
+var IdentityService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "identity.v1.IdentityService",
+	HandlerType: (*IdentityServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ResolveSession",
-			Handler:    _Identity_ResolveSession_Handler,
+			Handler:    _IdentityService_ResolveSession_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

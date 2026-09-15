@@ -36,7 +36,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	handler := grpcapi.NewHandler(identityService)
 
 	grpcServer := grpc.NewServer()
-	identityv1.RegisterIdentityServer(grpcServer, handler)
+	identityv1.RegisterIdentityServiceServer(grpcServer, handler)
 
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {

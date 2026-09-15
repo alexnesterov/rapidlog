@@ -9,7 +9,7 @@ import (
 )
 
 type Handler struct {
-	identityv1.UnimplementedIdentityServer
+	identityv1.UnimplementedIdentityServiceServer
 	usecase port.IdentityService
 }
 
@@ -19,7 +19,7 @@ func NewHandler(service port.IdentityService) *Handler {
 	}
 }
 
-func (s *Handler) ResolveSession(ctx context.Context, req *identityv1.ResolveSessionRequest) (*identityv1.ResolveSessionReply, error) {
+func (s *Handler) ResolveSession(ctx context.Context, req *identityv1.ResolveSessionRequest) (*identityv1.ResolveSessionResponse, error) {
 	id, _ := uuid.Parse(req.SessionId)
 
 	userID, err := s.usecase.ResolveSession(ctx, id)
@@ -27,5 +27,5 @@ func (s *Handler) ResolveSession(ctx context.Context, req *identityv1.ResolveSes
 		return nil, err
 	}
 
-	return &identityv1.ResolveSessionReply{UserId: userID.String()}, nil
+	return &identityv1.ResolveSessionResponse{UserId: userID.String()}, nil
 }

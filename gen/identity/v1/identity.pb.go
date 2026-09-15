@@ -65,27 +65,27 @@ func (x *ResolveSessionRequest) GetSessionId() string {
 	return ""
 }
 
-type ResolveSessionReply struct {
+type ResolveSessionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ResolveSessionReply) Reset() {
-	*x = ResolveSessionReply{}
+func (x *ResolveSessionResponse) Reset() {
+	*x = ResolveSessionResponse{}
 	mi := &file_identity_v1_identity_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ResolveSessionReply) String() string {
+func (x *ResolveSessionResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ResolveSessionReply) ProtoMessage() {}
+func (*ResolveSessionResponse) ProtoMessage() {}
 
-func (x *ResolveSessionReply) ProtoReflect() protoreflect.Message {
+func (x *ResolveSessionResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_identity_v1_identity_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -97,12 +97,12 @@ func (x *ResolveSessionReply) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ResolveSessionReply.ProtoReflect.Descriptor instead.
-func (*ResolveSessionReply) Descriptor() ([]byte, []int) {
+// Deprecated: Use ResolveSessionResponse.ProtoReflect.Descriptor instead.
+func (*ResolveSessionResponse) Descriptor() ([]byte, []int) {
 	return file_identity_v1_identity_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ResolveSessionReply) GetUserId() string {
+func (x *ResolveSessionResponse) GetUserId() string {
 	if x != nil {
 		return x.UserId
 	}
@@ -116,11 +116,11 @@ const file_identity_v1_identity_proto_rawDesc = "" +
 	"\x1aidentity/v1/identity.proto\x12\videntity.v1\"6\n" +
 	"\x15ResolveSessionRequest\x12\x1d\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tR\tsessionId\".\n" +
-	"\x13ResolveSessionReply\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId2d\n" +
-	"\bIdentity\x12X\n" +
-	"\x0eResolveSession\x12\".identity.v1.ResolveSessionRequest\x1a .identity.v1.ResolveSessionReply\"\x00BAZ?github.com/alexnesterov/rapidlog-api/gen/identity/v1;identityv1b\x06proto3"
+	"session_id\x18\x01 \x01(\tR\tsessionId\"1\n" +
+	"\x16ResolveSessionResponse\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId2n\n" +
+	"\x0fIdentityService\x12[\n" +
+	"\x0eResolveSession\x12\".identity.v1.ResolveSessionRequest\x1a#.identity.v1.ResolveSessionResponse\"\x00BAZ?github.com/alexnesterov/rapidlog-api/gen/identity/v1;identityv1b\x06proto3"
 
 var (
 	file_identity_v1_identity_proto_rawDescOnce sync.Once
@@ -136,12 +136,12 @@ func file_identity_v1_identity_proto_rawDescGZIP() []byte {
 
 var file_identity_v1_identity_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_identity_v1_identity_proto_goTypes = []any{
-	(*ResolveSessionRequest)(nil), // 0: identity.v1.ResolveSessionRequest
-	(*ResolveSessionReply)(nil),   // 1: identity.v1.ResolveSessionReply
+	(*ResolveSessionRequest)(nil),  // 0: identity.v1.ResolveSessionRequest
+	(*ResolveSessionResponse)(nil), // 1: identity.v1.ResolveSessionResponse
 }
 var file_identity_v1_identity_proto_depIdxs = []int32{
-	0, // 0: identity.v1.Identity.ResolveSession:input_type -> identity.v1.ResolveSessionRequest
-	1, // 1: identity.v1.Identity.ResolveSession:output_type -> identity.v1.ResolveSessionReply
+	0, // 0: identity.v1.IdentityService.ResolveSession:input_type -> identity.v1.ResolveSessionRequest
+	1, // 1: identity.v1.IdentityService.ResolveSession:output_type -> identity.v1.ResolveSessionResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
