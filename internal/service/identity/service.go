@@ -5,20 +5,23 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
-	"os"
 	"time"
 
 	identityv1 "github.com/alexnesterov/rapidlog-api/gen/identity/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/adapter/grpcapi"
+	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/config"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/domain/usecase"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/infrastructure/postgres"
 	"google.golang.org/grpc"
 )
 
 func Run(ctx context.Context, logger *slog.Logger) error {
-	dsn := os.Getenv("IDENTITY_DB_DSN")
+	cfg, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load config: %w", err)
+	}
 
-	pool, err := postgres.Connect(ctx, dsn)
+	pool, err := postgres.Connect(ctx, cfg.DB.DSN)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
@@ -26,7 +29,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 
 	logger.Info("connected to postgres")
 
-	if err := postgres.Migrate(dsn); err != nil {
+	if err := postgres.Migrate(cfg.DB.DSN); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
@@ -38,7 +41,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	grpcServer := grpc.NewServer()
 	identityv1.RegisterIdentityServiceServer(grpcServer, handler)
 
-	lis, err := net.Listen("tcp", ":50051")
+	lis, err := net.Listen("tcp", ":"+cfg.GRPC.Port)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
