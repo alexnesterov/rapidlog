@@ -8,7 +8,7 @@ services:
     image: rapidlog-gate
     restart: always
     ports:
-      - '1509:1508'
+      - '8080:8080'
     env_file:
       - .env
     depends_on:
@@ -35,9 +35,9 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_USER: ${RAPIDLOG_DB_USER}
-      POSTGRES_PASSWORD: ${RAPIDLOG_DB_PASSWORD}
-      POSTGRES_DB: ${RAPIDLOG_DB_NAME}
+      POSTGRES_USER: rapidlog
+      POSTGRES_PASSWORD: rapidlog
+      POSTGRES_DB: rapidlog
     configs:
       - source: init-identity-db
         target: /docker-entrypoint-initdb.d/init-identity-db.sql
@@ -46,7 +46,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ['CMD', 'pg_isready', '-U', '${RAPIDLOG_DB_USER}']
+      test: ['CMD', 'pg_isready', '-U', 'rapidlog']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -56,7 +56,7 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8080:8080
+      - 8081:8080
     depends_on:
       - db
 

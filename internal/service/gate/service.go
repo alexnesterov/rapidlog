@@ -78,7 +78,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		IdleTimeout:  cfg.HTTP.IdleTimeout,
 	}
 
-	logger.Info("starting server", "name", cfg.App.Name, "port", cfg.HTTP.Port)
+	logger.Info("starting server", "name", "gate", "port", cfg.HTTP.Port)
 	if err := server.ListenAndServe(); err != nil {
 		return fmt.Errorf("failed to start server: %w", err)
 	}
