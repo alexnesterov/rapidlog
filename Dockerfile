@@ -17,10 +17,16 @@ RUN go mod download
 
 COPY . .
 COPY --from=web-builder /app/web/dist ./web/dist
-RUN CGO_ENABLED=0 go build -o rapidlog ./cmd/app
+RUN CGO_ENABLED=0 go build -o gate ./cmd/gate
+RUN CGO_ENABLED=0 go build -o identity ./cmd/identity
 
-FROM scratch
-COPY --from=builder /app/rapidlog /rapidlog
+FROM scratch AS gate
+COPY --from=builder /app/gate /gate
 EXPOSE 8080
-CMD ["/rapidlog"]
+CMD ["/gate"]
 
+
+FROM scratch AS identity
+COPY --from=builder /app/identity /identity
+EXPOSE 50051
+CMD ["/identity"]

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package identity.v1;
+
+option go_package = "github.com/alexnesterov/rapidlog-api/gen/identity/v1;identityv1";
+
+service IdentityService {
+  rpc ResolveSession (ResolveSessionRequest) returns (ResolveSessionResponse) {}
+}
+
+message ResolveSessionRequest {
+  string session_id = 1;
+}
+
+message ResolveSessionResponse {
+  string user_id = 1;
+}
