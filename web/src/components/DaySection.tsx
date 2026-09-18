@@ -7,7 +7,6 @@ interface DaySectionProps {
   date: string;
   bullets: Bullet[];
   isToday: boolean;
-  onCreated: () => void;
   onComplete: (bullet: Bullet) => void;
   onMigrate: (bullet: Bullet, target: MigrateTarget) => void;
   onCancel: (bullet: Bullet) => void;
@@ -18,7 +17,6 @@ export function DaySection({
   date,
   bullets,
   isToday,
-  onCreated,
   onComplete,
   onMigrate,
   onCancel,
@@ -38,7 +36,7 @@ export function DaySection({
         onMigrate={onMigrate}
         onCancel={onCancel}
       />
-      {isToday && <BulletForm onCreated={onCreated} />}
+      {isToday && <BulletForm />}
     </section>
   );
 }

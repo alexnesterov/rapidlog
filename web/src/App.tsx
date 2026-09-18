@@ -1,71 +1,63 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { cancelBullet, listBullets, markBulletDone, migrateBullet } from './api/bulletsApi';
-import type { Bullet, BulletDayGroup, MigrateTarget } from './types/bullet';
+import type { Bullet, MigrateTarget } from './types/bullet';
+import { useBulletsQuery, useCancelBulletMutation, useCompleteBulletMutation, useMigrateBulletMutation } from './api/bulletsQueries';
 import { todayIsoDate } from './lib/date';
 import { waitForFonts } from './lib/fonts';
 import { DaySection } from './components/DaySection';
 import './App.css';
 
-function withToday(days: BulletDayGroup[]): BulletDayGroup[] {
-  const today = todayIsoDate();
-  if (days.some((day) => day.day === today)) return days;
-  return [{ day: today, bullets: [] }, ...days];
-}
-
 function App() {
-  const [days, setDays] = useState<BulletDayGroup[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: days = [], isPending, isFetching, isError: listError } = useBulletsQuery();
+  const completeMutation = useCompleteBulletMutation();
+  const cancelMutation = useCancelBulletMutation();
+  const migrateMutation = useMigrateBulletMutation();
+
   const [error, setError] = useState<string | null>(null);
-  const [initialized, setInitialized] = useState(false);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
   const fontsReady = useRef(waitForFonts()).current;
 
-  const reload = useCallback(() => {
-    setLoading(true);
-    setError(null);
-    listBullets()
-      .then((res) => setDays(withToday(res)))
-      .catch(() => setError('не удалось загрузить записи'))
-      .finally(() => {
-        fontsReady.then(() => {
-          setLoading(false);
-          setInitialized(true);
-        });
-      });
+  useEffect(() => {
+    fontsReady.then(() => setFontsLoaded(true));
   }, [fontsReady]);
 
-  useEffect(() => {
-    reload();
-  }, [reload]);
+  const initialized = fontsLoaded && !isPending;
 
   const completeBullet = useCallback(
     (bullet: Bullet) => {
-      markBulletDone(bullet.id)
-        .then(reload)
-        .catch(() => setError('не удалось обновить запись'));
+      completeMutation.mutate(bullet, {
+        onSuccess: () => setError(null),
+        onError: () => setError('не удалось обновить запись'),
+      });
     },
-    [reload],
+    [completeMutation],
   );
 
   const moveBullet = useCallback(
     (bullet: Bullet, target: MigrateTarget) => {
       if (target !== 'today') return;
-      migrateBullet(bullet.id)
-        .then(reload)
-        .catch(() => setError('не удалось перенести запись'));
+      migrateMutation.mutate(
+        { bullet, target },
+        {
+          onSuccess: () => setError(null),
+          onError: () => setError('не удалось перенести запись'),
+        },
+      );
     },
-    [reload],
+    [migrateMutation],
   );
 
   const cancelBulletEntry = useCallback(
     (bullet: Bullet) => {
-      cancelBullet(bullet.id)
-        .then(reload)
-        .catch(() => setError('не удалось отменить запись'));
+      cancelMutation.mutate(bullet, {
+        onSuccess: () => setError(null),
+        onError: () => setError('не удалось отменить запись'),
+      });
     },
-    [reload],
+    [cancelMutation],
   );
 
   const today = todayIsoDate();
+  const displayError = listError ? 'не удалось загрузить записи' : error;
 
   if (!initialized) {
     return (
@@ -90,11 +82,11 @@ function App() {
         </h1>
       </header>
 
-      {loading && <div className="sync-indicator" aria-hidden="true" />}
+      {isFetching && <div className="sync-indicator" aria-hidden="true" />}
 
-      {error && <p className="log-state log-state--error">{error}</p>}
+      {displayError && <p className="log-state log-state--error">{displayError}</p>}
 
-      {!error && (
+      {!displayError && (
         <div className="days">
           {days.map((day, index) => (
             <DaySection
@@ -102,7 +94,6 @@ function App() {
               date={day.day}
               bullets={day.bullets}
               isToday={day.day === today}
-              onCreated={reload}
               onComplete={completeBullet}
               onMigrate={moveBullet}
               onCancel={cancelBulletEntry}
