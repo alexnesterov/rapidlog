@@ -1,21 +1,18 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { createBullet } from "../api/bulletsApi";
+import { useCreateBulletMutation } from "../api/bulletsQueries";
 import { ApiError, type BulletType } from "../types/bullet";
 import { TYPE_LABELS, TYPE_MARKS } from "../lib/bulletMarks";
 
 const TYPES: BulletType[] = ["task", "event", "note"];
 
-interface BulletFormProps {
-  onCreated: () => void;
-}
-
-export function BulletForm({ onCreated }: BulletFormProps) {
+export function BulletForm() {
+  const createMutation = useCreateBulletMutation();
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState("");
   const [type, setType] = useState<BulletType>("task");
   const [typeOpen, setTypeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const submitting = createMutation.isPending;
   const inputRef = useRef<HTMLInputElement>(null);
   const typeRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -60,16 +57,12 @@ export function BulletForm({ onCreated }: BulletFormProps) {
       return;
     }
 
-    setSubmitting(true);
     try {
-      await createBullet({ content: title.trim(), type });
+      await createMutation.mutateAsync({ content: title.trim(), type });
       setTitle("");
       setType("task");
-      onCreated();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "не удалось создать запись");
-    } finally {
-      setSubmitting(false);
     }
   }
 
