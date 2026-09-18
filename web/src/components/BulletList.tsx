@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactElement } from 
 import type { Bullet, MigrateTarget } from "../types/bullet";
 import { MIGRATE_TARGETS, SIGNIFIER_MARKS, TYPE_MARKS } from "../lib/bulletMarks";
 import { StrikeLine } from "../lib/bulletIcons";
+import { linkifyText } from "../lib/linkify";
 
 function MoreIcon() {
   return (
@@ -26,43 +27,61 @@ interface LineStrike {
   width: number;
 }
 
-// Bullet content wraps to an unknown number of visual lines, so a single
-// absolutely-positioned strike can't follow it — measure each wrapped
-// line's box via Range.getClientRects() and draw one strike per line. The
-// first line's strike is extended to start at the signifier mark.
-//
-// The mark stays a normal (in-flow) flex sibling of the title — same as
-// every other row — so the row's height/baseline math is identical to a
-// non-cancelled row and doesn't shift neighbouring rows. Flex centers it
-// on the *whole* (multi-line) entry though, so for wrapped content it's
-// nudged back up to the first line via a paint-only translateY, which is
-// a no-op for single-line content (first line === whole entry).
+// Open/completed/migrated rows: a mark (icon or complete-button) plus title.
+// The mark is a plain flex sibling of the title, aligned to the top of the
+// row via .log-line__entry's `align-items: flex-start` — which is the first
+// line's top for any number of wrapped lines, no measurement needed.
+function OpenEntry({
+  content,
+  Mark,
+  interactive,
+  onMarkClick,
+  markAriaLabel,
+}: {
+  content: string;
+  Mark: () => ReactElement;
+  interactive: boolean;
+  onMarkClick?: () => void;
+  markAriaLabel?: string;
+}) {
+  return (
+    <span className="log-line__entry">
+      {interactive ? (
+        <button type="button" className="log-line__mark" onClick={onMarkClick} aria-label={markAriaLabel}>
+          <Mark />
+        </button>
+      ) : (
+        <span className="log-line__mark" aria-hidden="true">
+          <Mark />
+        </span>
+      )}
+      <span className="log-line__title">{linkifyText(content)}</span>
+    </span>
+  );
+}
+
+// Cancelled rows additionally need a strike drawn over each wrapped line of
+// the title (a single absolutely-positioned line can't follow wrapped
+// text), so — unlike OpenEntry — this one does need to measure the title's
+// line boxes via Range.getClientRects().
 function CancelledEntry({ content, TypeMark }: { content: string; TypeMark: () => ReactElement }) {
   const entryRef = useRef<HTMLSpanElement>(null);
-  const markRef = useRef<HTMLSpanElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
   const [strikes, setStrikes] = useState<LineStrike[]>([]);
 
   useLayoutEffect(() => {
     const entry = entryRef.current;
-    const mark = markRef.current;
     const text = textRef.current;
-    if (!entry || !mark || !text) return;
+    if (!entry || !text) return;
 
     function measure() {
-      if (!entry || !mark || !text) return;
+      if (!entry || !text) return;
       const entryRect = entry.getBoundingClientRect();
-      const markRect = mark.getBoundingClientRect();
 
       const range = document.createRange();
       range.selectNodeContents(text);
       const lineRects = Array.from(range.getClientRects());
       if (lineRects.length === 0) return;
-
-      const firstLine = lineRects[0];
-      const firstLineCenter = firstLine.top + firstLine.height / 2;
-      const markCenter = markRect.top + markRect.height / 2;
-      mark.style.transform = `translateY(${firstLineCenter - markCenter}px)`;
 
       setStrikes(
         lineRects.map((rect, i) => {
@@ -91,11 +110,11 @@ function CancelledEntry({ content, TypeMark }: { content: string; TypeMark: () =
 
   return (
     <span className="log-line__entry" ref={entryRef}>
-      <span className="log-line__mark" aria-hidden="true" ref={markRef}>
+      <span className="log-line__mark" aria-hidden="true">
         <TypeMark />
       </span>
       <span className="log-line__title" ref={textRef}>
-        {content}
+        {linkifyText(content)}
       </span>
       {strikes.map((strike, i) => (
         <StrikeLine key={i} style={{ left: strike.left, top: strike.top, width: strike.width }} />
@@ -171,27 +190,13 @@ export function BulletList({ bullets, canMigrate, onComplete, onMigrate, onCance
             {bullet.signifier === "cancelled" ? (
               <CancelledEntry content={bullet.content} TypeMark={TypeMark} />
             ) : (
-              <>
-                {ClosedMark ? (
-                  <span className="log-line__mark" aria-hidden="true">
-                    <ClosedMark />
-                  </span>
-                ) : canComplete ? (
-                  <button
-                    type="button"
-                    className="log-line__mark"
-                    onClick={() => onComplete(bullet)}
-                    aria-label="Отметить выполненным"
-                  >
-                    <TypeMark />
-                  </button>
-                ) : (
-                  <span className="log-line__mark" aria-hidden="true">
-                    <TypeMark />
-                  </span>
-                )}
-                <span className="log-line__title">{bullet.content}</span>
-              </>
+              <OpenEntry
+                content={bullet.content}
+                Mark={ClosedMark ?? TypeMark}
+                interactive={canComplete}
+                onMarkClick={() => onComplete(bullet)}
+                markAriaLabel="Отметить выполненным"
+              />
             )}
             <div className="log-line__menu" ref={pickerOpen ? pickerRef : undefined}>
               {actions.length > 0 && (
