@@ -27,68 +27,10 @@ interface LineStrike {
   width: number;
 }
 
-type MarkElement = HTMLSpanElement | HTMLButtonElement;
-
-// Bullet content wraps to an unknown number of visual lines. The mark stays
-// a normal (in-flow) flex sibling of the title — same as every other row —
-// so the row's height/baseline math is identical across rows and doesn't
-// shift neighbouring rows. Flex (`align-self: center` on .log-line__mark)
-// centers it on the *whole* (multi-line) entry though, so it's nudged back
-// up to the first line via a paint-only translateY, which is a no-op for
-// single-line content (first line === whole entry).
-//
-// onMeasure gets the wrapped line rects for callers (CancelledEntry) that
-// need to draw something per line.
-function useAlignMarkToFirstLine(content: string, onMeasure?: (lineRects: DOMRect[], entryRect: DOMRect) => void) {
-  const entryRef = useRef<HTMLSpanElement>(null);
-  const markRef = useRef<MarkElement>(null);
-  const textRef = useRef<HTMLSpanElement>(null);
-  // Read via a ref inside the effect below instead of listing onMeasure as a
-  // dependency, so re-measuring stays tied to content changing, not to the
-  // caller re-creating its callback every render.
-  const onMeasureRef = useRef(onMeasure);
-  onMeasureRef.current = onMeasure;
-
-  useLayoutEffect(() => {
-    const entry = entryRef.current;
-    const mark = markRef.current;
-    const text = textRef.current;
-    if (!entry || !mark || !text) return;
-
-    function measure() {
-      if (!entry || !mark || !text) return;
-      const entryRect = entry.getBoundingClientRect();
-      const markRect = mark.getBoundingClientRect();
-
-      const range = document.createRange();
-      range.selectNodeContents(text);
-      const lineRects = Array.from(range.getClientRects());
-      if (lineRects.length === 0) return;
-
-      const firstLine = lineRects[0];
-      const firstLineCenter = firstLine.top + firstLine.height / 2;
-      const markCenter = markRect.top + markRect.height / 2;
-      mark.style.transform = `translateY(${firstLineCenter - markCenter}px)`;
-
-      onMeasureRef.current?.(lineRects, entryRect);
-    }
-
-    measure();
-    window.addEventListener("resize", measure);
-    const observer = new ResizeObserver(measure);
-    observer.observe(entry);
-    return () => {
-      window.removeEventListener("resize", measure);
-      observer.disconnect();
-    };
-  }, [content]);
-
-  return { entryRef, markRef, textRef };
-}
-
-// Open/completed/migrated rows: a mark (icon or complete-button) plus title,
-// with the mark aligned to the title's first line regardless of how many
-// lines the content wraps to (see useAlignMarkToFirstLine).
+// Open/completed/migrated rows: a mark (icon or complete-button) plus title.
+// The mark is a plain flex sibling of the title, aligned to the top of the
+// row via .log-line__entry's `align-items: flex-start` — which is the first
+// line's top for any number of wrapped lines, no measurement needed.
 function OpenEntry({
   content,
   Mark,
@@ -102,51 +44,73 @@ function OpenEntry({
   onMarkClick?: () => void;
   markAriaLabel?: string;
 }) {
-  const { entryRef, markRef, textRef } = useAlignMarkToFirstLine(content);
-  const setMarkRef = (el: MarkElement | null) => {
-    markRef.current = el;
-  };
-
   return (
-    <span className="log-line__entry" ref={entryRef}>
+    <span className="log-line__entry">
       {interactive ? (
-        <button type="button" className="log-line__mark" ref={setMarkRef} onClick={onMarkClick} aria-label={markAriaLabel}>
+        <button type="button" className="log-line__mark" onClick={onMarkClick} aria-label={markAriaLabel}>
           <Mark />
         </button>
       ) : (
-        <span className="log-line__mark" aria-hidden="true" ref={setMarkRef}>
+        <span className="log-line__mark" aria-hidden="true">
           <Mark />
         </span>
       )}
-      <span className="log-line__title" ref={textRef}>
-        {linkifyText(content)}
-      </span>
+      <span className="log-line__title">{linkifyText(content)}</span>
     </span>
   );
 }
 
+// Cancelled rows additionally need a strike drawn over each wrapped line of
+// the title (a single absolutely-positioned line can't follow wrapped
+// text), so — unlike OpenEntry — this one does need to measure the title's
+// line boxes via Range.getClientRects().
 function CancelledEntry({ content, TypeMark }: { content: string; TypeMark: () => ReactElement }) {
+  const entryRef = useRef<HTMLSpanElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
   const [strikes, setStrikes] = useState<LineStrike[]>([]);
 
-  const { entryRef, markRef, textRef } = useAlignMarkToFirstLine(content, (lineRects, entryRect) => {
-    setStrikes(
-      lineRects.map((rect, i) => {
-        // First line starts at the signifier mark; wrapped continuation
-        // lines start where the text itself resumes.
-        const left = i === 0 ? 0 : rect.left - entryRect.left;
-        const right = rect.right - entryRect.left;
-        return {
-          left: left - 3,
-          top: rect.top - entryRect.top + rect.height / 2,
-          width: right - left + 6,
-        };
-      }),
-    );
-  });
+  useLayoutEffect(() => {
+    const entry = entryRef.current;
+    const text = textRef.current;
+    if (!entry || !text) return;
+
+    function measure() {
+      if (!entry || !text) return;
+      const entryRect = entry.getBoundingClientRect();
+
+      const range = document.createRange();
+      range.selectNodeContents(text);
+      const lineRects = Array.from(range.getClientRects());
+      if (lineRects.length === 0) return;
+
+      setStrikes(
+        lineRects.map((rect, i) => {
+          // First line starts at the signifier mark; wrapped continuation
+          // lines start where the text itself resumes.
+          const left = i === 0 ? 0 : rect.left - entryRect.left;
+          const right = rect.right - entryRect.left;
+          return {
+            left: left - 3,
+            top: rect.top - entryRect.top + rect.height / 2,
+            width: right - left + 6,
+          };
+        }),
+      );
+    }
+
+    measure();
+    window.addEventListener("resize", measure);
+    const observer = new ResizeObserver(measure);
+    observer.observe(entry);
+    return () => {
+      window.removeEventListener("resize", measure);
+      observer.disconnect();
+    };
+  }, [content]);
 
   return (
     <span className="log-line__entry" ref={entryRef}>
-      <span className="log-line__mark" aria-hidden="true" ref={markRef}>
+      <span className="log-line__mark" aria-hidden="true">
         <TypeMark />
       </span>
       <span className="log-line__title" ref={textRef}>

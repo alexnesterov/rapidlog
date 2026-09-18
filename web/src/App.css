@@ -539,10 +539,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  align-self: center;
   flex-shrink: 0;
   width: 16px;
   height: 16px;
+  margin-top: 2px;
   color: var(--accent);
   border: none;
   background: transparent;
@@ -602,7 +602,7 @@ button.log-line__mark:hover {
 .log-line__entry {
   position: relative;
   display: inline-flex;
-  align-items: baseline;
+  align-items: flex-start;
   gap: 12px;
   flex: 1;
   min-width: 0;
@@ -650,7 +650,8 @@ button.log-line__mark:hover {
 .log-line__menu {
   position: relative;
   flex-shrink: 0;
-  align-self: center;
+  align-self: flex-start;
+  margin-top: -1px;
   /* Reserved even when a row has no actions, so the title's available
      width — and therefore how many lines it wraps to — stays the same
      across signifier changes instead of reflowing the rows below it. */
@@ -743,4 +744,13 @@ button.log-line__mark:hover {
 
 .log-line.is-closed .log-line__title {
   color: var(--ink-soft);
+}
+
+.log-line.is-closed .log-line__title a {
+  color: var(--accent);
+}
+
+.log-line.is-closed .log-line__title a:hover,
+.log-line.is-closed .log-line__title a:focus-visible {
+  color: var(--accent-strong);
 }
