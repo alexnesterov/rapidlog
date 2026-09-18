@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactElement } from 
 import type { Bullet, MigrateTarget } from "../types/bullet";
 import { MIGRATE_TARGETS, SIGNIFIER_MARKS, TYPE_MARKS } from "../lib/bulletMarks";
 import { StrikeLine } from "../lib/bulletIcons";
+import { linkifyText } from "../lib/linkify";
 
 function MoreIcon() {
   return (
@@ -26,22 +27,27 @@ interface LineStrike {
   width: number;
 }
 
-// Bullet content wraps to an unknown number of visual lines, so a single
-// absolutely-positioned strike can't follow it — measure each wrapped
-// line's box via Range.getClientRects() and draw one strike per line. The
-// first line's strike is extended to start at the signifier mark.
+type MarkElement = HTMLSpanElement | HTMLButtonElement;
+
+// Bullet content wraps to an unknown number of visual lines. The mark stays
+// a normal (in-flow) flex sibling of the title — same as every other row —
+// so the row's height/baseline math is identical across rows and doesn't
+// shift neighbouring rows. Flex (`align-self: center` on .log-line__mark)
+// centers it on the *whole* (multi-line) entry though, so it's nudged back
+// up to the first line via a paint-only translateY, which is a no-op for
+// single-line content (first line === whole entry).
 //
-// The mark stays a normal (in-flow) flex sibling of the title — same as
-// every other row — so the row's height/baseline math is identical to a
-// non-cancelled row and doesn't shift neighbouring rows. Flex centers it
-// on the *whole* (multi-line) entry though, so for wrapped content it's
-// nudged back up to the first line via a paint-only translateY, which is
-// a no-op for single-line content (first line === whole entry).
-function CancelledEntry({ content, TypeMark }: { content: string; TypeMark: () => ReactElement }) {
+// onMeasure gets the wrapped line rects for callers (CancelledEntry) that
+// need to draw something per line.
+function useAlignMarkToFirstLine(content: string, onMeasure?: (lineRects: DOMRect[], entryRect: DOMRect) => void) {
   const entryRef = useRef<HTMLSpanElement>(null);
-  const markRef = useRef<HTMLSpanElement>(null);
+  const markRef = useRef<MarkElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
-  const [strikes, setStrikes] = useState<LineStrike[]>([]);
+  // Read via a ref inside the effect below instead of listing onMeasure as a
+  // dependency, so re-measuring stays tied to content changing, not to the
+  // caller re-creating its callback every render.
+  const onMeasureRef = useRef(onMeasure);
+  onMeasureRef.current = onMeasure;
 
   useLayoutEffect(() => {
     const entry = entryRef.current;
@@ -64,19 +70,7 @@ function CancelledEntry({ content, TypeMark }: { content: string; TypeMark: () =
       const markCenter = markRect.top + markRect.height / 2;
       mark.style.transform = `translateY(${firstLineCenter - markCenter}px)`;
 
-      setStrikes(
-        lineRects.map((rect, i) => {
-          // First line starts at the signifier mark; wrapped continuation
-          // lines start where the text itself resumes.
-          const left = i === 0 ? 0 : rect.left - entryRect.left;
-          const right = rect.right - entryRect.left;
-          return {
-            left: left - 3,
-            top: rect.top - entryRect.top + rect.height / 2,
-            width: right - left + 6,
-          };
-        }),
-      );
+      onMeasureRef.current?.(lineRects, entryRect);
     }
 
     measure();
@@ -89,13 +83,74 @@ function CancelledEntry({ content, TypeMark }: { content: string; TypeMark: () =
     };
   }, [content]);
 
+  return { entryRef, markRef, textRef };
+}
+
+// Open/completed/migrated rows: a mark (icon or complete-button) plus title,
+// with the mark aligned to the title's first line regardless of how many
+// lines the content wraps to (see useAlignMarkToFirstLine).
+function OpenEntry({
+  content,
+  Mark,
+  interactive,
+  onMarkClick,
+  markAriaLabel,
+}: {
+  content: string;
+  Mark: () => ReactElement;
+  interactive: boolean;
+  onMarkClick?: () => void;
+  markAriaLabel?: string;
+}) {
+  const { entryRef, markRef, textRef } = useAlignMarkToFirstLine(content);
+  const setMarkRef = (el: MarkElement | null) => {
+    markRef.current = el;
+  };
+
+  return (
+    <span className="log-line__entry" ref={entryRef}>
+      {interactive ? (
+        <button type="button" className="log-line__mark" ref={setMarkRef} onClick={onMarkClick} aria-label={markAriaLabel}>
+          <Mark />
+        </button>
+      ) : (
+        <span className="log-line__mark" aria-hidden="true" ref={setMarkRef}>
+          <Mark />
+        </span>
+      )}
+      <span className="log-line__title" ref={textRef}>
+        {linkifyText(content)}
+      </span>
+    </span>
+  );
+}
+
+function CancelledEntry({ content, TypeMark }: { content: string; TypeMark: () => ReactElement }) {
+  const [strikes, setStrikes] = useState<LineStrike[]>([]);
+
+  const { entryRef, markRef, textRef } = useAlignMarkToFirstLine(content, (lineRects, entryRect) => {
+    setStrikes(
+      lineRects.map((rect, i) => {
+        // First line starts at the signifier mark; wrapped continuation
+        // lines start where the text itself resumes.
+        const left = i === 0 ? 0 : rect.left - entryRect.left;
+        const right = rect.right - entryRect.left;
+        return {
+          left: left - 3,
+          top: rect.top - entryRect.top + rect.height / 2,
+          width: right - left + 6,
+        };
+      }),
+    );
+  });
+
   return (
     <span className="log-line__entry" ref={entryRef}>
       <span className="log-line__mark" aria-hidden="true" ref={markRef}>
         <TypeMark />
       </span>
       <span className="log-line__title" ref={textRef}>
-        {content}
+        {linkifyText(content)}
       </span>
       {strikes.map((strike, i) => (
         <StrikeLine key={i} style={{ left: strike.left, top: strike.top, width: strike.width }} />
@@ -171,27 +226,13 @@ export function BulletList({ bullets, canMigrate, onComplete, onMigrate, onCance
             {bullet.signifier === "cancelled" ? (
               <CancelledEntry content={bullet.content} TypeMark={TypeMark} />
             ) : (
-              <>
-                {ClosedMark ? (
-                  <span className="log-line__mark" aria-hidden="true">
-                    <ClosedMark />
-                  </span>
-                ) : canComplete ? (
-                  <button
-                    type="button"
-                    className="log-line__mark"
-                    onClick={() => onComplete(bullet)}
-                    aria-label="Отметить выполненным"
-                  >
-                    <TypeMark />
-                  </button>
-                ) : (
-                  <span className="log-line__mark" aria-hidden="true">
-                    <TypeMark />
-                  </span>
-                )}
-                <span className="log-line__title">{bullet.content}</span>
-              </>
+              <OpenEntry
+                content={bullet.content}
+                Mark={ClosedMark ?? TypeMark}
+                interactive={canComplete}
+                onMarkClick={() => onComplete(bullet)}
+                markAriaLabel="Отметить выполненным"
+              />
             )}
             <div className="log-line__menu" ref={pickerOpen ? pickerRef : undefined}>
               {actions.length > 0 && (

@@ -635,6 +635,18 @@ button.log-line__mark:hover {
   color: var(--ink);
 }
 
+.log-line__title a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+  text-underline-offset: 2px;
+}
+
+.log-line__title a:hover,
+.log-line__title a:focus-visible {
+  color: var(--accent-strong);
+}
+
 .log-line__menu {
   position: relative;
   flex-shrink: 0;
