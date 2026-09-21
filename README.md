@@ -2,33 +2,64 @@
 
 HTTP API для ведения bullet journal: заметки (bullets) с типом
 (задача/событие/заметка) и статусом (открыта/выполнена/перенесена/отменена).
-Backend на Go + Postgres, фронтенд на React встраивается в тот же бинарник.
+Backend на Go + Postgres, фронтенд на React встраивается в бинарник `gate`.
+
+Состоит из двух сервисов в одном Go-модуле:
+
+- **gate** — единственная точка входа для браузера: REST API, раздача SPA и весь
+  домен bullets.
+- **identity** — резолюция анонимной сессии в пользователя; общается с `gate`
+  по gRPC и владеет собственной БД.
 
 ## Запуск
 
-Нужен Postgres (см. `db.dsn` в `configs/config.yaml` или `.env.example`) и
-собранный фронтенд — сервер отдаёт его из `web/dist`, поэтому без сборки
-`go run`/`go build` падают:
-
-```sh
-cd web && npm ci && npm run build
-cd .. && go run ./cmd/app
-```
-
-Сервер стартует на `:1508`, применяет миграции автоматически при старте и
-раздаёт SPA по `/`, API — по `/api/*`.
-
-Либо полный стек в Docker (app + Postgres + Adminer на :8080):
+Полный стек в Docker (gate + identity + Postgres + Adminer):
 
 ```sh
 cp .env.example .env
 docker compose up
 ```
 
-App будет доступен на хостовом порту 1509.
+Приложение доступно на `http://localhost:8080`, Adminer — на `:8081`,
+gRPC `identity` — на `:50051`, Postgres — на `:5432`. Вторая база `identity`
+создаётся в том же Postgres при первом старте на пустом volume.
 
 Аутентификации нет: анонимная привязка к пользователю происходит через
-cookie `session_id`, которую сервер выставляет сам при первом запросе.
+cookie `session_id`, которую `gate` выставляет сам при первом запросе (сессия
+резолвится вызовом к `identity`). Новому пользователю при первом просмотре
+списка создаются три демонстрационных bullet'а.
+
+### Без Docker для самих сервисов
+
+Сервисам нужен Postgres и собранный фронтенд — `gate` отдаёт его из `web/dist`,
+поэтому без сборки `go run`/`go build` для него падают. Проще всего поднять в
+Docker только БД, остальное запустить локально:
+
+```sh
+cp .env.example .env
+docker compose up -d db
+cd web && npm ci && npm run build && cd ..
+go run ./cmd/identity     # gRPC на :50051
+go run ./cmd/gate         # HTTP на :8080
+```
+
+`identity` нужно запустить до `gate`: сессия резолвится gRPC-вызовом на
+каждый запрос (кроме `/health`), без `identity` они отвечают 500. Если одновременно
+работает docker-контейнер `identity`, он занимает порт 50051 — остановите его
+(`docker compose stop identity`).
+
+Миграции применяются автоматически при старте каждого сервиса.
+
+### Конфигурация
+
+Только переменные окружения, файлов конфигурации нет. Дефолты рассчитаны на
+запуск на хосте против портов, проброшенных из compose (`localhost:5432`,
+`localhost:50051`); в compose их переопределяет `.env` (см. `.env.example`).
+
+| Сервис   | Префикс      | Переменные                                                                  |
+| -------- | ------------ | --------------------------------------------------------------------------- |
+| gate     | `RAPIDLOG_`  | `RAPIDLOG_DB_DSN`, `RAPIDLOG_HTTP_PORT`, `RAPIDLOG_IDENTITY_ADDR`           |
+| identity | `IDENTITY_`  | `IDENTITY_DB_DSN`, `IDENTITY_GRPC_PORT`                                     |
 
 ## Разработка
 
@@ -37,20 +68,27 @@ go build -v ./...                      # сборка
 go test -v ./...                       # тесты
 go test -race -v ./...                 # тесты с race detector (гоняются в CI)
 go test -run TestName ./internal/...   # один тест
+golangci-lint run                      # линтер (в CI не запускается)
 ```
 
 Frontend (`web/`):
 
 ```sh
-npm run dev       # dev-сервер vite
+npm run dev       # dev-сервер vite (проксирует /api на localhost:8080)
 npm run build     # сборка в web/dist
 npm run lint      # oxlint
 ```
 
-Моки (`internal/domain/port/mocks`, `internal/adapter/httpapi/mocks`)
-генерируются [mockery](https://vektra.github.io/mockery/) по `.mockery.yml`:
-после изменения интерфейса в `internal/domain/port` или
-`internal/adapter/httpapi` — перегенерировать командой `mockery`.
+Моки генерируются [mockery](https://vektra.github.io/mockery/) по `.mockery.yml`:
+после изменения интерфейса в `port`- или `httpapi`-пакетах сервиса
+перегенерировать командой `mockery`.
+
+gRPC-контракт `identity` (`proto/identity/v1/identity.proto`) описан через
+[buf](https://buf.build/); после правки `.proto` — `buf generate`
+(сгенерированный код в `gen/` коммитится).
+
+Юнит-тестами покрыты usecase и хендлеры; Postgres-репозитории, загрузка
+конфигурации и gRPC-клиент проверяются вручную через `docker compose`.
 
 ## API
 
@@ -70,17 +108,22 @@ POST   /api/bullets/{id}/cancel
 ## Структура
 
 ```text
-cmd/app                             — точка входа сервера
-internal/adapter/httpapi            — HTTP-хендлеры
-internal/adapter/httpapi/middleware — Recovery, Logging, Session
-internal/adapter/httpapi/mocks      — моки httpapi-интерфейсов, сгенерированные mockery
-internal/config                     — конфигурация приложения (Viper)
-internal/domain/entity              — доменные сущности и их правила переходов
-internal/domain/port                — интерфейсы (порты) доменного слоя
-internal/domain/port/mocks          — моки портов, сгенерированные mockery
-internal/domain/usecase             — реализации доменных сервисов (use cases)
-internal/infrastructure/postgres    — репозитории на pgx, транзакции, миграции
-migrations                          — SQL-миграции (golang-migrate), встраиваются в бинарник
-docs/api-design.md                  — контракты API, форматы запросов/ответов
-web                                 — React-интерфейс (Vite + TypeScript)
+cmd/gate                                     — точка входа gate
+cmd/identity                                 — точка входа identity
+internal/service/gate                        — фасад gate: Run(ctx, logger)
+internal/service/gate/internal/adapter       — HTTP-хендлеры и middleware (Recovery, Logging, Session)
+internal/service/gate/internal/config        — конфигурация из env (Viper)
+internal/service/gate/internal/domain        — сущности, порты, use cases доменного слоя bullets
+internal/service/gate/internal/infrastructure — репозитории на pgx, транзакции, gRPC-клиент identity
+internal/service/gate/migrations             — SQL-миграции gate (golang-migrate)
+internal/service/identity                    — фасад identity: Run(ctx, logger)
+internal/service/identity/internal           — gRPC-хендлер, домен пользователя, репозиторий, конфиг
+internal/service/identity/migrations         — SQL-миграции identity
+proto, gen                                   — gRPC-контракт identity и сгенерированный код
+docs/api-design.md                           — контракты API, форматы запросов/ответов
+web                                          — React-интерфейс (Vite + TypeScript)
 ```
+
+Реализация каждого сервиса лежит в `internal/service/<name>/internal/...`,
+поэтому импортировать её может только код внутри `internal/service/<name>/` —
+сервисы не могут обратиться к внутренностям друг друга.
