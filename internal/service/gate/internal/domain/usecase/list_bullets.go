@@ -36,7 +36,7 @@ func (s *bulletService) ListBullets(ctx context.Context, userID uuid.UUID) ([]*e
 		return bullets, nil
 	}
 
-	var seeded []*entity.Bullet
+	seeded := make([]*entity.Bullet, 0, len(demoBullets))
 	for _, d := range demoBullets {
 		bullet, err := entity.NewBullet(userID, d.Type, d.Content)
 		if err != nil {
