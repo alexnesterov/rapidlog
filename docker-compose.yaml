@@ -5,7 +5,6 @@ services:
       dockerfile: Dockerfile
       target: gate
     container_name: gate
-    image: rapidlog-gate
     restart: always
     ports:
       - '9000:8080'
@@ -18,7 +17,6 @@ services:
       dockerfile: Dockerfile
       target: identity
     container_name: identity
-    image: rapidlog-identity
     restart: always
     ports:
       - '50051:50051'
