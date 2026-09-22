@@ -1,0 +1,31 @@
+services:
+  gate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: gate
+    container_name: gate
+    image: rapidlog-gate
+    restart: always
+    ports:
+      - '9000:8080'
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - identity
+
+  identity:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: identity
+    container_name: identity
+    image: rapidlog-identity
+    restart: always
+    ports:
+      - '50051:50051'
+    env_file:
+      - .env
+    depends_on:
+      - db
