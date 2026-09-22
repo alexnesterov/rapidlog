@@ -8,6 +8,9 @@ services:
     restart: always
     ports:
       - '9000:8080'
+    environment:
+      - RAPIDLOG_DB_DSN: ${RAPIDLOG_DB_DSN}
+      - RAPIDLOG_IDENTITY_ADDR: ${RAPIDLOG_IDENTITY_ADDR}
     depends_on:
       - identity
 
@@ -20,3 +23,5 @@ services:
     restart: always
     ports:
       - '50051:50051'
+    environment:
+      - IDENTITY_DB_DSN: ${IDENTITY_DB_DSN}
