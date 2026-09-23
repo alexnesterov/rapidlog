@@ -1,0 +1,25 @@
+services:
+  gate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: gate
+    container_name: gate
+    restart: always
+    ports:
+      - '9000:8080'
+    environment:
+      - RAPIDLOG_DB_DSN=${RAPIDLOG_DB_DSN}
+      - RAPIDLOG_IDENTITY_ADDR=${RAPIDLOG_IDENTITY_ADDR}
+    depends_on:
+      - identity
+
+  identity:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: identity
+    container_name: identity
+    restart: always
+    environment:
+      - IDENTITY_DB_DSN=${IDENTITY_DB_DSN}
