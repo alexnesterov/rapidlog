@@ -60,7 +60,7 @@ go run ./cmd/gate         # HTTP на :8080
 
 | Сервис   | Префикс      | Переменные                                                                  |
 | -------- | ------------ | --------------------------------------------------------------------------- |
-| gate     | `RAPIDLOG_`  | `RAPIDLOG_DB_DSN`, `RAPIDLOG_HTTP_PORT`, `RAPIDLOG_IDENTITY_ADDR`           |
+| gate     | `GATE_`      | `GATE_DSN`, `GATE_PORT`, `GATE_IDENTITY`                                    |
 | identity | `IDENTITY_`  | `IDENTITY_DB_DSN`, `IDENTITY_GRPC_PORT`                                     |
 
 ## Разработка
