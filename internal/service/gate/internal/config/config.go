@@ -10,18 +10,9 @@ import (
 )
 
 type HTTPConfig struct {
-	Port         string        `mapstructure:"port"`
 	ReadTimeout  time.Duration `mapstructure:"read_timeout"`
 	WriteTimeout time.Duration `mapstructure:"write_timeout"`
 	IdleTimeout  time.Duration `mapstructure:"idle_timeout"`
-}
-
-type DBConfig struct {
-	DSN string `mapstructure:"dsn"`
-}
-
-type IdentityConfig struct {
-	Addr string `mapstructure:"addr"`
 }
 
 type SessionConfig struct {
@@ -31,9 +22,10 @@ type SessionConfig struct {
 }
 
 type Config struct {
+	DSN      string `mapstructure:"dsn"`
+	Port     string `mapstructure:"port"`
 	HTTP     HTTPConfig
-	DB       DBConfig
-	Identity IdentityConfig
+	Identity string `mapstructure:"identity"`
 	Session  SessionConfig
 }
 
@@ -42,11 +34,11 @@ func Load() (*Config, error) {
 	v.AutomaticEnv()
 
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	v.SetEnvPrefix("rapidlog")
+	v.SetEnvPrefix("gate")
 
-	v.SetDefault("db.dsn", "postgres://rapidlog:rapidlog@localhost:5432/rapidlog")
-	v.SetDefault("http.port", 8080)
-	v.SetDefault("identity.addr", "localhost:50051")
+	v.SetDefault("dsn", "postgres://rapidlog:rapidlog@localhost:5432/rapidlog")
+	v.SetDefault("port", 8080)
+	v.SetDefault("identity", "localhost:50051")
 
 	v.SetDefault("http.read_timeout", 5*time.Second)
 	v.SetDefault("http.write_timeout", 10*time.Second)
@@ -61,14 +53,14 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("config: unmarshal: %w", err)
 	}
 
-	if cfg.DB.DSN == "" {
+	if cfg.DSN == "" {
 		return nil, fmt.Errorf("config: empty database dsn")
 	}
-	if cfg.HTTP.Port == "" {
-		return nil, fmt.Errorf("config: empty http port")
+	if cfg.Port == "" {
+		return nil, fmt.Errorf("config: empty port")
 	}
-	if cfg.Identity.Addr == "" {
-		return nil, fmt.Errorf("config: empty identity addr")
+	if cfg.Identity == "" {
+		return nil, fmt.Errorf("config: empty identity")
 	}
 
 	return &cfg, nil

@@ -25,15 +25,15 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	pool, err := postgres.Connect(ctx, cfg.DB.DSN)
+	pool, err := postgres.Connect(ctx, cfg.DSN)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 	defer pool.Close()
 
-	logger.Info("connected to postgres")
+	logger.Info("gate connected to postgres")
 
-	if err := postgres.Migrate(cfg.DB.DSN); err != nil {
+	if err := postgres.Migrate(cfg.DSN); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
@@ -43,7 +43,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	bulletService := usecase.NewBulletService(bulletRepository, txMgr)
 	bulletHandler := httpapi.NewBulletHandler(bulletService)
 
-	identityConn, err := grpc.NewClient(cfg.Identity.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	identityConn, err := grpc.NewClient(cfg.Identity, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return fmt.Errorf("failed to connect to identity service: %w", err)
 	}
@@ -71,14 +71,14 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	router.Handle("/", http.FileServer(http.FS(frontend)))
 
 	server := &http.Server{
-		Addr:         ":" + cfg.HTTP.Port,
+		Addr:         ":" + cfg.Port,
 		Handler:      handler,
 		ReadTimeout:  cfg.HTTP.ReadTimeout,
 		WriteTimeout: cfg.HTTP.WriteTimeout,
 		IdleTimeout:  cfg.HTTP.IdleTimeout,
 	}
 
-	logger.Info("starting server", "name", "gate", "port", cfg.HTTP.Port)
+	logger.Info("starting server", "name", "gate", "port", cfg.Port)
 	if err := server.ListenAndServe(); err != nil {
 		return fmt.Errorf("failed to start server: %w", err)
 	}

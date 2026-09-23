@@ -7,10 +7,10 @@ services:
     container_name: gate
     restart: always
     ports:
-      - '9000:8080'
+      - '${GATE_PORT}:8080'
     environment:
-      - RAPIDLOG_DB_DSN=${RAPIDLOG_DB_DSN}
-      - RAPIDLOG_IDENTITY_ADDR=${RAPIDLOG_IDENTITY_ADDR}
+      - GATE_DSN=${GATE_DSN}
+      - GATE_IDENTITY=${GATE_IDENTITY}
     depends_on:
       - identity
 
