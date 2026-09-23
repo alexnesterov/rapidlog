@@ -21,7 +21,5 @@ services:
       target: identity
     container_name: identity
     restart: always
-    ports:
-      - '50051:50051'
     environment:
       - IDENTITY_DB_DSN=${IDENTITY_DB_DSN}
