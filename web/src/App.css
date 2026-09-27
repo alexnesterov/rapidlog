@@ -631,6 +631,7 @@ button.log-line__mark:hover {
 .log-line__title {
   flex: 1;
   min-width: 0;
+  overflow-wrap: anywhere;
   font-size: 16px;
   color: var(--ink);
 }
