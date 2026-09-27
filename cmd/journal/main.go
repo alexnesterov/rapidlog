@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal"
 )
 
 func main() {
@@ -15,9 +15,9 @@ func main() {
 	defer stop()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	identityLogger := logger.With("service", "identity")
+	journalLogger := logger.With("service", "journal")
 
-	if err := identity.Run(ctx, identityLogger); err != nil {
+	if err := journal.Run(ctx, journalLogger); err != nil {
 		logger.Error("failed to run service", "error", err)
 		os.Exit(1)
 	}
