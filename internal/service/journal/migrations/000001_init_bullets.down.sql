@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS bullets;
+
+DROP TYPE IF EXISTS bullet_type;
+DROP TYPE IF EXISTS signifier;
