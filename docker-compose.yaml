@@ -22,4 +22,4 @@ services:
     container_name: identity
     restart: always
     environment:
-      - IDENTITY_DB_DSN=${IDENTITY_DB_DSN}
+      - IDENTITY_DSN=${IDENTITY_DSN}

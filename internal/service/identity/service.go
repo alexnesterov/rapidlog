@@ -21,7 +21,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	pool, err := postgres.Connect(ctx, cfg.DB.DSN)
+	pool, err := postgres.Connect(ctx, cfg.DSN)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
@@ -29,7 +29,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 
 	logger.Info("connected to postgres")
 
-	if err := postgres.Migrate(cfg.DB.DSN); err != nil {
+	if err := postgres.Migrate(cfg.DSN); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
@@ -41,7 +41,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	grpcServer := grpc.NewServer()
 	identityv1.RegisterIdentityServiceServer(grpcServer, handler)
 
-	lis, err := net.Listen("tcp", ":"+cfg.GRPC.Port)
+	lis, err := net.Listen("tcp", ":"+cfg.Port)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
