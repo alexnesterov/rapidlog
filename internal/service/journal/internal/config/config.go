@@ -16,7 +16,7 @@ func Load() (*Config, error) {
 	v.AutomaticEnv()
 	v.SetEnvPrefix("journal")
 
-	v.SetDefault("dsn", "postgres://rapidlog:rapidlog@localhost:5432/rapidlog")
+	v.SetDefault("dsn", "postgres://rapidlog:rapidlog@localhost:5432/journal")
 	v.SetDefault("port", 50052)
 
 	var cfg Config
