@@ -7,7 +7,7 @@ import (
 	"net"
 	"time"
 
-	identityv1 "github.com/alexnesterov/rapidlog-api/gen/identity/v1"
+	identityv1 "github.com/alexnesterov/rapidlog-api/api/gen/identity/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/adapter/grpcapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/config"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/domain/usecase"

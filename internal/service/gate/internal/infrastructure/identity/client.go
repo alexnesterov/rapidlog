@@ -3,7 +3,7 @@ package identity
 import (
 	"context"
 
-	identityv1 "github.com/alexnesterov/rapidlog-api/gen/identity/v1"
+	identityv1 "github.com/alexnesterov/rapidlog-api/api/gen/identity/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gate/internal/domain/port"
 	"github.com/google/uuid"
 )

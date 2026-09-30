@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	identityv1 "github.com/alexnesterov/rapidlog-api/gen/identity/v1"
+	identityv1 "github.com/alexnesterov/rapidlog-api/api/gen/identity/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gate/internal/adapter/httpapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gate/internal/adapter/httpapi/middleware"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gate/internal/config"
