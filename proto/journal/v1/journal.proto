@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package journal.v1;
+
+option go_package = "github.com/alexnesterov/rapidlog-api/gen/journal/v1;journalv1";
+
+import "google/protobuf/timestamp.proto";
+
+enum BulletType {
+  BULLET_TYPE_UNSPECIFIED = 0;
+  BULLET_TYPE_TASK        = 1;
+  BULLET_TYPE_EVENT       = 2;
+  BULLET_TYPE_NOTE        = 3;
+}
+
+enum Signifier {
+  SIGNIFIER_UNSPECIFIED = 0;
+  SIGNIFIER_OPEN        = 1;
+  SIGNIFIER_COMPLETED   = 2;
+  SIGNIFIER_MIGRATED    = 3;
+  SIGNIFIER_SCHEDULED   = 4;
+  SIGNIFIER_CANCELLED   = 5;
+}
+
+message Bullet {
+  string                    id         = 1;
+  BulletType                type       = 2;
+  Signifier                 signifier  = 3;
+  string                    content    = 4;
+  string                    user_id    = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message CreateBulletRequest {
+  BulletType type    = 1;
+  string     content = 2;
+  string     user_id = 3;
+}
+
+message CreateBulletResponse {
+  Bullet bullet = 1;
+}
+
+message ListBulletsRequest {
+  string user_id = 1;
+}
+
+message ListBulletsResponse {
+  repeated Bullet bullets = 1;
+}
+
+message CompleteBulletRequest {
+  string id      = 1;
+  string user_id = 2;
+}
+
+message CompleteBulletResponse {
+  Bullet bullet = 1;
+}
+
+message MigrateBulletRequest {
+  string id      = 1;
+  string user_id = 2;
+}
+
+message MigrateBulletResponse {
+  Bullet bullet = 1;
+}
+
+message CancelBulletRequest {
+  string id      = 1;
+  string user_id = 2;
+}
+
+message CancelBulletResponse {
+  Bullet bullet = 1;
+}
+
+service JournalService {
+  rpc CreateBullet(CreateBulletRequest) returns (CreateBulletResponse) {}
+  rpc ListBullets(ListBulletsRequest) returns (ListBulletsResponse) {}
+  rpc CompleteBullet(CompleteBulletRequest) returns (CompleteBulletResponse) {}
+  rpc MigrateBullet(MigrateBulletRequest) returns (MigrateBulletResponse) {}
+  rpc CancelBullet(CancelBulletRequest) returns (CancelBulletResponse) {}
+}
