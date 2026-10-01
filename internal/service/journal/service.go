@@ -67,9 +67,9 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 
 	select {
 	case <-stopped:
-		logger.Info("graceful shutdown completed")
+		logger.Info("gRPC server stopped")
 	case <-time.After(15 * time.Second):
-		logger.Info("graceful shutdown timed out, forcing stop")
+		logger.Info("gRPC server stop timed out, forcing stop")
 		grpcServer.Stop()
 	}
 
