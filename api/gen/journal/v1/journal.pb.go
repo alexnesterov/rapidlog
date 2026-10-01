@@ -25,25 +25,25 @@ const (
 type BulletType int32
 
 const (
-	BulletType_BULLET_TYPE_UNKNOWN BulletType = 0
-	BulletType_BULLET_TYPE_TASK    BulletType = 1
-	BulletType_BULLET_TYPE_EVENT   BulletType = 2
-	BulletType_BULLET_TYPE_NOTE    BulletType = 3
+	BulletType_BULLET_TYPE_UNSPECIFIED BulletType = 0
+	BulletType_BULLET_TYPE_TASK        BulletType = 1
+	BulletType_BULLET_TYPE_EVENT       BulletType = 2
+	BulletType_BULLET_TYPE_NOTE        BulletType = 3
 )
 
 // Enum value maps for BulletType.
 var (
 	BulletType_name = map[int32]string{
-		0: "BULLET_TYPE_UNKNOWN",
+		0: "BULLET_TYPE_UNSPECIFIED",
 		1: "BULLET_TYPE_TASK",
 		2: "BULLET_TYPE_EVENT",
 		3: "BULLET_TYPE_NOTE",
 	}
 	BulletType_value = map[string]int32{
-		"BULLET_TYPE_UNKNOWN": 0,
-		"BULLET_TYPE_TASK":    1,
-		"BULLET_TYPE_EVENT":   2,
-		"BULLET_TYPE_NOTE":    3,
+		"BULLET_TYPE_UNSPECIFIED": 0,
+		"BULLET_TYPE_TASK":        1,
+		"BULLET_TYPE_EVENT":       2,
+		"BULLET_TYPE_NOTE":        3,
 	}
 )
 
@@ -77,18 +77,18 @@ func (BulletType) EnumDescriptor() ([]byte, []int) {
 type Signifier int32
 
 const (
-	Signifier_SIGNIFIER_UNKNOWN   Signifier = 0
-	Signifier_SIGNIFIER_OPEN      Signifier = 1
-	Signifier_SIGNIFIER_COMPLETED Signifier = 2
-	Signifier_SIGNIFIER_MIGRATED  Signifier = 3
-	Signifier_SIGNIFIER_SCHEDULED Signifier = 4
-	Signifier_SIGNIFIER_CANCELLED Signifier = 5
+	Signifier_SIGNIFIER_UNSPECIFIED Signifier = 0
+	Signifier_SIGNIFIER_OPEN        Signifier = 1
+	Signifier_SIGNIFIER_COMPLETED   Signifier = 2
+	Signifier_SIGNIFIER_MIGRATED    Signifier = 3
+	Signifier_SIGNIFIER_SCHEDULED   Signifier = 4
+	Signifier_SIGNIFIER_CANCELLED   Signifier = 5
 )
 
 // Enum value maps for Signifier.
 var (
 	Signifier_name = map[int32]string{
-		0: "SIGNIFIER_UNKNOWN",
+		0: "SIGNIFIER_UNSPECIFIED",
 		1: "SIGNIFIER_OPEN",
 		2: "SIGNIFIER_COMPLETED",
 		3: "SIGNIFIER_MIGRATED",
@@ -96,12 +96,12 @@ var (
 		5: "SIGNIFIER_CANCELLED",
 	}
 	Signifier_value = map[string]int32{
-		"SIGNIFIER_UNKNOWN":   0,
-		"SIGNIFIER_OPEN":      1,
-		"SIGNIFIER_COMPLETED": 2,
-		"SIGNIFIER_MIGRATED":  3,
-		"SIGNIFIER_SCHEDULED": 4,
-		"SIGNIFIER_CANCELLED": 5,
+		"SIGNIFIER_UNSPECIFIED": 0,
+		"SIGNIFIER_OPEN":        1,
+		"SIGNIFIER_COMPLETED":   2,
+		"SIGNIFIER_MIGRATED":    3,
+		"SIGNIFIER_SCHEDULED":   4,
+		"SIGNIFIER_CANCELLED":   5,
 	}
 )
 
@@ -186,14 +186,14 @@ func (x *Bullet) GetType() BulletType {
 	if x != nil {
 		return x.Type
 	}
-	return BulletType_BULLET_TYPE_UNKNOWN
+	return BulletType_BULLET_TYPE_UNSPECIFIED
 }
 
 func (x *Bullet) GetSignifier() Signifier {
 	if x != nil {
 		return x.Signifier
 	}
-	return Signifier_SIGNIFIER_UNKNOWN
+	return Signifier_SIGNIFIER_UNSPECIFIED
 }
 
 func (x *Bullet) GetContent() string {
@@ -267,7 +267,7 @@ func (x *CreateBulletRequest) GetType() BulletType {
 	if x != nil {
 		return x.Type
 	}
-	return BulletType_BULLET_TYPE_UNKNOWN
+	return BulletType_BULLET_TYPE_UNSPECIFIED
 }
 
 func (x *CreateBulletRequest) GetContent() string {
@@ -744,15 +744,15 @@ const file_journal_v1_journal_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\"B\n" +
 	"\x14CancelBulletResponse\x12*\n" +
-	"\x06bullet\x18\x01 \x01(\v2\x12.journal.v1.BulletR\x06bullet*h\n" +
+	"\x06bullet\x18\x01 \x01(\v2\x12.journal.v1.BulletR\x06bullet*l\n" +
 	"\n" +
-	"BulletType\x12\x17\n" +
-	"\x13BULLET_TYPE_UNKNOWN\x10\x00\x12\x14\n" +
+	"BulletType\x12\x1b\n" +
+	"\x17BULLET_TYPE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10BULLET_TYPE_TASK\x10\x01\x12\x15\n" +
 	"\x11BULLET_TYPE_EVENT\x10\x02\x12\x14\n" +
-	"\x10BULLET_TYPE_NOTE\x10\x03*\x99\x01\n" +
-	"\tSignifier\x12\x15\n" +
-	"\x11SIGNIFIER_UNKNOWN\x10\x00\x12\x12\n" +
+	"\x10BULLET_TYPE_NOTE\x10\x03*\x9d\x01\n" +
+	"\tSignifier\x12\x19\n" +
+	"\x15SIGNIFIER_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eSIGNIFIER_OPEN\x10\x01\x12\x17\n" +
 	"\x13SIGNIFIER_COMPLETED\x10\x02\x12\x16\n" +
 	"\x12SIGNIFIER_MIGRATED\x10\x03\x12\x17\n" +
