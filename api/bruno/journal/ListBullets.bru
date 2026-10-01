@@ -1,0 +1,21 @@
+meta {
+  name: ListBullets
+  type: grpc
+  seq: 1
+}
+
+grpc {
+  url: localhost:50052
+  method: /journal.v1.JournalService/ListBullets
+  body: grpc
+  protoPath: ../proto/journal/v1/journal.proto
+  auth: none
+  methodType: unary
+}
+
+body:grpc {
+  name: message 1
+  content: '''
+    {}
+  '''
+}

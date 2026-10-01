@@ -1,5 +1,19 @@
 {
-  "version": "1",
   "name": "RapidLog API",
-  "type": "collection"
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ],
+  "size": 0.009789466857910156,
+  "filesCount": 7,
+  "protobuf": {
+    "protoFiles": [
+      {
+        "path": "../proto/journal/v1/journal.proto",
+        "type": "file"
+      }
+    ]
+  },
+  "version": "1"
 }

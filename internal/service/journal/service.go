@@ -4,8 +4,15 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net"
+	"time"
 
+	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/adapter/grpcapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/config"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/usecase"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/infra/postgres"
+	"google.golang.org/grpc"
 )
 
 func Run(ctx context.Context, logger *slog.Logger) error {
@@ -14,8 +21,57 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	logger.Info("journal service dsn", "dsn", cfg.DSN)
-	logger.Info("journal service port", "port", cfg.Port)
+	pool, err := postgres.Connect(ctx, cfg.DSN)
+	if err != nil {
+		return fmt.Errorf("failed to connect to database: %w", err)
+	}
+	defer pool.Close()
+
+	logger.Info("connected to postgres")
+
+	if err := postgres.Migrate(cfg.DSN); err != nil {
+		return fmt.Errorf("failed to run migrations: %w", err)
+	}
+
+	txMgr := postgres.NewTransactionManager(pool)
+	repository := postgres.NewBulletRepository(pool)
+	service := usecase.NewBulletService(repository, txMgr)
+
+	journalServer := &grpcapi.JournalServer{
+		Usecase: service,
+	}
+
+	ln, err := net.Listen("tcp", ":"+cfg.Port)
+	if err != nil {
+		return fmt.Errorf("failed to listen: %w", err)
+	}
+
+	grpcServer := grpc.NewServer()
+	journalv1.RegisterJournalServiceServer(grpcServer, journalServer)
+
+	go func() {
+		logger.Info("gRPC server listening", "port", cfg.Port)
+		if err := grpcServer.Serve(ln); err != nil {
+			logger.Error("failed to serve gRPC server", "error", err)
+		}
+	}()
+
+	<-ctx.Done()
+	logger.Info("gRPC server shutting down")
+
+	stopped := make(chan struct{})
+	go func() {
+		grpcServer.GracefulStop()
+		close(stopped)
+	}()
+
+	select {
+	case <-stopped:
+		logger.Info("graceful shutdown completed")
+	case <-time.After(15 * time.Second):
+		logger.Info("graceful shutdown timed out, forcing stop")
+		grpcServer.Stop()
+	}
 
 	return nil
 }

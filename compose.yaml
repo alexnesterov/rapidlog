@@ -41,12 +41,14 @@ services:
     configs:
       - source: init-identity-db
         target: /docker-entrypoint-initdb.d/init-identity-db.sql
+      - source: init-journal-db
+        target: /docker-entrypoint-initdb.d/init-journal-db.sql
     ports:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ['CMD', 'pg_isready', '-U', 'rapidlog']
+      test: [ 'CMD', 'pg_isready', '-U', 'rapidlog' ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -67,3 +69,6 @@ configs:
   init-identity-db:
     content: |
       CREATE DATABASE identity;
+  init-journal-db:
+    content: |
+      CREATE DATABASE journal;
