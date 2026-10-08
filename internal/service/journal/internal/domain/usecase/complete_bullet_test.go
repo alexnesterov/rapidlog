@@ -5,10 +5,10 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/port"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/port/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/usecase"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"

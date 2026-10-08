@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/port"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
