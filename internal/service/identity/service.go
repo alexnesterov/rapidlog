@@ -11,7 +11,7 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/adapter/grpcapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/config"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/domain/usecase"
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/infrastructure/postgres"
+	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/infra/postgres"
 	"google.golang.org/grpc"
 )
 

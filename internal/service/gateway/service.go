@@ -11,7 +11,7 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi/middleware"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/config"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/infrastructure/identity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/infra/identity"
 	"github.com/alexnesterov/rapidlog-api/web"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
