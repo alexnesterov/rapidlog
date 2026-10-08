@@ -11,9 +11,7 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi/middleware"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/config"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/domain/usecase"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/infrastructure/identity"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/infrastructure/postgres"
 	"github.com/alexnesterov/rapidlog-api/web"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -25,24 +23,6 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	pool, err := postgres.Connect(ctx, cfg.DSN)
-	if err != nil {
-		return fmt.Errorf("failed to connect to database: %w", err)
-	}
-	defer pool.Close()
-
-	logger.Info("gate connected to postgres")
-
-	if err := postgres.Migrate(cfg.DSN); err != nil {
-		return fmt.Errorf("failed to run migrations: %w", err)
-	}
-
-	txMgr := postgres.NewTransactionManager(pool)
-
-	bulletRepository := postgres.NewBulletRepository(pool)
-	bulletService := usecase.NewBulletService(bulletRepository, txMgr)
-	bulletHandler := httpapi.NewBulletHandler(bulletService)
-
 	identityConn, err := grpc.NewClient(cfg.Identity, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return fmt.Errorf("failed to connect to identity service: %w", err)
@@ -52,12 +32,12 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	identityClient := identity.NewClient(identityv1.NewIdentityServiceClient(identityConn))
 
 	router := http.NewServeMux()
-	router.HandleFunc("/health", httpapi.NewHealthHandler(pool))
-	router.HandleFunc("POST /api/bullets", bulletHandler.CreateBullet)
-	router.HandleFunc("GET /api/bullets", bulletHandler.ListBullets)
-	router.HandleFunc("POST /api/bullets/{id}/complete", bulletHandler.CompleteBullet)
-	router.HandleFunc("POST /api/bullets/{id}/migrate", bulletHandler.MigrateBullet)
-	router.HandleFunc("POST /api/bullets/{id}/cancel", bulletHandler.CancelBullet)
+	router.HandleFunc("/health", httpapi.NewHealthHandler())
+	router.HandleFunc("POST /api/bullets", nil)
+	router.HandleFunc("GET /api/bullets", nil)
+	router.HandleFunc("POST /api/bullets/{id}/complete", nil)
+	router.HandleFunc("POST /api/bullets/{id}/migrate", nil)
+	router.HandleFunc("POST /api/bullets/{id}/cancel", nil)
 
 	var handler http.Handler = router
 	handler = middleware.Session(identityClient, cfg.Session.CookieName, cfg.Session.CookieTTL, cfg.Session.CookieSecure)(handler)
