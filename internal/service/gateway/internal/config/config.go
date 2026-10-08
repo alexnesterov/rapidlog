@@ -22,7 +22,6 @@ type SessionConfig struct {
 }
 
 type Config struct {
-	DSN      string `mapstructure:"dsn"`
 	Port     string `mapstructure:"port"`
 	HTTP     HTTPConfig
 	Identity string `mapstructure:"identity"`
@@ -36,7 +35,6 @@ func Load() (*Config, error) {
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.SetEnvPrefix("gate")
 
-	v.SetDefault("dsn", "postgres://rapidlog:rapidlog@localhost:5432/rapidlog")
 	v.SetDefault("port", 8080)
 	v.SetDefault("identity", "localhost:50051")
 
@@ -53,9 +51,6 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("config: unmarshal: %w", err)
 	}
 
-	if cfg.DSN == "" {
-		return nil, fmt.Errorf("config: empty database dsn")
-	}
 	if cfg.Port == "" {
 		return nil, fmt.Errorf("config: empty port")
 	}
