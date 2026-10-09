@@ -1,6 +1,6 @@
 package usecase
 
-import "github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/port"
+import "github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 
 type bulletService struct {
 	repo  port.BulletRepository

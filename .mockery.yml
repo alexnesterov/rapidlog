@@ -24,6 +24,6 @@ packages:
   github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/domain/port:
     config:
       all: true
-  github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/port:
+  github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port:
     config:
       all: true

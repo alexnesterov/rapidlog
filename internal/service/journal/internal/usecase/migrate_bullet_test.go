@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/port"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/port/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"

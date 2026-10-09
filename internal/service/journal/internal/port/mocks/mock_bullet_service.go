@@ -7,8 +7,8 @@ package mocks
 import (
 	"context"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/port"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
