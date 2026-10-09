@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/grpcapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
