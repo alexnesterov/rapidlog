@@ -8,9 +8,9 @@ import (
 	"time"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/adapter/postgres"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/config"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/grpcapi"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/infra/postgres"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"google.golang.org/grpc"
 )
