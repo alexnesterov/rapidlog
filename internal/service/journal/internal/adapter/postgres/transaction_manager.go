@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"runtime/debug"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/port"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"

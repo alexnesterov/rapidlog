@@ -4,18 +4,18 @@ import (
 	"context"
 	"errors"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"github.com/google/uuid"
 )
 
-func (s *bulletService) CancelBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
+func (s *bulletService) CompleteBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
 	bullet, err := s.repo.Get(ctx, id, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	err = bullet.Cancel()
-	if errors.Is(err, entity.ErrBulletAlreadyCancelled) {
+	err = bullet.Complete()
+	if errors.Is(err, entity.ErrBulletAlreadyCompleted) {
 		return bullet, nil
 	}
 	if err != nil {

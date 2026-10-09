@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/entity"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain/port"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
