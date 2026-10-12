@@ -7,14 +7,11 @@ import (
 	"log/slog"
 	"net/http"
 
-	identityv1 "github.com/alexnesterov/rapidlog-api/api/gen/identity/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/config"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/identity"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi/middleware"
+	"github.com/alexnesterov/rapidlog-api/internal/service/identity/pkg/grpcclient"
 	"github.com/alexnesterov/rapidlog-api/web"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 func Run(ctx context.Context, logger *slog.Logger) error {
@@ -23,13 +20,10 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	identityConn, err := grpc.NewClient(cfg.Identity, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	identityClient, err := grpcclient.NewIdentityClient(cfg.Identity)
 	if err != nil {
-		return fmt.Errorf("failed to connect to identity service: %w", err)
+		return fmt.Errorf("identity new client: %w", err)
 	}
-	defer identityConn.Close()
-
-	identityClient := identity.NewClient(identityv1.NewIdentityServiceClient(identityConn))
 
 	router := http.NewServeMux()
 	router.HandleFunc("/health", httpapi.NewHealthHandler())
