@@ -25,7 +25,7 @@ packages:
   github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi:
     config:
       all: true
-  github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/domain/port:
+  github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/port:
     config:
       all: true
   github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port:

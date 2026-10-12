@@ -3,7 +3,7 @@ package port
 import (
 	"context"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/domain/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/entity"
 	"github.com/google/uuid"
 )
 

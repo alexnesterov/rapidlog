@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	identityv1 "github.com/alexnesterov/rapidlog-api/api/gen/identity/v1"
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/adapter/grpcapi"
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/domain/port/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/controller/grpcapi"
+	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/port/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
