@@ -8,12 +8,29 @@ services:
     image: rapidlog-gate
     restart: always
     ports:
+      - '8082:8080'
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - identity
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: gateway
+    container_name: gateway
+    image: rapidlog-gateway
+    restart: always
+    ports:
       - '8080:8080'
     env_file:
       - .env
     depends_on:
       - db
       - identity
+      - journal
 
   identity:
     build:
@@ -25,6 +42,21 @@ services:
     restart: always
     ports:
       - '50051:50051'
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  journal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: journal
+    container_name: journal
+    image: rapidlog-journal
+    restart: always
+    ports:
+      - '50052:50052'
     env_file:
       - .env
     depends_on:
@@ -48,7 +80,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: [ 'CMD', 'pg_isready', '-U', 'rapidlog' ]
+      test: ['CMD', 'pg_isready', '-U', 'rapidlog']
       interval: 10s
       timeout: 5s
       retries: 5

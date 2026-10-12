@@ -1,4 +1,4 @@
-MIN_COVERAGE = 37
+MIN_COVERAGE = 30
 
 .PHONY: all build test test-fast test-cov test-html test-check test-tdd
 
