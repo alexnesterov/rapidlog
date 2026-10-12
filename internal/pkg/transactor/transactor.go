@@ -31,15 +31,15 @@ func GetQueryer(ctx context.Context, pool *pgxpool.Pool) queryer {
 	return pool
 }
 
-type transactor struct {
+type txManager struct {
 	pool *pgxpool.Pool
 }
 
-func NewTxManager(pool *pgxpool.Pool) *transactor {
-	return &transactor{pool: pool}
+func NewTxManager(pool *pgxpool.Pool) *txManager {
+	return &txManager{pool: pool}
 }
 
-func (tm *transactor) WithTx(ctx context.Context, fn func(ctx context.Context) error) (err error) {
+func (tm *txManager) WithTx(ctx context.Context, fn func(ctx context.Context) error) (err error) {
 	tx, err := tm.pool.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)
@@ -73,4 +73,4 @@ func (tm *transactor) WithTx(ctx context.Context, fn func(ctx context.Context) e
 	return nil
 }
 
-var _ Transactor = &transactor{}
+var _ Transactor = &txManager{}

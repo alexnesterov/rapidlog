@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	mocksTransactor "github.com/alexnesterov/rapidlog-api/internal/pkg/transactor/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port/mocks"
@@ -58,8 +59,8 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
 		Return(nil).
 		Once()
 
-	mockTxMgr := mocks.NewMockTransactionManager(s.T())
-	mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+	mockTxMgr := mocksTransactor.NewMockTransactor(s.T())
+	mockTxMgr.EXPECT().WithTx(mock.Anything, mock.Anything).
 		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
 			return fn(ctx)
 		}).
@@ -86,8 +87,8 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotFound() {
 		Return(nil, port.ErrNotFound).
 		Once()
 
-	mockTxMgr := mocks.NewMockTransactionManager(s.T())
-	mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+	mockTxMgr := mocksTransactor.NewMockTransactor(s.T())
+	mockTxMgr.EXPECT().WithTx(mock.Anything, mock.Anything).
 		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
 			return fn(ctx)
 		}).
@@ -120,8 +121,8 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_UpdateError() {
 		Return(wantErr).
 		Once()
 
-	mockTxMgr := mocks.NewMockTransactionManager(s.T())
-	mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+	mockTxMgr := mocksTransactor.NewMockTransactor(s.T())
+	mockTxMgr.EXPECT().WithTx(mock.Anything, mock.Anything).
 		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
 			return fn(ctx)
 		}).
@@ -158,8 +159,8 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_CreateError() {
 		Return(wantErr).
 		Once()
 
-	mockTxMgr := mocks.NewMockTransactionManager(s.T())
-	mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+	mockTxMgr := mocksTransactor.NewMockTransactor(s.T())
+	mockTxMgr.EXPECT().WithTx(mock.Anything, mock.Anything).
 		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
 			return fn(ctx)
 		}).
@@ -187,8 +188,8 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotOpenTask() {
 		Return(bullet, nil).
 		Once()
 
-	mockTxMgr := mocks.NewMockTransactionManager(s.T())
-	mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+	mockTxMgr := mocksTransactor.NewMockTransactor(s.T())
+	mockTxMgr.EXPECT().WithTx(mock.Anything, mock.Anything).
 		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
 			return fn(ctx)
 		}).

@@ -49,7 +49,7 @@ func (s *bulletService) ListBullets(ctx context.Context, userID uuid.UUID) ([]*e
 		seeded = append(seeded, bullet)
 	}
 
-	err = s.txMgr.WithTransaction(ctx, func(ctx context.Context) error {
+	err = s.transactor.WithTx(ctx, func(ctx context.Context) error {
 		for _, b := range seeded {
 			err := s.repo.Create(ctx, b)
 			if err != nil {

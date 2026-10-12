@@ -10,7 +10,7 @@ import (
 func (s *bulletService) MigrateBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
 	var migrated *entity.Bullet
 
-	err := s.txMgr.WithTransaction(ctx, func(txCtx context.Context) error {
+	err := s.transactor.WithTx(ctx, func(txCtx context.Context) error {
 		bullet, err := s.repo.Get(txCtx, id, userID)
 		if err != nil {
 			return err

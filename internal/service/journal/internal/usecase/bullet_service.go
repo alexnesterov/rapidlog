@@ -1,16 +1,19 @@
 package usecase
 
-import "github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
+import (
+	"github.com/alexnesterov/rapidlog-api/internal/pkg/transactor"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
+)
 
 type bulletService struct {
-	repo  port.BulletRepository
-	txMgr port.TransactionManager
+	repo       port.BulletRepository
+	transactor transactor.Transactor
 }
 
-func NewBulletService(r port.BulletRepository, txMgr port.TransactionManager) *bulletService {
+func NewBulletService(r port.BulletRepository, t transactor.Transactor) *bulletService {
 	return &bulletService{
-		repo:  r,
-		txMgr: txMgr,
+		repo:       r,
+		transactor: t,
 	}
 }
 

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
+	"github.com/alexnesterov/rapidlog-api/internal/pkg/transactor"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/config"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/adapter/postgres"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
@@ -33,7 +34,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	txMgr := postgres.NewTransactionManager(pool)
+	txMgr := transactor.NewTxManager(pool)
 	repository := postgres.NewBulletRepository(pool)
 	service := usecase.NewBulletService(repository, txMgr)
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	mocksTransactor "github.com/alexnesterov/rapidlog-api/internal/pkg/transactor/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port/mocks"
@@ -17,7 +18,7 @@ import (
 type CompleteBulletUseCaseSuite struct {
 	suite.Suite
 	mockBulletRepo *mocks.MockBulletRepository
-	mockTxMgr      *mocks.MockTransactionManager
+	mockTxMgr      *mocksTransactor.MockTransactor
 	uc             port.BulletService
 }
 
@@ -26,8 +27,8 @@ func TestCompleteBulletUseCaseSuite(t *testing.T) {
 }
 
 func (s *CompleteBulletUseCaseSuite) SetupTest() {
-	s.mockBulletRepo = &mocks.MockBulletRepository{}
-	s.mockTxMgr = &mocks.MockTransactionManager{}
+	s.mockBulletRepo = mocks.NewMockBulletRepository(s.T())
+	s.mockTxMgr = mocksTransactor.NewMockTransactor(s.T())
 	s.uc = usecase.NewBulletService(s.mockBulletRepo, s.mockTxMgr)
 }
 
