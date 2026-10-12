@@ -1,4 +1,4 @@
-package gate
+package gateway
 
 import (
 	"context"
@@ -33,11 +33,11 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 
 	router := http.NewServeMux()
 	router.HandleFunc("/health", httpapi.NewHealthHandler())
-	router.HandleFunc("POST /api/bullets", nil)
-	router.HandleFunc("GET /api/bullets", nil)
-	router.HandleFunc("POST /api/bullets/{id}/complete", nil)
-	router.HandleFunc("POST /api/bullets/{id}/migrate", nil)
-	router.HandleFunc("POST /api/bullets/{id}/cancel", nil)
+	router.HandleFunc("POST /api/bullets", httpapi.EmptyHandler)
+	router.HandleFunc("GET /api/bullets", httpapi.EmptyHandler)
+	router.HandleFunc("POST /api/bullets/{id}/complete", httpapi.EmptyHandler)
+	router.HandleFunc("POST /api/bullets/{id}/migrate", httpapi.EmptyHandler)
+	router.HandleFunc("POST /api/bullets/{id}/cancel", httpapi.EmptyHandler)
 
 	var handler http.Handler = router
 	handler = middleware.Session(identityClient, cfg.Session.CookieName, cfg.Session.CookieTTL, cfg.Session.CookieSecure)(handler)

@@ -25,6 +25,7 @@ type Config struct {
 	Port     string `mapstructure:"port"`
 	HTTP     HTTPConfig
 	Identity string `mapstructure:"identity"`
+	Journal  string `mapstructure:"journal"`
 	Session  SessionConfig
 }
 
@@ -33,10 +34,11 @@ func Load() (*Config, error) {
 	v.AutomaticEnv()
 
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	v.SetEnvPrefix("gate")
+	v.SetEnvPrefix("gateway")
 
 	v.SetDefault("port", 8080)
 	v.SetDefault("identity", "localhost:50051")
+	v.SetDefault("journal", "localhost:50052")
 
 	v.SetDefault("http.read_timeout", 5*time.Second)
 	v.SetDefault("http.write_timeout", 10*time.Second)
@@ -56,6 +58,9 @@ func Load() (*Config, error) {
 	}
 	if cfg.Identity == "" {
 		return nil, fmt.Errorf("config: empty identity")
+	}
+	if cfg.Journal == "" {
+		return nil, fmt.Errorf("config: empty journal")
 	}
 
 	return &cfg, nil
