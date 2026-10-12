@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	mocksTransactor "github.com/alexnesterov/rapidlog-api/internal/pkg/transactor/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port/mocks"
@@ -17,7 +18,7 @@ import (
 type CancelBulletUseCaseSuite struct {
 	suite.Suite
 	mockBulletRepo *mocks.MockBulletRepository
-	mockTxMgr      *mocks.MockTransactionManager
+	mockTxMgr      *mocksTransactor.MockTransactor
 	uc             port.BulletService
 }
 
@@ -27,7 +28,7 @@ func TestCancelBulletUseCaseSuite(t *testing.T) {
 
 func (s *CancelBulletUseCaseSuite) SetupTest() {
 	s.mockBulletRepo = mocks.NewMockBulletRepository(s.T())
-	s.mockTxMgr = mocks.NewMockTransactionManager(s.T())
+	s.mockTxMgr = mocksTransactor.NewMockTransactor(s.T())
 	s.uc = usecase.NewBulletService(s.mockBulletRepo, s.mockTxMgr)
 }
 

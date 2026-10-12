@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	mocksTransactor "github.com/alexnesterov/rapidlog-api/internal/pkg/transactor/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port/mocks"
@@ -18,7 +19,7 @@ import (
 type ListBulletsUseCaseSuite struct {
 	suite.Suite
 	mockBulletRepo *mocks.MockBulletRepository
-	mockTxMgr      *mocks.MockTransactionManager
+	mockTxMgr      *mocksTransactor.MockTransactor
 	uc             port.BulletService
 }
 
@@ -28,7 +29,7 @@ func TestListBulletsUseCaseSuite(t *testing.T) {
 
 func (s *ListBulletsUseCaseSuite) SetupTest() {
 	s.mockBulletRepo = mocks.NewMockBulletRepository(s.T())
-	s.mockTxMgr = mocks.NewMockTransactionManager(s.T())
+	s.mockTxMgr = mocksTransactor.NewMockTransactor(s.T())
 	s.uc = usecase.NewBulletService(s.mockBulletRepo, s.mockTxMgr)
 }
 
@@ -70,7 +71,7 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_Empty() {
 		Return(nil).
 		Times(3)
 
-	s.mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+	s.mockTxMgr.EXPECT().WithTx(mock.Anything, mock.Anything).
 		RunAndReturn(func(ctx context.Context, fn func(ctx context.Context) error) error {
 			return fn(ctx)
 		}).
@@ -102,7 +103,7 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_CreateError() {
 		Return(wantErr).
 		Once()
 
-	s.mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+	s.mockTxMgr.EXPECT().WithTx(mock.Anything, mock.Anything).
 		RunAndReturn(func(ctx context.Context, fn func(ctx context.Context) error) error {
 			return fn(ctx)
 		}).
@@ -120,7 +121,7 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_TransactionError() {
 		Return(nil, nil).
 		Once()
 
-	s.mockTxMgr.EXPECT().WithTransaction(mock.Anything, mock.Anything).
+	s.mockTxMgr.EXPECT().WithTx(mock.Anything, mock.Anything).
 		Return(wantErr).
 		Once()
 

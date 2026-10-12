@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/alexnesterov/rapidlog-api/internal/pkg/transactor"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 	"github.com/google/uuid"
@@ -25,7 +26,7 @@ func (r *bulletRepository) Create(ctx context.Context, bullet *entity.Bullet) er
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`
 
-	_, err := getQueryer(ctx, r.pool).Exec(ctx, query,
+	_, err := transactor.GetQueryer(ctx, r.pool).Exec(ctx, query,
 		bullet.ID,
 		bullet.Type,
 		bullet.Signifier,
@@ -45,7 +46,7 @@ func (r *bulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*enti
 		WHERE id = $1 AND user_id = $2
 	`
 
-	row := getQueryer(ctx, r.pool).QueryRow(ctx, query, id, userID)
+	row := transactor.GetQueryer(ctx, r.pool).QueryRow(ctx, query, id, userID)
 
 	bullet := &entity.Bullet{}
 	err := row.Scan(
@@ -75,7 +76,7 @@ func (r *bulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*entit
 		WHERE user_id = $1
 	`
 
-	rows, err := getQueryer(ctx, r.pool).Query(ctx, query, userID)
+	rows, err := transactor.GetQueryer(ctx, r.pool).Query(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +114,7 @@ func (r *bulletRepository) Update(ctx context.Context, bullet *entity.Bullet) er
 		WHERE id = $1 AND user_id = $6
 	`
 
-	_, err := getQueryer(ctx, r.pool).Exec(ctx, query,
+	_, err := transactor.GetQueryer(ctx, r.pool).Exec(ctx, query,
 		bullet.ID,
 		bullet.Type,
 		bullet.Signifier,

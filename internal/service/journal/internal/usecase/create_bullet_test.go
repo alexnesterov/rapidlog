@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	mocksTransactor "github.com/alexnesterov/rapidlog-api/internal/pkg/transactor/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port/mocks"
@@ -83,7 +84,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mockRepo := mocks.NewMockBulletRepository(t)
 			tc.setupMock(mockRepo)
-			mockTxMgr := mocks.NewMockTransactionManager(t)
+			mockTxMgr := mocksTransactor.NewMockTransactor(t)
 			uc := usecase.NewBulletService(mockRepo, mockTxMgr)
 
 			got, err := uc.CreateBullet(context.Background(), tc.input)
