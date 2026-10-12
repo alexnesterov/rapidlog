@@ -18,12 +18,12 @@ type Bullet struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type bulletDayGroup struct {
+type BulletDayGroup struct {
 	Day     string    `json:"day"`
 	Bullets []*Bullet `json:"bullets"`
 }
 
-func groupBulletsByDay(bullets []*Bullet) []bulletDayGroup {
+func GroupBulletsByDay(bullets []*Bullet) []BulletDayGroup {
 	sort.Slice(bullets, func(i, j int) bool {
 		if bullets[i].CreatedAt.Equal(bullets[j].CreatedAt) {
 			return bullets[i].ID.String() < bullets[j].ID.String()
@@ -31,14 +31,14 @@ func groupBulletsByDay(bullets []*Bullet) []bulletDayGroup {
 		return bullets[i].CreatedAt.Before(bullets[j].CreatedAt)
 	})
 
-	var groups []bulletDayGroup
-	var current *bulletDayGroup
+	var groups []BulletDayGroup
+	var current *BulletDayGroup
 
 	for _, b := range bullets {
 		day := b.CreatedAt.Format("2006-01-02")
 
 		if current == nil || current.Day != day {
-			groups = append(groups, bulletDayGroup{Day: day})
+			groups = append(groups, BulletDayGroup{Day: day})
 			current = &groups[len(groups)-1]
 		}
 
@@ -48,7 +48,7 @@ func groupBulletsByDay(bullets []*Bullet) []bulletDayGroup {
 	slices.Reverse(groups)
 
 	if groups == nil {
-		groups = []bulletDayGroup{}
+		groups = []BulletDayGroup{}
 	}
 
 	return groups
