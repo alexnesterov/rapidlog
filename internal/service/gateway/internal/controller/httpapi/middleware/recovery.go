@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
 )
 
 func Recovery(logger *slog.Logger) func(http.Handler) http.Handler {

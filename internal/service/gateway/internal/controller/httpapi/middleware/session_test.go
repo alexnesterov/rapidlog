@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/domain/port/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/port/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"

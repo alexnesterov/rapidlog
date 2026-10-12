@@ -19,10 +19,10 @@ packages:
   github.com/alexnesterov/rapidlog-api/internal/service/gate/internal/adapter/httpapi:
     config:
       all: true
-  github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/domain/port:
+  github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/port:
     config:
       all: true
-  github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi:
+  github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi:
     config:
       all: true
   github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/port:

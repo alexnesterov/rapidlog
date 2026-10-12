@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/domain/port"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/port"
 	"github.com/google/uuid"
 )
 
