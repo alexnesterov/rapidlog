@@ -34,7 +34,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	router := http.NewServeMux()
 	router.HandleFunc("/health", httpapi.NewHealthHandler())
 	router.HandleFunc("POST /api/bullets", httpapi.EmptyHandler)
-	router.HandleFunc("GET /api/bullets", httpapi.EmptyHandler)
+	router.HandleFunc("GET /api/bullets", httpapi.ListBullets)
 	router.HandleFunc("POST /api/bullets/{id}/complete", httpapi.EmptyHandler)
 	router.HandleFunc("POST /api/bullets/{id}/migrate", httpapi.EmptyHandler)
 	router.HandleFunc("POST /api/bullets/{id}/cancel", httpapi.EmptyHandler)
@@ -58,7 +58,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		IdleTimeout:  cfg.HTTP.IdleTimeout,
 	}
 
-	logger.Info("starting server", "name", "gate", "port", cfg.Port)
+	logger.Info("starting server", "name", "gateway", "port", cfg.Port)
 	if err := server.ListenAndServe(); err != nil {
 		return fmt.Errorf("failed to start server: %w", err)
 	}
