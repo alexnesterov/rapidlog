@@ -8,10 +8,10 @@ import (
 	"time"
 
 	identityv1 "github.com/alexnesterov/rapidlog-api/api/gen/identity/v1"
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/adapter/grpcapi"
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/config"
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/domain/usecase"
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/infra/postgres"
+	"github.com/alexnesterov/rapidlog-api/internal/service/identity/config"
+	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/adapter/postgres"
+	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/controller/grpcapi"
+	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/usecase"
 	"google.golang.org/grpc"
 )
 

@@ -1,6 +1,6 @@
 package usecase
 
-import "github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/domain/port"
+import "github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/port"
 
 type identityService struct {
 	userRepo port.UserRepository

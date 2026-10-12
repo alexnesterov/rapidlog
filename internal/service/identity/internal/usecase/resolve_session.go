@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/domain/entity"
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/domain/port"
+	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/port"
 	"github.com/google/uuid"
 )
 
