@@ -14,11 +14,26 @@ import (
 func TestListBullets(t *testing.T) {
 	userID := uuid.New()
 
-	req := httptest.NewRequest(http.MethodGet, "/api/bullets", nil)
-	res := httptest.NewRecorder()
+	cases := []struct {
+		name string
+		wantStatus int
+		wantData []httpapi.BulletDayGroup
+	} {
+		{
+			name: "success",
+			wantStatus: http.StatusOK,
+		},
+	}
 
-	httpapi.ListBullets(res, req.WithContext(httpapi.WithUserID(context.Background(), userID)))
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, "/api/bullets", nil)
+			res := httptest.NewRecorder()
 
-	assert.Equal(t, http.StatusOK, res.Code)
-	assert.Equal(t, "application/json", res.Header().Get("Content-Type"))
+			httpapi.ListBullets(res, req.WithContext(httpapi.WithUserID(context.Background(), userID)))
+
+			assert.Equal(t, tc.wantStatus, res.Code)
+			assert.Equal(t, "application/json", res.Header().Get("Content-Type"))
+		})
+	}
 }
