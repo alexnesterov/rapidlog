@@ -11,6 +11,7 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi/middleware"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/pkg/identitygrpc"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/pkg/journalgrpc"
 	"github.com/alexnesterov/rapidlog-api/web"
 )
 
@@ -26,10 +27,16 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	}
 	defer identityClient.Close()
 
+	journalClient, err := journalgrpc.NewClient(cfg.Journal)
+	if err != nil {
+		return fmt.Errorf("journal new client: %w", err)
+	}
+	defer journalClient.Close()
+
 	router := http.NewServeMux()
 	router.HandleFunc("/health", httpapi.NewHealthHandler())
 	router.HandleFunc("POST /api/bullets", httpapi.EmptyHandler)
-	router.HandleFunc("GET /api/bullets", httpapi.ListBullets)
+	router.HandleFunc("GET /api/bullets", httpapi.NewListBulletsHandler(journalClient))
 	router.HandleFunc("POST /api/bullets/{id}/complete", httpapi.EmptyHandler)
 	router.HandleFunc("POST /api/bullets/{id}/migrate", httpapi.EmptyHandler)
 	router.HandleFunc("POST /api/bullets/{id}/cancel", httpapi.EmptyHandler)
