@@ -47,7 +47,7 @@ message ListBulletsRequest {
 }
 
 message ListBulletsResponse {
-  repeated Bullet bullets = 1;
+  repeated Bullet data = 1;
 }
 
 message CompleteBulletRequest {

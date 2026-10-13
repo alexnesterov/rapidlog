@@ -168,10 +168,10 @@ func TestListBullets(t *testing.T) {
 			}
 
 			require.NoError(t, err)
-			assert.Len(t, resp.GetBullets(), len(tc.wantData))
+			assert.Len(t, resp.GetData(), len(tc.wantData))
 			for i, want := range tc.wantData {
-				if !proto.Equal(resp.GetBullets()[i], want) {
-					t.Errorf("Bullet %d does not match\nwant: %v\n got: %v", i, want, resp.GetBullets()[i])
+				if !proto.Equal(resp.GetData()[i], want) {
+					t.Errorf("Bullet %d does not match\nwant: %v\n got: %v", i, want, resp.GetData()[i])
 				}
 			}
 		})

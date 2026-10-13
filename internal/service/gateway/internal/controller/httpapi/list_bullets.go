@@ -24,7 +24,7 @@ func NewListBulletsHandler(api listBulletsClient) http.HandlerFunc {
 func (h *listBulletsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	userID, _ := UserIDFromContext(r.Context())
 
-	bullets, err := h.api.ListBullets(r.Context(), &journalv1.ListBulletsRequest{
+	resp, err := h.api.ListBullets(r.Context(), &journalv1.ListBulletsRequest{
 		UserId: userID.String(),
 	})
 	if err != nil {
@@ -32,5 +32,10 @@ func (h *listBulletsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	RespondData(w, http.StatusOK, bullets)
+	bullets := resp.GetData()
+	if bullets == nil {
+		bullets = []*journalv1.Bullet{}
+	}
+
+	RespondData(w, http.StatusOK, WrapProtoSlice(bullets))
 }
