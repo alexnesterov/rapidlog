@@ -24,6 +24,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	if err != nil {
 		return fmt.Errorf("identity new client: %w", err)
 	}
+	defer identityClient.Close()
 
 	router := http.NewServeMux()
 	router.HandleFunc("/health", httpapi.NewHealthHandler())
