@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"time"
 
+	identityv1 "github.com/alexnesterov/rapidlog-api/api/gen/identity/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/port"
 	"github.com/google/uuid"
 )
 
-func Session(identityClient port.IdentityClient, cookieName string, maxAge time.Duration, secure bool) func(http.Handler) http.Handler {
+func Session(identityClient identityv1.IdentityServiceClient, cookieName string, maxAge time.Duration, secure bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/health" {
@@ -22,11 +22,13 @@ func Session(identityClient port.IdentityClient, cookieName string, maxAge time.
 				id, _ = uuid.Parse(c.Value)
 			}
 
-			resolved, err := identityClient.ResolveSession(r.Context(), id)
+			resp, err := identityClient.ResolveSession(r.Context(), &identityv1.ResolveSessionRequest{SessionId: id.String()})
 			if err != nil {
 				httpapi.RespondError(w, http.StatusInternalServerError, httpapi.ErrInternal.Error())
 				return
 			}
+
+			resolved := uuid.MustParse(resp.GetUserId())
 
 			ctx := httpapi.WithUserID(r.Context(), resolved)
 			r = r.WithContext(ctx)

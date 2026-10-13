@@ -10,7 +10,7 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/config"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi/middleware"
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/pkg/grpcclient"
+	"github.com/alexnesterov/rapidlog-api/internal/service/identity/pkg/identitygrpc"
 	"github.com/alexnesterov/rapidlog-api/web"
 )
 
@@ -20,7 +20,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	identityClient, err := grpcclient.NewIdentityClient(cfg.Identity)
+	identityClient, err := identitygrpc.NewClient(cfg.Identity)
 	if err != nil {
 		return fmt.Errorf("identity new client: %w", err)
 	}
