@@ -374,7 +374,7 @@ func (x *ListBulletsRequest) GetUserId() string {
 
 type ListBulletsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Bullets       []*Bullet              `protobuf:"bytes,1,rep,name=bullets,proto3" json:"bullets,omitempty"`
+	Data          []*Bullet              `protobuf:"bytes,1,rep,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -409,9 +409,9 @@ func (*ListBulletsResponse) Descriptor() ([]byte, []int) {
 	return file_journal_v1_journal_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *ListBulletsResponse) GetBullets() []*Bullet {
+func (x *ListBulletsResponse) GetData() []*Bullet {
 	if x != nil {
-		return x.Bullets
+		return x.Data
 	}
 	return nil
 }
@@ -727,9 +727,9 @@ const file_journal_v1_journal_proto_rawDesc = "" +
 	"\x14CreateBulletResponse\x12*\n" +
 	"\x06bullet\x18\x01 \x01(\v2\x12.journal.v1.BulletR\x06bullet\"-\n" +
 	"\x12ListBulletsRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\"C\n" +
-	"\x13ListBulletsResponse\x12,\n" +
-	"\abullets\x18\x01 \x03(\v2\x12.journal.v1.BulletR\abullets\"@\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"=\n" +
+	"\x13ListBulletsResponse\x12&\n" +
+	"\x04data\x18\x01 \x03(\v2\x12.journal.v1.BulletR\x04data\"@\n" +
 	"\x15CompleteBulletRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\"D\n" +
@@ -802,7 +802,7 @@ var file_journal_v1_journal_proto_depIdxs = []int32{
 	13, // 3: journal.v1.Bullet.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: journal.v1.CreateBulletRequest.type:type_name -> journal.v1.BulletType
 	2,  // 5: journal.v1.CreateBulletResponse.bullet:type_name -> journal.v1.Bullet
-	2,  // 6: journal.v1.ListBulletsResponse.bullets:type_name -> journal.v1.Bullet
+	2,  // 6: journal.v1.ListBulletsResponse.data:type_name -> journal.v1.Bullet
 	2,  // 7: journal.v1.CompleteBulletResponse.bullet:type_name -> journal.v1.Bullet
 	2,  // 8: journal.v1.MigrateBulletResponse.bullet:type_name -> journal.v1.Bullet
 	2,  // 9: journal.v1.CancelBulletResponse.bullet:type_name -> journal.v1.Bullet

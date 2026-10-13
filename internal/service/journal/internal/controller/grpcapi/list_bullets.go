@@ -26,6 +26,6 @@ func (s *JournalServer) ListBullets(ctx context.Context, req *journalv1.ListBull
 	}
 
 	return &journalv1.ListBulletsResponse{
-		Bullets: bulletsProto,
+		Data: bulletsProto,
 	}, nil
 }
