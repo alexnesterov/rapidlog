@@ -11,6 +11,7 @@ import (
 )
 
 type IdentityClient struct {
+	conn *grpc.ClientConn
 	client identityv1.IdentityServiceClient
 }
 
@@ -21,8 +22,13 @@ func NewIdentityClient(addr string) (*IdentityClient, error) {
 	}
 
 	return &IdentityClient{
+		conn: conn,
 		client: identityv1.NewIdentityServiceClient(conn),
 	}, nil
+}
+
+func (c *IdentityClient) Close() {
+	c.conn.Close()
 }
 
 func (c *IdentityClient) ResolveSession(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
