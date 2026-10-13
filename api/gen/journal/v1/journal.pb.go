@@ -286,7 +286,7 @@ func (x *CreateBulletRequest) GetUserId() string {
 
 type CreateBulletResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Bullet        *Bullet                `protobuf:"bytes,1,opt,name=bullet,proto3" json:"bullet,omitempty"`
+	Data          *Bullet                `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -321,9 +321,9 @@ func (*CreateBulletResponse) Descriptor() ([]byte, []int) {
 	return file_journal_v1_journal_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *CreateBulletResponse) GetBullet() *Bullet {
+func (x *CreateBulletResponse) GetData() *Bullet {
 	if x != nil {
-		return x.Bullet
+		return x.Data
 	}
 	return nil
 }
@@ -470,7 +470,7 @@ func (x *CompleteBulletRequest) GetUserId() string {
 
 type CompleteBulletResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Bullet        *Bullet                `protobuf:"bytes,1,opt,name=bullet,proto3" json:"bullet,omitempty"`
+	Data          *Bullet                `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -505,9 +505,9 @@ func (*CompleteBulletResponse) Descriptor() ([]byte, []int) {
 	return file_journal_v1_journal_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *CompleteBulletResponse) GetBullet() *Bullet {
+func (x *CompleteBulletResponse) GetData() *Bullet {
 	if x != nil {
-		return x.Bullet
+		return x.Data
 	}
 	return nil
 }
@@ -566,7 +566,7 @@ func (x *MigrateBulletRequest) GetUserId() string {
 
 type MigrateBulletResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Bullet        *Bullet                `protobuf:"bytes,1,opt,name=bullet,proto3" json:"bullet,omitempty"`
+	Data          *Bullet                `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -601,9 +601,9 @@ func (*MigrateBulletResponse) Descriptor() ([]byte, []int) {
 	return file_journal_v1_journal_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *MigrateBulletResponse) GetBullet() *Bullet {
+func (x *MigrateBulletResponse) GetData() *Bullet {
 	if x != nil {
-		return x.Bullet
+		return x.Data
 	}
 	return nil
 }
@@ -662,7 +662,7 @@ func (x *CancelBulletRequest) GetUserId() string {
 
 type CancelBulletResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Bullet        *Bullet                `protobuf:"bytes,1,opt,name=bullet,proto3" json:"bullet,omitempty"`
+	Data          *Bullet                `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -697,9 +697,9 @@ func (*CancelBulletResponse) Descriptor() ([]byte, []int) {
 	return file_journal_v1_journal_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *CancelBulletResponse) GetBullet() *Bullet {
+func (x *CancelBulletResponse) GetData() *Bullet {
 	if x != nil {
-		return x.Bullet
+		return x.Data
 	}
 	return nil
 }
@@ -723,28 +723,28 @@ const file_journal_v1_journal_proto_rawDesc = "" +
 	"\x13CreateBulletRequest\x12*\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x16.journal.v1.BulletTypeR\x04type\x12\x18\n" +
 	"\acontent\x18\x02 \x01(\tR\acontent\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\tR\x06userId\"B\n" +
-	"\x14CreateBulletResponse\x12*\n" +
-	"\x06bullet\x18\x01 \x01(\v2\x12.journal.v1.BulletR\x06bullet\"-\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId\">\n" +
+	"\x14CreateBulletResponse\x12&\n" +
+	"\x04data\x18\x01 \x01(\v2\x12.journal.v1.BulletR\x04data\"-\n" +
 	"\x12ListBulletsRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"=\n" +
 	"\x13ListBulletsResponse\x12&\n" +
 	"\x04data\x18\x01 \x03(\v2\x12.journal.v1.BulletR\x04data\"@\n" +
 	"\x15CompleteBulletRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"D\n" +
-	"\x16CompleteBulletResponse\x12*\n" +
-	"\x06bullet\x18\x01 \x01(\v2\x12.journal.v1.BulletR\x06bullet\"?\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"@\n" +
+	"\x16CompleteBulletResponse\x12&\n" +
+	"\x04data\x18\x01 \x01(\v2\x12.journal.v1.BulletR\x04data\"?\n" +
 	"\x14MigrateBulletRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"C\n" +
-	"\x15MigrateBulletResponse\x12*\n" +
-	"\x06bullet\x18\x01 \x01(\v2\x12.journal.v1.BulletR\x06bullet\">\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"?\n" +
+	"\x15MigrateBulletResponse\x12&\n" +
+	"\x04data\x18\x01 \x01(\v2\x12.journal.v1.BulletR\x04data\">\n" +
 	"\x13CancelBulletRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"B\n" +
-	"\x14CancelBulletResponse\x12*\n" +
-	"\x06bullet\x18\x01 \x01(\v2\x12.journal.v1.BulletR\x06bullet*l\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\">\n" +
+	"\x14CancelBulletResponse\x12&\n" +
+	"\x04data\x18\x01 \x01(\v2\x12.journal.v1.BulletR\x04data*l\n" +
 	"\n" +
 	"BulletType\x12\x1b\n" +
 	"\x17BULLET_TYPE_UNSPECIFIED\x10\x00\x12\x14\n" +
@@ -801,11 +801,11 @@ var file_journal_v1_journal_proto_depIdxs = []int32{
 	13, // 2: journal.v1.Bullet.created_at:type_name -> google.protobuf.Timestamp
 	13, // 3: journal.v1.Bullet.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: journal.v1.CreateBulletRequest.type:type_name -> journal.v1.BulletType
-	2,  // 5: journal.v1.CreateBulletResponse.bullet:type_name -> journal.v1.Bullet
+	2,  // 5: journal.v1.CreateBulletResponse.data:type_name -> journal.v1.Bullet
 	2,  // 6: journal.v1.ListBulletsResponse.data:type_name -> journal.v1.Bullet
-	2,  // 7: journal.v1.CompleteBulletResponse.bullet:type_name -> journal.v1.Bullet
-	2,  // 8: journal.v1.MigrateBulletResponse.bullet:type_name -> journal.v1.Bullet
-	2,  // 9: journal.v1.CancelBulletResponse.bullet:type_name -> journal.v1.Bullet
+	2,  // 7: journal.v1.CompleteBulletResponse.data:type_name -> journal.v1.Bullet
+	2,  // 8: journal.v1.MigrateBulletResponse.data:type_name -> journal.v1.Bullet
+	2,  // 9: journal.v1.CancelBulletResponse.data:type_name -> journal.v1.Bullet
 	3,  // 10: journal.v1.JournalService.CreateBullet:input_type -> journal.v1.CreateBulletRequest
 	5,  // 11: journal.v1.JournalService.ListBullets:input_type -> journal.v1.ListBulletsRequest
 	7,  // 12: journal.v1.JournalService.CompleteBullet:input_type -> journal.v1.CompleteBulletRequest

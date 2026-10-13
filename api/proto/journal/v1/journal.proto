@@ -39,7 +39,7 @@ message CreateBulletRequest {
 }
 
 message CreateBulletResponse {
-  Bullet bullet = 1;
+  Bullet data = 1;
 }
 
 message ListBulletsRequest {
@@ -56,7 +56,7 @@ message CompleteBulletRequest {
 }
 
 message CompleteBulletResponse {
-  Bullet bullet = 1;
+  Bullet data = 1;
 }
 
 message MigrateBulletRequest {
@@ -65,7 +65,7 @@ message MigrateBulletRequest {
 }
 
 message MigrateBulletResponse {
-  Bullet bullet = 1;
+  Bullet data = 1;
 }
 
 message CancelBulletRequest {
@@ -74,7 +74,7 @@ message CancelBulletRequest {
 }
 
 message CancelBulletResponse {
-  Bullet bullet = 1;
+  Bullet data = 1;
 }
 
 service JournalService {
