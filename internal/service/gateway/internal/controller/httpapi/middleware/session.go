@@ -6,6 +6,7 @@ import (
 
 	identityv1 "github.com/alexnesterov/rapidlog-api/api/gen/identity/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/pkg/respond"
 	"github.com/google/uuid"
 )
 
@@ -24,7 +25,7 @@ func Session(identityClient identityv1.IdentityServiceClient, cookieName string,
 
 			resp, err := identityClient.ResolveSession(r.Context(), &identityv1.ResolveSessionRequest{SessionId: id.String()})
 			if err != nil {
-				httpapi.RespondError(w, http.StatusInternalServerError, httpapi.ErrInternal.Error())
+				respond.Error(w, http.StatusInternalServerError, httpapi.ErrInternal.Error())
 				return
 			}
 

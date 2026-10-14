@@ -6,6 +6,7 @@ import (
 	"time"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/pkg/respond"
 	"google.golang.org/grpc"
 )
 
@@ -29,7 +30,7 @@ func (h *listBulletsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		UserId: userID.String(),
 	})
 	if err != nil {
-		RespondError(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		respond.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
 
@@ -55,5 +56,5 @@ func (h *listBulletsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		result[i].UpdatedAt = b.UpdatedAt.AsTime()
 	}
 
-	RespondData(w, http.StatusOK, result)
+	respond.Data(w, http.StatusOK, result)
 }

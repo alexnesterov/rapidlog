@@ -1,4 +1,4 @@
-package httpapi
+package respond
 
 import (
 	"encoding/json"
@@ -15,7 +15,7 @@ type Response[T any] struct {
 	Error *ErrorResponse `json:"error,omitempty"`
 }
 
-func RespondData[T any](w http.ResponseWriter, code int, data T) {
+func Data[T any](w http.ResponseWriter, code int, data T) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 
@@ -24,7 +24,7 @@ func RespondData[T any](w http.ResponseWriter, code int, data T) {
 	})
 }
 
-func RespondError(w http.ResponseWriter, code int, message string) {
+func Error(w http.ResponseWriter, code int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 
