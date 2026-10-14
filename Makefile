@@ -1,8 +1,8 @@
 MIN_COVERAGE = 30
 
-.PHONY: all build test test-fast test-cov test-html test-check test-tdd
+.PHONY: all build test test-fast test-cov test-html test-check test-tdd buf up down
 
-all: build test
+all: build test-fast
 	@echo "🎉 Все проверки пройдены!"
 
 build:
@@ -43,6 +43,11 @@ dir ?= ./...
 test-tdd:
 	@echo "🔄 [TDD] Запуск тестов в $(dir)..."
 	@go test -v -count=1 $(dir) && echo "🟩 [GREEN] Отлично! Все тесты прошли." || (echo "🟥 [RED] Тесты упали! Исправляй код." && exit 1)
+
+buf:
+	@echo "🔄 Генерация buf файлов..."
+	@buf generate
+	@echo "✅ Buf файлы сгенерированы!"
 
 up:
 	@echo "🚀 Запуск всех сервисов..."
