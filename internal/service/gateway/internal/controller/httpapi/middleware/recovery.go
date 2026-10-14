@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/pkg/respond"
 )
 
 func Recovery(logger *slog.Logger) func(http.Handler) http.Handler {
@@ -18,7 +18,7 @@ func Recovery(logger *slog.Logger) func(http.Handler) http.Handler {
 						"path", r.URL.Path,
 					)
 
-					httpapi.RespondError(w, http.StatusInternalServerError, "internal server error")
+					respond.Error(w, http.StatusInternalServerError, "internal server error")
 				}
 			}()
 
