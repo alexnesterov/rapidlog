@@ -24,7 +24,37 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function listBullets(): Promise<BulletDayGroup[]> {
-  return request<BulletDayGroup[]>("/bullets");
+  const bullets = await request<Bullet[]>("/bullets");
+
+  // Group bullets by day
+  const dayGroups = new Map<string, Bullet[]>();
+  for (const bullet of bullets) {
+    const date = new Date(bullet.created_at);
+    if (isNaN(date.getTime())) {
+      continue; // Skip invalid dates
+    }
+    // Extract YYYY-MM-DD in local timezone
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dayKey = `${year}-${month}-${day}`;
+
+    if (!dayGroups.has(dayKey)) {
+      dayGroups.set(dayKey, []);
+    }
+    dayGroups.get(dayKey)!.push(bullet);
+  }
+
+  // Sort days descending (newest first)
+  const sortedDays = Array.from(dayGroups.keys()).sort((a, b) => b.localeCompare(a));
+
+  // Sort bullets within each day by created_at ascending
+  return sortedDays.map((day) => ({
+    day,
+    bullets: dayGroups.get(day)!.sort((a, b) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    ),
+  }));
 }
 
 export async function createBullet(req: CreateBulletRequest): Promise<Bullet> {

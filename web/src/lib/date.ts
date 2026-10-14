@@ -6,17 +6,33 @@ export function todayIsoDate(): string {
 }
 
 function parseIsoDate(iso: string): Date {
-  return new Date(iso + "T00:00:00");
+  const date = new Date(iso + "T00:00:00");
+  if (isNaN(date.getTime())) {
+    throw new Error(`Invalid date: ${iso}`);
+  }
+  return date;
 }
 
 export function dayNumber(iso: string): number {
-  return parseIsoDate(iso).getDate();
+  try {
+    return parseIsoDate(iso).getDate();
+  } catch {
+    return 0;
+  }
 }
 
 export function weekday(iso: string): string {
-  return WEEKDAY_FORMAT.format(parseIsoDate(iso));
+  try {
+    return WEEKDAY_FORMAT.format(parseIsoDate(iso));
+  } catch {
+    return "";
+  }
 }
 
 export function month(iso: string): string {
-  return MONTH_FORMAT.format(parseIsoDate(iso));
+  try {
+    return MONTH_FORMAT.format(parseIsoDate(iso));
+  } catch {
+    return "";
+  }
 }

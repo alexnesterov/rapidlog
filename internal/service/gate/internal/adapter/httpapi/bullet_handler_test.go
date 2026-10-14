@@ -126,7 +126,7 @@ func TestListBullets(t *testing.T) {
 		name       string
 		setupMock  func(m *mocks.MockBulletService)
 		wantStatus int
-		wantData   []bulletDayGroup
+		wantData   []*entity.Bullet
 		wantError  *errorResponse
 	}{
 		{
@@ -137,8 +137,8 @@ func TestListBullets(t *testing.T) {
 					Once()
 			},
 			wantStatus: http.StatusOK,
-			wantData: []bulletDayGroup{
-				{Day: "0001-01-01", Bullets: []*entity.Bullet{{Content: "Заголовок"}}},
+			wantData: []*entity.Bullet{
+				{Content: "Заголовок"},
 			},
 		},
 		{
@@ -149,7 +149,7 @@ func TestListBullets(t *testing.T) {
 					Once()
 			},
 			wantStatus: http.StatusOK,
-			wantData:   []bulletDayGroup{},
+			wantData:   []*entity.Bullet{},
 		},
 		{
 			name: "service error",
@@ -181,7 +181,7 @@ func TestListBullets(t *testing.T) {
 			assert.Equal(t, "application/json", res.Header().Get("Content-Type"))
 
 			if tc.wantData != nil {
-				var got response[[]bulletDayGroup]
+				var got response[[]*entity.Bullet]
 				require.NoError(t, json.NewDecoder(res.Body).Decode(&got))
 				assert.Equal(t, tc.wantData, got.Data)
 			}

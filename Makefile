@@ -43,3 +43,11 @@ dir ?= ./...
 test-tdd:
 	@echo "🔄 [TDD] Запуск тестов в $(dir)..."
 	@go test -v -count=1 $(dir) && echo "🟩 [GREEN] Отлично! Все тесты прошли." || (echo "🟥 [RED] Тесты упали! Исправляй код." && exit 1)
+
+up:
+	@echo "🚀 Запуск всех сервисов..."
+	@docker compose up -d --build
+
+down:
+	@echo "🛑 Остановка всех сервисов..."
+	@docker compose down
