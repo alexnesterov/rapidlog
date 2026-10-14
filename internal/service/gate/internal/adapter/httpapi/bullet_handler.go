@@ -58,7 +58,7 @@ func (h *bulletHandler) ListBullets(w http.ResponseWriter, r *http.Request) {
 		bullets = []*entity.Bullet{}
 	}
 
-	RespondData(w, http.StatusOK, groupBulletsByDay(bullets))
+	RespondData(w, http.StatusOK, bullets)
 }
 
 func (h *bulletHandler) CompleteBullet(w http.ResponseWriter, r *http.Request) {
