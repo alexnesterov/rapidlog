@@ -6,6 +6,7 @@ import (
 	"time"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/pkg/protoenum"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/pkg/respond"
 	"google.golang.org/grpc"
 )
@@ -48,8 +49,8 @@ func (h *listBulletsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	for i, b := range bullets {
 		result[i].ID = b.Id
-		result[i].Type = b.Type.String()
-		result[i].Signifier = b.Signifier.String()
+		result[i].Type = protoenum.ToCleanString(b.Type)
+		result[i].Signifier = protoenum.ToCleanString(b.Signifier)
 		result[i].Content = b.Content
 		result[i].UserId = b.UserId
 		result[i].CreatedAt = b.CreatedAt.AsTime()
