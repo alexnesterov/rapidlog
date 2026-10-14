@@ -763,7 +763,7 @@ const file_journal_v1_journal_proto_rawDesc = "" +
 	"\vListBullets\x12\x1e.journal.v1.ListBulletsRequest\x1a\x1f.journal.v1.ListBulletsResponse\"\x00\x12Y\n" +
 	"\x0eCompleteBullet\x12!.journal.v1.CompleteBulletRequest\x1a\".journal.v1.CompleteBulletResponse\"\x00\x12V\n" +
 	"\rMigrateBullet\x12 .journal.v1.MigrateBulletRequest\x1a!.journal.v1.MigrateBulletResponse\"\x00\x12S\n" +
-	"\fCancelBullet\x12\x1f.journal.v1.CancelBulletRequest\x1a .journal.v1.CancelBulletResponse\"\x00B?Z=github.com/alexnesterov/rapidlog-api/gen/journal/v1;journalv1b\x06proto3"
+	"\fCancelBullet\x12\x1f.journal.v1.CancelBulletRequest\x1a .journal.v1.CancelBulletResponse\"\x00BCZAgithub.com/alexnesterov/rapidlog-api/api/gen/journal/v1;journalv1b\x06proto3"
 
 var (
 	file_journal_v1_journal_proto_rawDescOnce sync.Once

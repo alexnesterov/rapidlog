@@ -120,7 +120,7 @@ const file_identity_v1_identity_proto_rawDesc = "" +
 	"\x16ResolveSessionResponse\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId2n\n" +
 	"\x0fIdentityService\x12[\n" +
-	"\x0eResolveSession\x12\".identity.v1.ResolveSessionRequest\x1a#.identity.v1.ResolveSessionResponse\"\x00BAZ?github.com/alexnesterov/rapidlog-api/gen/identity/v1;identityv1b\x06proto3"
+	"\x0eResolveSession\x12\".identity.v1.ResolveSessionRequest\x1a#.identity.v1.ResolveSessionResponse\"\x00BEZCgithub.com/alexnesterov/rapidlog-api/api/gen/identity/v1;identityv1b\x06proto3"
 
 var (
 	file_identity_v1_identity_proto_rawDescOnce sync.Once
