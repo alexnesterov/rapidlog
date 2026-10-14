@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package identity.v1;
 
-option go_package = "github.com/alexnesterov/rapidlog-api/gen/identity/v1;identityv1";
+option go_package = "github.com/alexnesterov/rapidlog-api/api/gen/identity/v1;identityv1";
 
 service IdentityService {
   rpc ResolveSession (ResolveSessionRequest) returns (ResolveSessionResponse) {}

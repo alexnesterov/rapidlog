@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package journal.v1;
 
-option go_package = "github.com/alexnesterov/rapidlog-api/gen/journal/v1;journalv1";
+option go_package = "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1;journalv1";
 
 import "google/protobuf/timestamp.proto";
 
