@@ -6,7 +6,7 @@ import (
 	"time"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/pkg/protoenum"
+	"github.com/alexnesterov/rapidlog-api/internal/pkg/protoenum"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/pkg/respond"
 	"google.golang.org/grpc"
 )
