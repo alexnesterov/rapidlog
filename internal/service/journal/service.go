@@ -40,6 +40,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 
 	journalServer := &grpcapi.JournalServer{
 		Usecase: service,
+		Logger:  logger,
 	}
 
 	ln, err := net.Listen("tcp", ":"+cfg.Port)
