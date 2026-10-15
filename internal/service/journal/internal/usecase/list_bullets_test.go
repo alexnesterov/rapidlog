@@ -90,6 +90,19 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_Empty() {
 	}
 }
 
+func (s *ListBulletsUseCaseSuite) TestListBullets_NewDemoBulletsError() {
+	wantErr := entity.ErrBulletUserIDRequired
+
+	s.mockBulletRepo.EXPECT().
+		List(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+		Return(nil, nil).
+		Once()
+
+	got, err := s.uc.ListBullets(context.Background(), uuid.Nil)
+	s.Nil(got)
+	s.ErrorIs(err, wantErr)
+}
+
 func (s *ListBulletsUseCaseSuite) TestListBullets_CreateError() {
 	wantErr := errors.New("create bullets error")
 

@@ -1,6 +1,6 @@
 MIN_COVERAGE = 30
 
-.PHONY: all build test test-fast test-cov test-html test-check test-tdd buf up down
+.PHONY: all build test test-fast test-cov test-html test-tdd buf up down
 
 all: build test-fast
 	@echo "🎉 Все проверки пройдены!"
@@ -21,12 +21,6 @@ test-fast:
 test-cov:
 	@echo "🧪 Запуск тестов со сквозным покрытием пакетов..."
 	go test -coverprofile=coverage.out -coverpkg=./... ./...
-
-test-html: test-cov
-	@echo "🌐 Открытие отчета в браузере..."
-	go tool cover -html=coverage.out
-
-test-check: test-cov
 	@echo "🛡️ Проверка минимального порога покрытия ($(MIN_COVERAGE)%)..."
 	@TOTAL_COV=$$(go tool cover -func=coverage.out | grep "total:" | awk '{print $$3}' | sed 's/%//'); \
 	echo "📊 Текущее общее покрытие: $$TOTAL_COV%"; \
@@ -37,6 +31,10 @@ test-check: test-cov
 		echo "❌ Ошибка: Общее покрытие ($$TOTAL_COV%) ниже допустимого порога ($(MIN_COVERAGE)%)!"; \
 		exit 1; \
 	fi
+
+test-html: test-cov
+	@echo "🌐 Открытие отчета в браузере..."
+	go tool cover -html=coverage.out
 
 dir ?= ./...
 
