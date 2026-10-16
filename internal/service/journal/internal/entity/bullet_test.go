@@ -80,6 +80,7 @@ func TestNewBullet(t *testing.T) {
 				var validationErr *ValidationError
 				assert.ErrorAs(t, err, &validationErr)
 				assert.ErrorIs(t, validationErr.Err, tc.wantErr)
+				assert.Equal(t, validationErr.Error(), tc.wantErr.Error())
 				assert.Nil(t, got)
 				return
 			}
