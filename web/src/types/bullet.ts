@@ -1,4 +1,4 @@
-export type BulletType = "task" | "event" | "note";
+export type BulletType = "BULLET_TYPE_TASK" | "BULLET_TYPE_EVENT" | "BULLET_TYPE_NOTE";
 
 export type Signifier = "open" | "completed" | "migrated" | "scheduled" | "cancelled";
 
@@ -9,8 +9,8 @@ export interface Bullet {
   type: BulletType;
   signifier: Signifier;
   content: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateBulletRequest {
@@ -19,7 +19,7 @@ export interface CreateBulletRequest {
 }
 
 // GET /api/bullets отдаёт bullets уже сгруппированными по дню — новый день
-// первым, bullets внутри дня по возрастанию created_at
+// первым, bullets внутри дня по возрастанию createdAt
 export interface BulletDayGroup {
   day: string; // YYYY-MM-DD
   bullets: Bullet[];

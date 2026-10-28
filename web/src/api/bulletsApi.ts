@@ -29,7 +29,7 @@ export async function listBullets(): Promise<BulletDayGroup[]> {
   // Group bullets by day
   const dayGroups = new Map<string, Bullet[]>();
   for (const bullet of bullets) {
-    const date = new Date(bullet.created_at);
+    const date = new Date(bullet.createdAt);
     if (isNaN(date.getTime())) {
       continue; // Skip invalid dates
     }
@@ -48,11 +48,11 @@ export async function listBullets(): Promise<BulletDayGroup[]> {
   // Sort days descending (newest first)
   const sortedDays = Array.from(dayGroups.keys()).sort((a, b) => b.localeCompare(a));
 
-  // Sort bullets within each day by created_at ascending
+  // Sort bullets within each day by createdAt ascending
   return sortedDays.map((day) => ({
     day,
     bullets: dayGroups.get(day)!.sort((a, b) =>
-      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     ),
   }));
 }

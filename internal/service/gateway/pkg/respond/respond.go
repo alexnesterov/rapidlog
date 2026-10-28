@@ -35,3 +35,9 @@ func Error(w http.ResponseWriter, code int, message string) {
 		},
 	})
 }
+
+func Bytes(w http.ResponseWriter, code int, data []byte) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	w.Write(data)
+}

@@ -6,7 +6,7 @@ services:
       target: gate
     container_name: gate
     image: rapidlog-gate
-    restart: always
+    restart: unless-stopped
     ports:
       - '8082:8080'
     env_file:
@@ -22,7 +22,7 @@ services:
       target: gateway
     container_name: gateway
     image: rapidlog-gateway
-    restart: always
+    restart: unless-stopped
     ports:
       - '8080:8080'
     env_file:
@@ -39,7 +39,7 @@ services:
       target: identity
     container_name: identity
     image: rapidlog-identity
-    restart: always
+    restart: unless-stopped
     ports:
       - '50051:50051'
     env_file:
@@ -54,7 +54,7 @@ services:
       target: journal
     container_name: journal
     image: rapidlog-journal
-    restart: always
+    restart: unless-stopped
     ports:
       - '50052:50052'
     env_file:
@@ -65,7 +65,7 @@ services:
   db:
     container_name: postgres
     image: postgres
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: rapidlog
       POSTGRES_PASSWORD: rapidlog
@@ -80,7 +80,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ['CMD', 'pg_isready', '-U', 'rapidlog']
+      test: [ 'CMD', 'pg_isready', '-U', 'rapidlog' ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -88,7 +88,7 @@ services:
   adminer:
     container_name: adminer
     image: adminer
-    restart: always
+    restart: unless-stopped
     ports:
       - 8081:8080
     depends_on:
