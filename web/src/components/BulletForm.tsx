@@ -3,13 +3,13 @@ import { useCreateBulletMutation } from "../api/bulletsQueries";
 import { ApiError, type BulletType } from "../types/bullet";
 import { TYPE_LABELS, TYPE_MARKS } from "../lib/bulletMarks";
 
-const TYPES: BulletType[] = ["task", "event", "note"];
+const TYPES: BulletType[] = ["BULLET_TYPE_TASK", "BULLET_TYPE_EVENT", "BULLET_TYPE_NOTE"];
 
 export function BulletForm() {
   const createMutation = useCreateBulletMutation();
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState("");
-  const [type, setType] = useState<BulletType>("task");
+  const [type, setType] = useState<BulletType>("BULLET_TYPE_TASK");
   const [typeOpen, setTypeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitting = createMutation.isPending;
@@ -60,7 +60,7 @@ export function BulletForm() {
     try {
       await createMutation.mutateAsync({ content: title.trim(), type });
       setTitle("");
-      setType("task");
+      setType("BULLET_TYPE_TASK");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "не удалось создать запись");
     }

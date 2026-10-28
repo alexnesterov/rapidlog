@@ -1,4 +1,4 @@
-export type BulletType = "task" | "event" | "note";
+export type BulletType = "BULLET_TYPE_TASK" | "BULLET_TYPE_EVENT" | "BULLET_TYPE_NOTE";
 
 export type Signifier = "open" | "completed" | "migrated" | "scheduled" | "cancelled";
 

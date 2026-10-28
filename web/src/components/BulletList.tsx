@@ -164,7 +164,7 @@ export function BulletList({ bullets, canMigrate, onComplete, onMigrate, onCance
     <ul className="log-lines">
       {bullets.map((bullet) => {
         const closed = bullet.signifier === "completed" || bullet.signifier === "migrated" || bullet.signifier === "cancelled";
-        const canComplete = bullet.type === "task" && bullet.signifier === "open";
+        const canComplete = bullet.type === "BULLET_TYPE_TASK" && bullet.signifier === "open";
         const showMigrate = canMigrate && canComplete;
         const canCancel = bullet.signifier === "open";
         const pickerOpen = openId === bullet.id;
