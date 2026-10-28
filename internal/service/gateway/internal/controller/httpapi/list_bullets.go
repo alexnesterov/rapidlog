@@ -41,12 +41,7 @@ func (h *listBulletsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	marshalOptions := &protojson.MarshalOptions{
-		UseEnumNumbers: false,
-		UseProtoNames:  true,
-	}
-
-	data, err := marshalOptions.Marshal(resp)
+	data, err := protojson.Marshal(resp)
 	if err != nil {
 		respond.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
