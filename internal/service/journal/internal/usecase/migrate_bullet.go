@@ -7,11 +7,11 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *usecase) MigrateBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
+func (uc *usecase) MigrateBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
 	var migrated *entity.Bullet
 
-	err := s.transactor.WithTx(ctx, func(txCtx context.Context) error {
-		bullet, err := s.repo.Get(txCtx, id, userID)
+	err := uc.transactor.WithTx(ctx, func(txCtx context.Context) error {
+		bullet, err := uc.repo.Get(txCtx, id, userID)
 		if err != nil {
 			return err
 		}
@@ -21,11 +21,11 @@ func (s *usecase) MigrateBullet(ctx context.Context, id, userID uuid.UUID) (*ent
 			return err
 		}
 
-		if err := s.repo.Update(txCtx, bullet); err != nil {
+		if err := uc.repo.Update(txCtx, bullet); err != nil {
 			return err
 		}
 
-		if err := s.repo.Create(txCtx, migrated); err != nil {
+		if err := uc.repo.Create(txCtx, migrated); err != nil {
 			return err
 		}
 

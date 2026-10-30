@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *usecase) CompleteBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
-	bullet, err := s.repo.Get(ctx, id, userID)
+func (uc *usecase) CompleteBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
+	bullet, err := uc.repo.Get(ctx, id, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -22,7 +22,7 @@ func (s *usecase) CompleteBullet(ctx context.Context, id, userID uuid.UUID) (*en
 		return nil, err
 	}
 
-	if err := s.repo.Update(ctx, bullet); err != nil {
+	if err := uc.repo.Update(ctx, bullet); err != nil {
 		return nil, err
 	}
 

@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *usecase) ListBullets(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error) {
-	bullets, err := s.repo.List(ctx, userID)
+func (uc *usecase) ListBullets(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error) {
+	bullets, err := uc.repo.List(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -22,9 +22,9 @@ func (s *usecase) ListBullets(ctx context.Context, userID uuid.UUID) ([]*entity.
 		return nil, err
 	}
 
-	err = s.transactor.WithTx(ctx, func(ctx context.Context) error {
+	err = uc.transactor.WithTx(ctx, func(ctx context.Context) error {
 		for _, b := range bullets {
-			err := s.repo.Create(ctx, b)
+			err := uc.repo.Create(ctx, b)
 			if err != nil {
 				return err
 			}

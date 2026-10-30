@@ -7,13 +7,13 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 )
 
-func (s *usecase) CreateBullet(ctx context.Context, input port.CreateBulletInput) (*entity.Bullet, error) {
+func (uc *usecase) CreateBullet(ctx context.Context, input port.CreateBulletInput) (*entity.Bullet, error) {
 	bullet, err := entity.NewBullet(input.UserID, input.Type, input.Content)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := s.repo.Create(ctx, bullet); err != nil {
+	if err := uc.repo.Create(ctx, bullet); err != nil {
 		return nil, err
 	}
 
