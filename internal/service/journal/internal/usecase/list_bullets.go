@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *bulletService) ListBullets(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error) {
+func (s *usecase) ListBullets(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error) {
 	bullets, err := s.repo.List(ctx, userID)
 	if err != nil {
 		return nil, err

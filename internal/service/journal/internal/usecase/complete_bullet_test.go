@@ -19,7 +19,7 @@ type CompleteBulletUseCaseSuite struct {
 	suite.Suite
 	mockBulletRepo *mocks.MockBulletRepository
 	mockTxMgr      *mocksTransactor.MockTransactor
-	uc             port.BulletService
+	uc             port.Usecase
 }
 
 func TestCompleteBulletUseCaseSuite(t *testing.T) {
@@ -29,7 +29,7 @@ func TestCompleteBulletUseCaseSuite(t *testing.T) {
 func (s *CompleteBulletUseCaseSuite) SetupTest() {
 	s.mockBulletRepo = mocks.NewMockBulletRepository(s.T())
 	s.mockTxMgr = mocksTransactor.NewMockTransactor(s.T())
-	s.uc = usecase.NewBulletService(s.mockBulletRepo, s.mockTxMgr)
+	s.uc = usecase.New(s.mockBulletRepo, s.mockTxMgr)
 }
 
 func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_Success() {

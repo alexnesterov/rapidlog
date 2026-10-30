@@ -36,10 +36,10 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 
 	txMgr := transactor.NewTxManager(pool)
 	repository := postgres.NewBulletRepository(pool)
-	service := usecase.NewBulletService(repository, txMgr)
+	usecase := usecase.New(repository, txMgr)
 
 	journalServer := &grpcapi.JournalServer{
-		Usecase: service,
+		Usecase: usecase,
 		Logger:  logger,
 	}
 

@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *bulletService) CompleteBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
+func (s *usecase) CompleteBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
 	bullet, err := s.repo.Get(ctx, id, userID)
 	if err != nil {
 		return nil, err

@@ -9,6 +9,6 @@ import (
 
 type JournalServer struct {
 	journalv1.UnimplementedJournalServiceServer
-	Usecase port.BulletService
+	Usecase port.Usecase
 	Logger  *slog.Logger
 }

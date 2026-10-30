@@ -13,7 +13,7 @@ type CreateBulletInput struct {
 	UserID  uuid.UUID `json:"-"`
 }
 
-type BulletService interface {
+type Usecase interface {
 	CreateBullet(ctx context.Context, input CreateBulletInput) (*entity.Bullet, error)
 	ListBullets(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error)
 	CompleteBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error)

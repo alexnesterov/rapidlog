@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *bulletService) MigrateBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
+func (s *usecase) MigrateBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
 	var migrated *entity.Bullet
 
 	err := s.transactor.WithTx(ctx, func(txCtx context.Context) error {

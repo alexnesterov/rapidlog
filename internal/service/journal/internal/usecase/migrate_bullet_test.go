@@ -66,7 +66,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
 		}).
 		Once()
 
-	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
+	uc := usecase.New(mockRepo, mockTxMgr)
 
 	got, err := uc.MigrateBullet(context.Background(), id, userID)
 
@@ -94,7 +94,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotFound() {
 		}).
 		Once()
 
-	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
+	uc := usecase.New(mockRepo, mockTxMgr)
 
 	_, err := uc.MigrateBullet(context.Background(), id, userID)
 	s.Error(err)
@@ -128,7 +128,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_UpdateError() {
 		}).
 		Once()
 
-	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
+	uc := usecase.New(mockRepo, mockTxMgr)
 
 	got, err := uc.MigrateBullet(context.Background(), id, userID)
 	s.Nil(got)
@@ -166,7 +166,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_CreateError() {
 		}).
 		Once()
 
-	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
+	uc := usecase.New(mockRepo, mockTxMgr)
 
 	got, err := uc.MigrateBullet(context.Background(), id, userID)
 	s.Nil(got)
@@ -195,7 +195,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotOpenTask() {
 		}).
 		Once()
 
-	uc := usecase.NewBulletService(mockRepo, mockTxMgr)
+	uc := usecase.New(mockRepo, mockTxMgr)
 
 	got, err := uc.MigrateBullet(context.Background(), id, userID)
 	s.Nil(got)
