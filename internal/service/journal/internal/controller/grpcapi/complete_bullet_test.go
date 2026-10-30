@@ -20,6 +20,9 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 	bullet, err := entity.NewBullet(uuid.New(), entity.BulletTask, "test")
 	require.NoError(t, err)
 
+	err = bullet.Complete()
+	require.NoError(t, err)
+
 	protoBullet, err := grpcapi.ToProtoBullet(bullet)
 	require.NoError(t, err)
 
