@@ -3,7 +3,6 @@ package grpcapi_test
 import (
 	"log/slog"
 	"testing"
-	"time"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
@@ -15,33 +14,42 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestJournalServer_CreateBullet(t *testing.T) {
-	fixedID := uuid.New()
-	fixedUserID := uuid.New()
-	fixedTime := time.Now()
+	bullet, err := entity.NewBullet(uuid.New(), entity.BulletTask, "test")
+	require.NoError(t, err)
+
+	protoBullet, err := grpcapi.ToProtoBullet(bullet)
+	require.NoError(t, err)
 
 	tests := []struct {
 		name      string
-		setupMock func(*mocks.MockBulletService)
 		req       *journalv1.CreateBulletRequest
 		want      *journalv1.CreateBulletResponse
 		wantErr   error
+		setupMock func(*mocks.MockBulletService)
 	}{
 		{
-			name:      "parse user id error",
-			setupMock: func(_ *mocks.MockBulletService) {},
+			name: "parse user id error",
 			req: &journalv1.CreateBulletRequest{
 				UserId:  "invalid-uuid",
 				Type:    journalv1.BulletType_BULLET_TYPE_TASK,
 				Content: "test",
 			},
-			wantErr: status.Error(codes.InvalidArgument, "invalid user id"),
+			want:      nil,
+			wantErr:   status.Error(codes.InvalidArgument, "invalid user id"),
+			setupMock: func(_ *mocks.MockBulletService) {},
 		},
 		{
 			name: "usecase create bullet error",
+			req: &journalv1.CreateBulletRequest{
+				UserId:  protoBullet.UserId,
+				Type:    protoBullet.Type,
+				Content: protoBullet.Content,
+			},
+			want:    nil,
+			wantErr: status.Error(codes.Internal, "internal error"),
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
 					CreateBullet(
@@ -51,15 +59,16 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 					Return(nil, assert.AnError).
 					Once()
 			},
-			req: &journalv1.CreateBulletRequest{
-				UserId:  fixedUserID.String(),
-				Type:    journalv1.BulletType_BULLET_TYPE_TASK,
-				Content: "test",
-			},
-			wantErr: status.Error(codes.Internal, "internal error"),
 		},
 		{
 			name: "usecase validation error",
+			req: &journalv1.CreateBulletRequest{
+				UserId:  protoBullet.UserId,
+				Type:    protoBullet.Type,
+				Content: protoBullet.Content,
+			},
+			want:    nil,
+			wantErr: status.Error(codes.InvalidArgument, assert.AnError.Error()),
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
 					CreateBullet(
@@ -69,88 +78,59 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 					Return(nil, &entity.ValidationError{Err: assert.AnError}).
 					Once()
 			},
-			req: &journalv1.CreateBulletRequest{
-				UserId:  fixedUserID.String(),
-				Type:    journalv1.BulletType_BULLET_TYPE_TASK,
-				Content: "test",
-			},
-			wantErr: status.Error(codes.InvalidArgument, assert.AnError.Error()),
 		},
 		{
 			name: "convert bullet to proto error",
+			req: &journalv1.CreateBulletRequest{
+				UserId:  protoBullet.UserId,
+				Type:    protoBullet.Type,
+				Content: protoBullet.Content,
+			},
+			want:    nil,
+			wantErr: status.Error(codes.Internal, "internal error"),
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
 					CreateBullet(
 						mock.Anything,
 						mock.Anything,
 					).
-					Return(&entity.Bullet{
-						ID:        fixedID,
-						UserID:    fixedUserID,
-						Type:      entity.BulletType("test"),
-						Signifier: entity.SignifierOpen,
-						Content:   "test",
-						CreatedAt: fixedTime,
-						UpdatedAt: fixedTime,
-					}, nil).
+					Return(&entity.Bullet{}, nil).
 					Once()
 			},
-			req: &journalv1.CreateBulletRequest{
-				UserId:  fixedUserID.String(),
-				Type:    journalv1.BulletType_BULLET_TYPE_TASK,
-				Content: "test",
-			},
-			wantErr: status.Error(codes.Internal, "internal error"),
 		},
 		{
 			name: "success",
+			req: &journalv1.CreateBulletRequest{
+				UserId:  protoBullet.UserId,
+				Type:    protoBullet.Type,
+				Content: protoBullet.Content,
+			},
+			want: &journalv1.CreateBulletResponse{
+				Data: protoBullet,
+			},
+			wantErr: nil,
 			setupMock: func(m *mocks.MockBulletService) {
 				m.EXPECT().
 					CreateBullet(
 						mock.Anything,
 						mock.Anything,
 					).
-					Return(&entity.Bullet{
-						ID:        fixedID,
-						UserID:    fixedUserID,
-						Type:      entity.BulletTask,
-						Signifier: entity.SignifierOpen,
-						Content:   "test",
-						CreatedAt: fixedTime,
-						UpdatedAt: fixedTime,
-					}, nil).
+					Return(bullet, nil).
 					Once()
 			},
-			req: &journalv1.CreateBulletRequest{
-				UserId:  fixedUserID.String(),
-				Type:    journalv1.BulletType_BULLET_TYPE_TASK,
-				Content: "test",
-			},
-			want: &journalv1.CreateBulletResponse{
-				Data: &journalv1.Bullet{
-					Id:        fixedID.String(),
-					UserId:    fixedUserID.String(),
-					Type:      journalv1.BulletType_BULLET_TYPE_TASK,
-					Signifier: journalv1.Signifier_SIGNIFIER_OPEN,
-					Content:   "test",
-					CreatedAt: timestamppb.New(fixedTime),
-					UpdatedAt: timestamppb.New(fixedTime),
-				},
-			},
-			wantErr: nil,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockBulletService := mocks.NewMockBulletService(t)
-			tt.setupMock(mockBulletService)
+			bulletServiceMock := mocks.NewMockBulletService(t)
+			tt.setupMock(bulletServiceMock)
 
-			var s grpcapi.JournalServer
-			s.Usecase = mockBulletService
-			s.Logger = slog.Default()
+			s := &grpcapi.JournalServer{
+				Usecase: bulletServiceMock,
+				Logger:  slog.Default(),
+			}
 
 			got, gotErr := s.CreateBullet(t.Context(), tt.req)
-
 			if tt.wantErr != nil {
 				require.Error(t, gotErr)
 				assert.Equal(t, tt.wantErr, gotErr)
