@@ -1,0 +1,24 @@
+meta {
+  name: CancelBullet
+  type: grpc
+  seq: 4
+}
+
+grpc {
+  url: localhost:50052
+  method: /journal.v1.JournalService/CancelBullet
+  body: grpc
+  protoPath: ../proto/journal/v1/journal.proto
+  auth: none
+  methodType: unary
+}
+
+body:grpc {
+  name: message 1
+  content: '''
+    {
+      "id": "940dc7ec-e4ce-41ef-acd6-8d15499bcb26",
+      "user_id": "9b407c26-c6a5-4fd7-b2d5-8b1f2923873b"
+    }
+  '''
+}
