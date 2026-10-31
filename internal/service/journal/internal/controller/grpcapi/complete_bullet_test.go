@@ -137,12 +137,9 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 			bulletServiceMock := mocks.NewMockBulletService(t)
 			tt.setupMock(bulletServiceMock)
 
-			var s grpcapi.JournalServer
-			s.Usecase = bulletServiceMock
-			s.Logger = slog.Default()
+			s := grpcapi.NewJournalService(bulletServiceMock, slog.Default())
 
 			got, gotErr := s.CompleteBullet(t.Context(), tt.req)
-
 			if tt.wantErr != nil {
 				require.Error(t, gotErr)
 				assert.Equal(t, tt.wantErr, gotErr)

@@ -14,13 +14,13 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 )
 
-func (s *JournalServer) CreateBullet(
+func (s *JournalService) CreateBullet(
 	ctx context.Context,
 	req *journalv1.CreateBulletRequest,
 ) (*journalv1.CreateBulletResponse, error) {
 	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
-		s.Logger.Warn("invalid user id", "user_id", req.GetUserId(), "error", err)
+		s.logger.Warn("invalid user id", "user_id", req.GetUserId(), "error", err)
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
@@ -30,21 +30,21 @@ func (s *JournalServer) CreateBullet(
 		Content: req.GetContent(),
 	}
 
-	bullet, err := s.Usecase.CreateBullet(ctx, input)
+	bullet, err := s.usecase.CreateBullet(ctx, input)
 	if err != nil {
 		var validationErr *entity.ValidationError
 		if errors.As(err, &validationErr) {
-			s.Logger.Warn("invalid create bullet request", "error", err)
+			s.logger.Warn("invalid create bullet request", "error", err)
 			return nil, status.Error(codes.InvalidArgument, validationErr.Error())
 		}
 
-		s.Logger.Error("failed to create bullet", "error", err)
+		s.logger.Error("failed to create bullet", "error", err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
 	data, err := ToProtoBullet(bullet)
 	if err != nil {
-		s.Logger.Error("failed to convert bullet to proto",
+		s.logger.Error("failed to convert bullet to proto",
 			"bullet_id", bullet.ID,
 			"user_id", bullet.UserID,
 			"error", err,
