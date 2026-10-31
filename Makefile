@@ -41,6 +41,11 @@ dir ?= ./...
 test-tdd:
 	@echo "🔄 [TDD] Запуск тестов в $(dir)..."
 	@go test -v -count=1 $(dir) && echo "🟩 [GREEN] Отлично! Все тесты прошли." || (echo "🟥 [RED] Тесты упали! Исправляй код." && exit 1)
+	
+mock:
+	@echo "🔄 Генерация mock файлов..."
+	@mockery
+	@echo "✅ Mock файлы сгенерированы!"
 
 buf:
 	@echo "🔄 Генерация buf файлов..."
