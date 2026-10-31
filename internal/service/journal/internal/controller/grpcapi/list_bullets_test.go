@@ -34,7 +34,7 @@ func TestListBullets(t *testing.T) {
 	cases := []struct {
 		name      string
 		req       *journalv1.ListBulletsRequest
-		setupMock func(m *mocks.MockBulletService)
+		setupMock func(m *mocks.MockUsecase)
 		wantErr   error
 		wantData  []*journalv1.Bullet
 	}{
@@ -43,7 +43,7 @@ func TestListBullets(t *testing.T) {
 			req: &journalv1.ListBulletsRequest{
 				UserId: userID.String(),
 			},
-			setupMock: func(m *mocks.MockBulletService) {
+			setupMock: func(m *mocks.MockUsecase) {
 				m.EXPECT().
 					ListBullets(
 						mock.Anything,
@@ -68,7 +68,7 @@ func TestListBullets(t *testing.T) {
 			req: &journalv1.ListBulletsRequest{
 				UserId: userID.String(),
 			},
-			setupMock: func(m *mocks.MockBulletService) {
+			setupMock: func(m *mocks.MockUsecase) {
 				m.EXPECT().
 					ListBullets(
 						mock.Anything,
@@ -113,7 +113,7 @@ func TestListBullets(t *testing.T) {
 			req: &journalv1.ListBulletsRequest{
 				UserId: "invalid-uuid",
 			},
-			setupMock: func(m *mocks.MockBulletService) {},
+			setupMock: func(m *mocks.MockUsecase) {},
 			wantErr:   status.Error(codes.InvalidArgument, codes.InvalidArgument.String()),
 			wantData:  nil,
 		},
@@ -122,7 +122,7 @@ func TestListBullets(t *testing.T) {
 			req: &journalv1.ListBulletsRequest{
 				UserId: userID.String(),
 			},
-			setupMock: func(m *mocks.MockBulletService) {
+			setupMock: func(m *mocks.MockUsecase) {
 				m.EXPECT().
 					ListBullets(
 						mock.Anything,
@@ -139,7 +139,7 @@ func TestListBullets(t *testing.T) {
 			req: &journalv1.ListBulletsRequest{
 				UserId: userID.String(),
 			},
-			setupMock: func(m *mocks.MockBulletService) {
+			setupMock: func(m *mocks.MockUsecase) {
 				m.EXPECT().
 					ListBullets(
 						mock.Anything,
@@ -155,10 +155,10 @@ func TestListBullets(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			bulletServiceMock := mocks.NewMockBulletService(t)
-			tc.setupMock(bulletServiceMock)
+			usecaseMock := mocks.NewMockUsecase(t)
+			tc.setupMock(usecaseMock)
 
-			s := grpcapi.NewJournalService(bulletServiceMock, slog.Default())
+			s := grpcapi.NewJournalService(usecaseMock, slog.Default())
 
 			got, gotErr := s.ListBullets(t.Context(), tc.req)
 			if tc.wantErr != nil {
