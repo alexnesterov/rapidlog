@@ -7,7 +7,6 @@ import (
 	"net"
 	"time"
 
-	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/pkg/transactor"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/config"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/adapter/postgres"
@@ -38,18 +37,13 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	repository := postgres.NewBulletRepository(pool)
 	usecase := usecase.New(repository, txMgr)
 
-	journalServer := &grpcapi.JournalServer{
-		Usecase: usecase,
-		Logger:  logger,
-	}
-
 	ln, err := net.Listen("tcp", ":"+cfg.Port)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
 
 	grpcServer := grpc.NewServer()
-	journalv1.RegisterJournalServiceServer(grpcServer, journalServer)
+	grpcapi.RegisterJournalService(grpcServer, usecase, logger)
 
 	go func() {
 		logger.Info("gRPC server listening", "port", cfg.Port)

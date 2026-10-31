@@ -1,7 +1,7 @@
 package grpcapi_test
 
 import (
-	"context"
+	"log/slog"
 	"testing"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
@@ -155,23 +155,23 @@ func TestListBullets(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			mockBulletService := mocks.NewMockBulletService(t)
-			tc.setupMock(mockBulletService)
+			bulletServiceMock := mocks.NewMockBulletService(t)
+			tc.setupMock(bulletServiceMock)
 
-			journalServer := &grpcapi.JournalServer{Usecase: mockBulletService}
-			resp, err := journalServer.ListBullets(context.Background(), tc.req)
+			s := grpcapi.NewJournalService(bulletServiceMock, slog.Default())
 
+			got, gotErr := s.ListBullets(t.Context(), tc.req)
 			if tc.wantErr != nil {
-				require.Nil(t, resp)
-				assert.ErrorIs(t, err, tc.wantErr)
+				require.Nil(t, got)
+				assert.ErrorIs(t, gotErr, tc.wantErr)
 				return
 			}
 
-			require.NoError(t, err)
-			assert.Len(t, resp.GetData(), len(tc.wantData))
+			require.NoError(t, gotErr)
+			assert.Len(t, got.GetData(), len(tc.wantData))
 			for i, want := range tc.wantData {
-				if !proto.Equal(resp.GetData()[i], want) {
-					t.Errorf("Bullet %d does not match\nwant: %v\n got: %v", i, want, resp.GetData()[i])
+				if !proto.Equal(got.GetData()[i], want) {
+					t.Errorf("Bullet %d does not match\nwant: %v\n got: %v", i, want, got.GetData()[i])
 				}
 			}
 		})

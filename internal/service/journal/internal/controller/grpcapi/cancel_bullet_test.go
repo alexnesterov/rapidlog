@@ -137,10 +137,7 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 			bulletServiceMock := mocks.NewMockBulletService(t)
 			tt.setupMock(bulletServiceMock)
 
-			s := &grpcapi.JournalServer{
-				Usecase: bulletServiceMock,
-				Logger:  slog.Default(),
-			}
+			s := grpcapi.NewJournalService(bulletServiceMock, slog.Default())
 
 			got, gotErr := s.CancelBullet(t.Context(), tt.req)
 			if tt.wantErr != nil {

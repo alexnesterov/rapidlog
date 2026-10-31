@@ -9,13 +9,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *JournalServer) ListBullets(ctx context.Context, req *journalv1.ListBulletsRequest) (*journalv1.ListBulletsResponse, error) {
+func (s *JournalService) ListBullets(ctx context.Context, req *journalv1.ListBulletsRequest) (*journalv1.ListBulletsResponse, error) {
 	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, codes.InvalidArgument.String())
 	}
 
-	bullets, err := s.Usecase.ListBullets(ctx, userID)
+	bullets, err := s.usecase.ListBullets(ctx, userID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, codes.Internal.String())
 	}
