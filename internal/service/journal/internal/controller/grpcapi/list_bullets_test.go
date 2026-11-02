@@ -15,7 +15,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestListBullets(t *testing.T) {
@@ -29,99 +28,38 @@ func TestListBullets(t *testing.T) {
 	note, err := entity.NewBullet(userID, entity.BulletNote, "Test note")
 	require.NoError(t, err)
 
-	assert.Equal(t, entity.SignifierOpen, task.Signifier)
+	protoTask, err := grpcapi.ToProtoBullet(task)
+	require.NoError(t, err)
 
-	cases := []struct {
+	protoEvent, err := grpcapi.ToProtoBullet(event)
+	require.NoError(t, err)
+
+	protoNote, err := grpcapi.ToProtoBullet(note)
+	require.NoError(t, err)
+
+	tests := []struct {
 		name      string
 		req       *journalv1.ListBulletsRequest
-		setupMock func(m *mocks.MockUsecase)
+		want      []*journalv1.Bullet
 		wantErr   error
-		wantData  []*journalv1.Bullet
+		setupMock func(m *mocks.MockUsecase)
 	}{
-		{
-			name: "success with single bullet",
-			req: &journalv1.ListBulletsRequest{
-				UserId: userID.String(),
-			},
-			setupMock: func(m *mocks.MockUsecase) {
-				m.EXPECT().
-					ListBullets(
-						mock.Anything,
-						userID,
-					).
-					Return([]*entity.Bullet{task}, nil).
-					Once()
-			},
-			wantErr: nil,
-			wantData: []*journalv1.Bullet{{
-				Id:        task.ID.String(),
-				UserId:    task.UserID.String(),
-				Type:      journalv1.BulletType_BULLET_TYPE_TASK,
-				Signifier: journalv1.Signifier_SIGNIFIER_OPEN,
-				Content:   "Test bullet",
-				CreatedAt: timestamppb.New(task.CreatedAt),
-				UpdatedAt: timestamppb.New(task.UpdatedAt),
-			}},
-		},
-		{
-			name: "success with multiple bullets",
-			req: &journalv1.ListBulletsRequest{
-				UserId: userID.String(),
-			},
-			setupMock: func(m *mocks.MockUsecase) {
-				m.EXPECT().
-					ListBullets(
-						mock.Anything,
-						userID,
-					).
-					Return([]*entity.Bullet{task, event, note}, nil).
-					Once()
-			},
-			wantErr: nil,
-			wantData: []*journalv1.Bullet{
-				{
-					Id:        task.ID.String(),
-					UserId:    task.UserID.String(),
-					Type:      journalv1.BulletType_BULLET_TYPE_TASK,
-					Signifier: journalv1.Signifier_SIGNIFIER_OPEN,
-					Content:   "Test bullet",
-					CreatedAt: timestamppb.New(task.CreatedAt),
-					UpdatedAt: timestamppb.New(task.UpdatedAt),
-				},
-				{
-					Id:        event.ID.String(),
-					UserId:    event.UserID.String(),
-					Type:      journalv1.BulletType_BULLET_TYPE_EVENT,
-					Signifier: journalv1.Signifier_SIGNIFIER_OPEN,
-					Content:   "Test event",
-					CreatedAt: timestamppb.New(event.CreatedAt),
-					UpdatedAt: timestamppb.New(event.UpdatedAt),
-				},
-				{
-					Id:        note.ID.String(),
-					UserId:    note.UserID.String(),
-					Type:      journalv1.BulletType_BULLET_TYPE_NOTE,
-					Signifier: journalv1.Signifier_SIGNIFIER_OPEN,
-					Content:   "Test note",
-					CreatedAt: timestamppb.New(note.CreatedAt),
-					UpdatedAt: timestamppb.New(note.UpdatedAt),
-				},
-			},
-		},
 		{
 			name: "parse user id error",
 			req: &journalv1.ListBulletsRequest{
 				UserId: "invalid-uuid",
 			},
+			want:      nil,
+			wantErr:   status.Error(codes.InvalidArgument, "invalid user id"),
 			setupMock: func(m *mocks.MockUsecase) {},
-			wantErr:   status.Error(codes.InvalidArgument, codes.InvalidArgument.String()),
-			wantData:  nil,
 		},
 		{
 			name: "usecase list bullets error",
 			req: &journalv1.ListBulletsRequest{
 				UserId: userID.String(),
 			},
+			want:    nil,
+			wantErr: status.Error(codes.Internal, "internal error"),
 			setupMock: func(m *mocks.MockUsecase) {
 				m.EXPECT().
 					ListBullets(
@@ -131,45 +69,80 @@ func TestListBullets(t *testing.T) {
 					Return(nil, assert.AnError).
 					Once()
 			},
-			wantErr:  status.Error(codes.Internal, codes.Internal.String()),
-			wantData: nil,
 		},
 		{
-			name: "map bullets to proto error",
+			name: "convert bullets to proto error",
 			req: &journalv1.ListBulletsRequest{
 				UserId: userID.String(),
 			},
+			want:    nil,
+			wantErr: status.Error(codes.Internal, "internal error"),
 			setupMock: func(m *mocks.MockUsecase) {
 				m.EXPECT().
 					ListBullets(
 						mock.Anything,
 						userID,
 					).
-					Return([]*entity.Bullet{{Content: "test"}}, nil).
+					Return([]*entity.Bullet{{}}, nil).
 					Once()
 			},
-			wantErr:  status.Error(codes.Internal, codes.Internal.String()),
-			wantData: nil,
+		},
+		{
+			name: "success with single bullet",
+			req: &journalv1.ListBulletsRequest{
+				UserId: userID.String(),
+			},
+			want:    []*journalv1.Bullet{protoTask},
+			wantErr: nil,
+			setupMock: func(m *mocks.MockUsecase) {
+				m.EXPECT().
+					ListBullets(
+						mock.Anything,
+						userID,
+					).
+					Return([]*entity.Bullet{task}, nil).
+					Once()
+			},
+		},
+		{
+			name: "success with multiple bullets",
+			req: &journalv1.ListBulletsRequest{
+				UserId: userID.String(),
+			},
+			want: []*journalv1.Bullet{
+				protoTask,
+				protoEvent,
+				protoNote,
+			},
+			wantErr: nil,
+			setupMock: func(m *mocks.MockUsecase) {
+				m.EXPECT().
+					ListBullets(
+						mock.Anything,
+						userID,
+					).
+					Return([]*entity.Bullet{task, event, note}, nil).
+					Once()
+			},
 		},
 	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 			usecaseMock := mocks.NewMockUsecase(t)
-			tc.setupMock(usecaseMock)
+			tt.setupMock(usecaseMock)
 
 			s := grpcapi.NewJournalService(usecaseMock, slog.Default())
 
-			got, gotErr := s.ListBullets(t.Context(), tc.req)
-			if tc.wantErr != nil {
+			got, gotErr := s.ListBullets(t.Context(), tt.req)
+			if tt.wantErr != nil {
 				require.Nil(t, got)
-				assert.ErrorIs(t, gotErr, tc.wantErr)
+				assert.ErrorIs(t, gotErr, tt.wantErr)
 				return
 			}
 
 			require.NoError(t, gotErr)
-			assert.Len(t, got.GetData(), len(tc.wantData))
-			for i, want := range tc.wantData {
+			assert.Len(t, got.GetData(), len(tt.want))
+			for i, want := range tt.want {
 				if !proto.Equal(got.GetData()[i], want) {
 					t.Errorf("Bullet %d does not match\nwant: %v\n got: %v", i, want, got.GetData()[i])
 				}

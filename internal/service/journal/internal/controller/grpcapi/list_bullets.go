@@ -12,20 +12,26 @@ import (
 func (s *JournalService) ListBullets(ctx context.Context, req *journalv1.ListBulletsRequest) (*journalv1.ListBulletsResponse, error) {
 	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, codes.InvalidArgument.String())
+		s.logger.Warn("invalid user id", "user_id", req.GetUserId(), "error", err)
+		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
 	bullets, err := s.usecase.ListBullets(ctx, userID)
 	if err != nil {
-		return nil, status.Error(codes.Internal, codes.Internal.String())
+		s.logger.Error("failed to list bullets", "error", err)
+		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	bulletsProto, err := ToProtoBullets(bullets)
+	data, err := ToProtoBullets(bullets)
 	if err != nil {
-		return nil, status.Error(codes.Internal, codes.Internal.String())
+		s.logger.Error("failed to convert bullets to proto",
+			"user_id", userID,
+			"error", err,
+		)
+		return nil, status.Error(codes.Internal, "internal error")
 	}
 
 	return &journalv1.ListBulletsResponse{
-		Data: bulletsProto,
+		Data: data,
 	}, nil
 }
