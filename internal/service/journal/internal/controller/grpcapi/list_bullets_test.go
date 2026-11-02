@@ -17,7 +17,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func TestListBullets(t *testing.T) {
+func TestJournalServer_ListBullets(t *testing.T) {
 	userID := uuid.New()
 	task, err := entity.NewBullet(userID, entity.BulletTask, "Test bullet")
 	require.NoError(t, err)
