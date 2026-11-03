@@ -36,18 +36,18 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	router := http.NewServeMux()
 
 	router.HandleFunc("/health", httpapi.NewHealthHandler())
-	router.HandleFunc("POST /api/bullets", httpapi.NewCreateBulletHandler(journalClient, logger))
-	router.HandleFunc("GET /api/bullets", httpapi.NewListBulletsHandler(journalClient))
+	router.Handle("POST /api/bullets", httpapi.NewCreateBulletHandler(journalClient, logger))
+	router.Handle("GET /api/bullets", httpapi.NewListBulletsHandler(journalClient))
 
-	router.HandleFunc("POST /api/bullets/{id}/complete",
+	router.Handle("POST /api/bullets/{id}/complete",
 		httpapi.NewCompleteBulletHandler(journalClient, logger),
 	)
 
-	router.HandleFunc("POST /api/bullets/{id}/migrate",
+	router.Handle("POST /api/bullets/{id}/migrate",
 		httpapi.NewMigrateBulletHandler(journalClient, logger),
 	)
 
-	router.HandleFunc("POST /api/bullets/{id}/cancel",
+	router.Handle("POST /api/bullets/{id}/cancel",
 		httpapi.NewCancelBulletHandler(journalClient, logger),
 	)
 

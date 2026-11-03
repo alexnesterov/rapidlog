@@ -12,7 +12,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-type createBulletClient interface {
+type CreateBulletClient interface {
 	CreateBullet(
 		ctx context.Context,
 		in *journalv1.CreateBulletRequest,
@@ -20,17 +20,16 @@ type createBulletClient interface {
 	) (*journalv1.CreateBulletResponse, error)
 }
 
-type createBulletHandler struct {
-	api    createBulletClient
+type CreateBulletHandler struct {
+	api    CreateBulletClient
 	logger *slog.Logger
 }
 
-func NewCreateBulletHandler(api createBulletClient, logger *slog.Logger) http.HandlerFunc {
-	h := &createBulletHandler{api: api, logger: logger}
-	return h.Handle
+func NewCreateBulletHandler(api CreateBulletClient, logger *slog.Logger) *CreateBulletHandler {
+	return &CreateBulletHandler{api: api, logger: logger}
 }
 
-func (h *createBulletHandler) Handle(w http.ResponseWriter, r *http.Request) {
+func (h *CreateBulletHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID, ok := UserIDFromContext(r.Context())
 	if !ok {
 		respond.Error(w, http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))

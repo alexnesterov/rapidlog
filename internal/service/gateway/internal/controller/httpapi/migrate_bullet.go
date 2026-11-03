@@ -12,7 +12,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-type migrateBulletClient interface {
+type MigrateBulletClient interface {
 	MigrateBullet(
 		ctx context.Context,
 		in *journalv1.MigrateBulletRequest,
@@ -20,17 +20,16 @@ type migrateBulletClient interface {
 	) (*journalv1.MigrateBulletResponse, error)
 }
 
-type migrateBulletHandler struct {
-	api    migrateBulletClient
+type MigrateBulletHandler struct {
+	api    MigrateBulletClient
 	logger *slog.Logger
 }
 
-func NewMigrateBulletHandler(api migrateBulletClient, logger *slog.Logger) http.HandlerFunc {
-	h := &migrateBulletHandler{api: api, logger: logger}
-	return h.Handle
+func NewMigrateBulletHandler(api MigrateBulletClient, logger *slog.Logger) *MigrateBulletHandler {
+	return &MigrateBulletHandler{api: api, logger: logger}
 }
 
-func (h *migrateBulletHandler) Handle(w http.ResponseWriter, r *http.Request) {
+func (h *MigrateBulletHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID, ok := UserIDFromContext(r.Context())
 	if !ok {
 		h.logger.Error("user id not found in context")

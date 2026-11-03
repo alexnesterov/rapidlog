@@ -12,7 +12,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-type completeBulletClient interface {
+type CompleteBulletClient interface {
 	CompleteBullet(
 		ctx context.Context,
 		in *journalv1.CompleteBulletRequest,
@@ -20,17 +20,16 @@ type completeBulletClient interface {
 	) (*journalv1.CompleteBulletResponse, error)
 }
 
-type completeBulletHandler struct {
-	api    completeBulletClient
+type CompleteBulletHandler struct {
+	api    CompleteBulletClient
 	logger *slog.Logger
 }
 
-func NewCompleteBulletHandler(api completeBulletClient, logger *slog.Logger) http.HandlerFunc {
-	h := &completeBulletHandler{api: api, logger: logger}
-	return h.Handle
+func NewCompleteBulletHandler(api CompleteBulletClient, logger *slog.Logger) *CompleteBulletHandler {
+	return &CompleteBulletHandler{api: api, logger: logger}
 }
 
-func (h *completeBulletHandler) Handle(w http.ResponseWriter, r *http.Request) {
+func (h *CompleteBulletHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID, ok := UserIDFromContext(r.Context())
 	if !ok {
 		h.logger.Error("user id not found in context")

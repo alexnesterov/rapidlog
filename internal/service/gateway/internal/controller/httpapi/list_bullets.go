@@ -10,20 +10,23 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-type listBulletsClient interface {
-	ListBullets(ctx context.Context, in *journalv1.ListBulletsRequest, opts ...grpc.CallOption) (*journalv1.ListBulletsResponse, error)
+type ListBulletsClient interface {
+	ListBullets(
+		ctx context.Context,
+		in *journalv1.ListBulletsRequest,
+		opts ...grpc.CallOption,
+	) (*journalv1.ListBulletsResponse, error)
 }
 
-type listBulletsHandler struct {
-	api listBulletsClient
+type ListBulletsHandler struct {
+	api ListBulletsClient
 }
 
-func NewListBulletsHandler(api listBulletsClient) http.HandlerFunc {
-	h := &listBulletsHandler{api: api}
-	return h.Handle
+func NewListBulletsHandler(api ListBulletsClient) *ListBulletsHandler {
+	return &ListBulletsHandler{api: api}
 }
 
-func (h *listBulletsHandler) Handle(w http.ResponseWriter, r *http.Request) {
+func (h *ListBulletsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID, ok := UserIDFromContext(r.Context())
 	if !ok {
 		respond.Error(w, http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))
