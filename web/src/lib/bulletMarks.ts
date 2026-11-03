@@ -9,8 +9,8 @@ export const TYPE_MARKS: Record<BulletType, () => ReactElement> = {
 };
 
 export const SIGNIFIER_MARKS: Partial<Record<Signifier, () => ReactElement>> = {
-  completed: CompletedMark,
-  migrated: MigratedMark,
+  SIGNIFIER_COMPLETED: CompletedMark,
+  SIGNIFIER_MIGRATED: MigratedMark,
 };
 
 export const TYPE_LABELS: Record<BulletType, string> = {

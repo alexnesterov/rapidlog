@@ -50,7 +50,7 @@ export function useCompleteBulletMutation() {
       await queryClient.cancelQueries({ queryKey: bulletsQueryKey });
       const previous = queryClient.getQueryData<BulletDayGroup[]>(bulletsQueryKey);
       queryClient.setQueryData<BulletDayGroup[]>(bulletsQueryKey, (prev) =>
-        prev ? replaceBullet(prev, { ...bullet, signifier: "completed" }) : prev,
+        prev ? replaceBullet(prev, { ...bullet, signifier: "SIGNIFIER_COMPLETED" }) : prev,
       );
       return { previous };
     },
@@ -71,7 +71,7 @@ export function useCancelBulletMutation() {
       await queryClient.cancelQueries({ queryKey: bulletsQueryKey });
       const previous = queryClient.getQueryData<BulletDayGroup[]>(bulletsQueryKey);
       queryClient.setQueryData<BulletDayGroup[]>(bulletsQueryKey, (prev) =>
-        prev ? replaceBullet(prev, { ...bullet, signifier: "cancelled" }) : prev,
+        prev ? replaceBullet(prev, { ...bullet, signifier: "SIGNIFIER_CANCELLED" }) : prev,
       );
       return { previous };
     },
@@ -94,7 +94,7 @@ export function useMigrateBulletMutation() {
       // Оптимистично закрываем только исходную строку; новую "сегодняшнюю"
       // запись добавляем в onSuccess, когда известны её реальные id/content.
       queryClient.setQueryData<BulletDayGroup[]>(bulletsQueryKey, (prev) =>
-        prev ? replaceBullet(prev, { ...vars.bullet, signifier: "migrated" }) : prev,
+        prev ? replaceBullet(prev, { ...vars.bullet, signifier: "SIGNIFIER_MIGRATED" }) : prev,
       );
       return { previous };
     },
@@ -104,7 +104,7 @@ export function useMigrateBulletMutation() {
     onSuccess: (created, vars) => {
       queryClient.setQueryData<BulletDayGroup[]>(bulletsQueryKey, (prev) => {
         if (!prev) return prev;
-        const closed = replaceBullet(prev, { ...vars.bullet, signifier: "migrated" });
+        const closed = replaceBullet(prev, { ...vars.bullet, signifier: "SIGNIFIER_MIGRATED" });
         return appendToToday(closed, created);
       });
     },
