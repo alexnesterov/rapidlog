@@ -1,9 +1,10 @@
 # API — проектирование
 
-> Этот контракт обслуживает сервис `gate` (`internal/service/gate/`) — единственная точка
-> входа для браузера. Резолюция сессии внутри `gate` теперь идёт через gRPC-вызов к сервису
-> `identity`, но сам REST-контракт ниже не изменился ни на бит — для клиента (браузера)
-> ничего не поменялось.
+> Этот контракт обслуживает сервис `gateway` (`internal/service/gateway/`) — единственная
+> точка входа для браузера. Сессию он резолвит gRPC-вызовом к `identity`, операции с bullet'ами
+> проксирует gRPC-вызовами к `journal`. Тела ответов — это gRPC-ответы `journal`,
+> сериализованные `protojson` (`api/proto/journal/v1/journal.proto`), поэтому поля в
+> camelCase, а значения enum'ов — полные имена из proto (`BULLET_TYPE_TASK`, `SIGNIFIER_OPEN`).
 
 ## 1. Сущности
 
@@ -12,12 +13,12 @@
 | Поле          | Тип       | Описание                                                          |
 | ------------- | --------- | ----------------------------------------------------------------- |
 | id            | UUID      |                                                                   |
-| user_id       | UUID      | анонимный владелец (см. привязку к сессии)                       |
-| type          | string    | `task` \| `event` \| `note`, обязательное                         |
-| signifier     | string    | `open` \| `completed` \| `migrated` \| `scheduled` \| `cancelled` |
+| userId        | UUID      | анонимный владелец (см. привязку к сессии)                       |
+| type          | string    | `BULLET_TYPE_TASK` \| `BULLET_TYPE_EVENT` \| `BULLET_TYPE_NOTE`, обязательное |
+| signifier     | string    | `SIGNIFIER_OPEN` \| `SIGNIFIER_COMPLETED` \| `SIGNIFIER_MIGRATED` \| `SIGNIFIER_SCHEDULED` \| `SIGNIFIER_CANCELLED` |
 | content       | string    | обязательное, ≤200 символов                                       |
-| created_at    | timestamp |                                                                   |
-| updated_at    | timestamp |                                                                   |
+| createdAt     | timestamp | RFC 3339, UTC                                                     |
+| updatedAt     | timestamp | RFC 3339, UTC                                                     |
 
 По аналогии с нотацией Bullet Journal: `type` описывает разновидность
 записи (задача, событие, заметка), `signifier` — её состояние (открыта,
@@ -25,7 +26,8 @@
 переходы `open` → `completed`, `open` → `migrated` и `open` →
 `cancelled` (см. `POST /api/bullets/{id}/complete`, `POST
 /api/bullets/{id}/migrate` и `POST /api/bullets/{id}/cancel`).
-`scheduled` зарезервирован под будущие операции.
+`scheduled` зарезервирован под будущие операции. Ниже в тексте
+значения сокращены (`open`, `task`), в JSON они всегда полные.
 
 **Операции:** Create, List, Complete, Migrate, Cancel.
 
@@ -77,7 +79,7 @@
   "data": null,
   "error": {
     "code": 400,
-    "message": "content is required"
+    "message": "bullet content is required"
   }
 }
 ```
@@ -91,8 +93,17 @@
 | 201 | ресурс создан                                         |
 | 204 | успешное удаление, тело пустое                        |
 | 400 | некорректный запрос (невалидный JSON)                 |
+| 401 | в контексте запроса нет пользователя                  |
 | 404 | ресурс не найден                                      |
 | 500 | внутренняя ошибка                                     |
+
+> **Пока не реализовано:** `gateway` ещё не маппит gRPC-статусы `journal` в HTTP. Сейчас
+> любая ошибка `journal` (в том числе доменная: невалидный переход, bullet не найден)
+> возвращается как `500` с `"message": "Internal Server Error"`. Если недоступен `identity`,
+> middleware сессии отвечает `500` с `"message": "internal server error"` (в нижнем регистре).
+> Коды `400`/`404` и сообщения в примерах ниже — целевое поведение. Уже сейчас работают `400`
+> на невалидный `id` в пути (`"Bad Request"`) и на тело запроса, которое не разбирается
+> `protojson` (`"invalid request body"`).
 
 ---
 
@@ -100,8 +111,8 @@
 
 ### Health
 
-**GET /health** → `200 { "status": "ok", "db": "ok" }` (или `503` с `"error"` в обоих полях,
-если пинг БД не прошёл) — для Docker/orchestrator healthcheck.
+**GET /health** → `200 { "status": "ok" }` — для Docker/orchestrator healthcheck. Состояние
+`identity` и `journal` не проверяется, резолв сессии на этот путь не распространяется.
 
 ### Bullets
 
@@ -114,14 +125,17 @@
 - **Предусловие**: нет (bullet создаётся с нуля)
 - **Основной поток**: `content` и `type` не пустые → создаётся bullet
   со `signifier = open`
-- **Ошибка**: `content` пустой/невалидный, либо `type` не
-  `task`/`event`/`note` → `400`
+- **Ошибка**: тело не разбирается как `CreateBulletRequest` (в том числе
+  неизвестное значение `type`, например `"task"`) → `400`
+  (`"invalid request body"`); `content` пустой или длиннее 200 символов,
+  либо `type` не указан → `400` (`"bullet content is required"`,
+  `"bullet content is too long"`, `"bullet type must be task, event or note"`)
 
 ```json
 // request
 {
   "content": "Оплатить хостинг",
-  "type": "task"
+  "type": "BULLET_TYPE_TASK"
 }
 ```
 
@@ -130,12 +144,12 @@
 {
   "data": {
     "id": "uuid",
-    "user_id": "uuid",
-    "type": "task",
+    "type": "BULLET_TYPE_TASK",
+    "signifier": "SIGNIFIER_OPEN",
     "content": "Оплатить хостинг",
-    "signifier": "open",
-    "created_at": "...",
-    "updated_at": "..."
+    "userId": "uuid",
+    "createdAt": "2026-09-07T08:20:51.871177Z",
+    "updatedAt": "2026-09-07T08:20:51.871177Z"
   }
 }
 ```
@@ -146,7 +160,7 @@
   "data": null,
   "error": {
     "code": 400,
-    "message": "content is required"
+    "message": "bullet content is required"
   }
 }
 ```
@@ -157,26 +171,24 @@
 по дням — как разворот страниц в bullet journal.
 
 - **Актор**: пользователь
-- **Предусловие**: нет (список может быть пустым)
-- **Основной поток**: bullets группируются по календарному дню
-  `created_at`
-- **Альтернативный поток**: bullets отсутствуют → `200` с пустым
-  списком групп (`"data": []`), не `null`
+- **Предусловие**: нет
+- **Основной поток**: возвращается плоский список всех bullets
+  пользователя
+- **Альтернативный поток**: у пользователя ещё нет ни одного bullet →
+  `journal` в одной транзакции создаёт 3 demo-bullet'а (с `createdAt`
+  на сутки раньше, чтобы их можно было смигрировать) и возвращает их
 
-Ответ группирует bullets по календарному дню (`created_at`, дата без
-времени): группы отсортированы от нового дня к старому, а bullets
-внутри группы — от старого к новому (новые снизу).
+Группировки по дням в ответе нет: её делает фронтенд
+(`web/src/api/bulletsApi.ts`, по локальной дате `createdAt`).
+
+Если список всё же пуст, `protojson` опускает пустое repeated-поле, и
+ответ приходит как `{}`, без ключа `data`.
 
 ```json
 // response 200
 {
   "data": [
-    {
-      "day": "2026-07-28",
-      "bullets": [
-        /* Bullet[] */
-      ]
-    }
+    /* Bullet[] */
   ]
 }
 ```
@@ -187,28 +199,28 @@
 как галочка в бумажном bullet journal.
 
 - **Актор**: пользователь
-- **Предусловие**: bullet с данным `id` существует
-- **Основной поток**: bullet имеет `signifier = open` → переводится в
-  `completed`
-- **Альтернативный поток**: bullet уже `completed` → `200` без изменений
-  (идемпотентность)
-- **Ошибка**: bullet с данным `id` не найден → `404`
+- **Предусловие**: bullet с данным `id` существует, имеет `type = task`
+  и `signifier = open`
+- **Основной поток**: bullet переводится в `signifier = completed`
+- **Ошибка**: bullet с данным `id` не найден → `404`; bullet уже
+  `completed` → `400` (`"bullet already completed"`); bullet в другом
+  закрытом состоянии → `400` (`"bullet is not open"`); bullet не задача →
+  `400` (`"bullet is not a task"`)
 
-Логика: `signifier` bullet переводится в `completed`, запись не удаляется —
-удалить её пользователь может отдельно через `DELETE`. Идемпотентно:
-если bullet уже `completed`, повторный вызов — `200` без изменений.
+Тело запроса отсутствует. Запись не удаляется, меняется только
+`signifier`. Операция не идемпотентна: повторный вызов возвращает `400`.
 
 ```json
 // response 200
 {
   "data": {
     "id": "uuid",
-    "user_id": "uuid",
-    "type": "task",
+    "type": "BULLET_TYPE_TASK",
+    "signifier": "SIGNIFIER_COMPLETED",
     "content": "Оплатить хостинг",
-    "signifier": "completed",
-    "created_at": "...",
-    "updated_at": "..."
+    "userId": "uuid",
+    "createdAt": "2026-09-07T08:20:51.871177Z",
+    "updatedAt": "2026-09-07T08:23:20.751189209Z"
   }
 }
 ```
@@ -236,28 +248,28 @@
   `signifier = open` и создан не сегодня
 - **Основной поток**: исходный bullet получает
   `signifier = migrated`; создаётся новый bullet с тем же `content`,
-  `type = task`, `signifier = open` и текущим `created_at`
+  `type = task`, `signifier = open` и текущим `createdAt`
 - **Ошибка**: bullet не найден → `404`; bullet не является открытой
   задачей (`type != task` или `signifier != open`) → `400`
-  (`"bullet is not an open task"`); bullet уже создан сегодня → `400`
-  (`"bullet is already scheduled for today"`)
+  (`"bullet is not an open task"`); bullet создан сегодня → `400`
+  (`"bullet was created today"`)
 
 Тело запроса отсутствует. Перенос всегда выполняется на текущий день;
-дата исходной задачи не изменяется. `updated_at` исходного bullet
-обновляется в момент переноса. В ответе возвращается только созданная
-задача.
+дата исходной задачи не изменяется. `updatedAt` исходного bullet
+обновляется в момент переноса. Оба изменения делаются в одной
+транзакции. В ответе возвращается только созданная задача.
 
 ```json
 // response 201
 {
   "data": {
     "id": "uuid",
-    "user_id": "uuid",
-    "type": "task",
+    "type": "BULLET_TYPE_TASK",
+    "signifier": "SIGNIFIER_OPEN",
     "content": "Оплатить хостинг",
-    "signifier": "open",
-    "created_at": "...",
-    "updated_at": "..."
+    "userId": "uuid",
+    "createdAt": "2026-09-08T09:00:00.000000Z",
+    "updatedAt": "2026-09-08T09:00:00.000000Z"
   }
 }
 ```
@@ -274,12 +286,12 @@
 ```
 
 ```json
-// response 400 — bullet уже создан сегодня
+// response 400 — bullet создан сегодня
 {
   "data": null,
   "error": {
     "code": 400,
-    "message": "bullet is already scheduled for today"
+    "message": "bullet was created today"
   }
 }
 ```
@@ -293,24 +305,24 @@
 - **Предусловие**: bullet с данным `id` существует, имеет
   `signifier = open` (любой `type`, не только `task`)
 - **Основной поток**: bullet переводится в `signifier = cancelled`
-- **Альтернативный поток**: bullet уже `cancelled` → `200` без
-  изменений (идемпотентность)
-- **Ошибка**: bullet с данным `id` не найден → `404`; bullet не
-  `open` → `400` (`"bullet is not open"`)
+- **Ошибка**: bullet с данным `id` не найден → `404`; bullet уже
+  `cancelled` → `400` (`"bullet already cancelled"`); bullet в другом
+  закрытом состоянии → `400` (`"bullet is not open"`)
 
-Тело запроса отсутствует.
+Тело запроса отсутствует. Операция не идемпотентна: повторный вызов
+возвращает `400`.
 
 ```json
 // response 200
 {
   "data": {
     "id": "bac1e168-356d-41f5-ab1b-c5c1046a6158",
-    "type": "task",
-    "signifier": "cancelled",
+    "type": "BULLET_TYPE_TASK",
+    "signifier": "SIGNIFIER_CANCELLED",
     "content": "Оплатить хостинг",
-    "user_id": "2f168d69-2bd3-4691-ad7f-72addb4270e0",
-    "created_at": "2026-09-07T08:20:51.871177Z",
-    "updated_at": "2026-09-07T08:23:20.751189209Z"
+    "userId": "2f168d69-2bd3-4691-ad7f-72addb4270e0",
+    "createdAt": "2026-09-07T08:20:51.871177Z",
+    "updatedAt": "2026-09-07T08:23:20.751189209Z"
   }
 }
 ```
