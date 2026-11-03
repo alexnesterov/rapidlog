@@ -163,10 +163,10 @@ export function BulletList({ bullets, canMigrate, onComplete, onMigrate, onCance
   return (
     <ul className="log-lines">
       {bullets.map((bullet) => {
-        const closed = bullet.signifier === "completed" || bullet.signifier === "migrated" || bullet.signifier === "cancelled";
-        const canComplete = bullet.type === "BULLET_TYPE_TASK" && bullet.signifier === "open";
+        const closed = bullet.signifier === "SIGNIFIER_COMPLETED" || bullet.signifier === "SIGNIFIER_MIGRATED" || bullet.signifier === "SIGNIFIER_CANCELLED";
+        const canComplete = bullet.type === "BULLET_TYPE_TASK" && bullet.signifier === "SIGNIFIER_OPEN";
         const showMigrate = canMigrate && canComplete;
-        const canCancel = bullet.signifier === "open";
+        const canCancel = bullet.signifier === "SIGNIFIER_OPEN";
         const pickerOpen = openId === bullet.id;
         const ClosedMark = SIGNIFIER_MARKS[bullet.signifier];
         const TypeMark = TYPE_MARKS[bullet.type];
@@ -187,7 +187,7 @@ export function BulletList({ bullets, canMigrate, onComplete, onMigrate, onCance
 
         return (
           <li className={`log-line ${closed ? "is-closed" : ""} ${pickerOpen ? "is-picking" : ""}`} key={bullet.id}>
-            {bullet.signifier === "cancelled" ? (
+            {bullet.signifier === "SIGNIFIER_CANCELLED" ? (
               <CancelledEntry content={bullet.content} TypeMark={TypeMark} />
             ) : (
               <OpenEntry

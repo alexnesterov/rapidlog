@@ -37,7 +37,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	router.HandleFunc("/health", httpapi.NewHealthHandler())
 	router.HandleFunc("POST /api/bullets", httpapi.NewCreateBulletHandler(journalClient, logger))
 	router.HandleFunc("GET /api/bullets", httpapi.NewListBulletsHandler(journalClient))
-	router.HandleFunc("POST /api/bullets/{id}/complete", httpapi.EmptyHandler)
+	router.HandleFunc("POST /api/bullets/{id}/complete", httpapi.NewCompleteBulletHandler(journalClient, logger))
 	router.HandleFunc("POST /api/bullets/{id}/migrate", httpapi.EmptyHandler)
 	router.HandleFunc("POST /api/bullets/{id}/cancel", httpapi.EmptyHandler)
 

@@ -1,6 +1,11 @@
 export type BulletType = "BULLET_TYPE_TASK" | "BULLET_TYPE_EVENT" | "BULLET_TYPE_NOTE";
 
-export type Signifier = "open" | "completed" | "migrated" | "scheduled" | "cancelled";
+export type Signifier =
+  | "SIGNIFIER_OPEN"
+  | "SIGNIFIER_COMPLETED"
+  | "SIGNIFIER_MIGRATED"
+  | "SIGNIFIER_SCHEDULED"
+  | "SIGNIFIER_CANCELLED";
 
 export type MigrateTarget = "today";
 
