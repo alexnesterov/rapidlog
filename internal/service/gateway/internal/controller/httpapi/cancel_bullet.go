@@ -12,7 +12,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-type cancelBulletClient interface {
+type CancelBulletClient interface {
 	CancelBullet(
 		ctx context.Context,
 		in *journalv1.CancelBulletRequest,
@@ -20,17 +20,16 @@ type cancelBulletClient interface {
 	) (*journalv1.CancelBulletResponse, error)
 }
 
-type cancelBulletHandler struct {
-	api    cancelBulletClient
+type CancelBulletHandler struct {
+	api    CancelBulletClient
 	logger *slog.Logger
 }
 
-func NewCancelBulletHandler(api cancelBulletClient, logger *slog.Logger) http.HandlerFunc {
-	h := &cancelBulletHandler{api: api, logger: logger}
-	return h.Handle
+func NewCancelBulletHandler(api CancelBulletClient, logger *slog.Logger) *CancelBulletHandler {
+	return &CancelBulletHandler{api: api, logger: logger}
 }
 
-func (h *cancelBulletHandler) Handle(w http.ResponseWriter, r *http.Request) {
+func (h *CancelBulletHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID, ok := UserIDFromContext(r.Context())
 	if !ok {
 		h.logger.Error("user id not found in context")
