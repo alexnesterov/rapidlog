@@ -1,18 +1,19 @@
 services:
-  gate:
+  gateway:
     build:
       context: .
       dockerfile: Dockerfile
-      target: gate
-    container_name: gate
-    restart: always
+      target: gateway
+    container_name: gateway
+    restart: unless-stopped
     ports:
-      - '${GATE_PORT}:8080'
+      - '${GATEWAY_PORT}:8080'
     environment:
-      - GATE_DSN=${GATE_DSN}
-      - GATE_IDENTITY=${GATE_IDENTITY}
+      - GATEWAY_IDENTITY=${GATEWAY_IDENTITY}
+      - GATEWAY_JOURNAL=${GATEWAY_JOURNAL}
     depends_on:
       - identity
+      - journal
 
   identity:
     build:
@@ -20,6 +21,16 @@ services:
       dockerfile: Dockerfile
       target: identity
     container_name: identity
-    restart: always
+    restart: unless-stopped
     environment:
       - IDENTITY_DSN=${IDENTITY_DSN}
+
+  journal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: journal
+    container_name: journal
+    restart: unless-stopped
+    environment:
+      - JOURNAL_DSN=${JOURNAL_DSN}

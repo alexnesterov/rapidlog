@@ -19,7 +19,6 @@ COPY . .
 COPY --from=web-builder /app/web/dist ./web/dist
 RUN \
   CGO_ENABLED=0 go build -o gateway ./cmd/gateway && \
-  CGO_ENABLED=0 go build -o gate ./cmd/gate && \
   CGO_ENABLED=0 go build -o identity ./cmd/identity && \
   CGO_ENABLED=0 go build -o journal ./cmd/journal
 
@@ -27,11 +26,6 @@ FROM scratch AS gateway
 COPY --from=builder /app/gateway /gateway
 EXPOSE 8080
 CMD ["/gateway"]
-
-FROM scratch AS gate
-COPY --from=builder /app/gate /gate
-EXPOSE 8080
-CMD ["/gate"]
 
 FROM scratch AS identity
 COPY --from=builder /app/identity /identity

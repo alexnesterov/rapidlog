@@ -1,20 +1,4 @@
 services:
-  gate:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: gate
-    container_name: gate
-    image: rapidlog-gate
-    restart: unless-stopped
-    ports:
-      - '8082:8080'
-    env_file:
-      - .env
-    depends_on:
-      - db
-      - identity
-
   gateway:
     build:
       context: .
@@ -28,7 +12,6 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
       - identity
       - journal
 
@@ -80,7 +63,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: [ 'CMD', 'pg_isready', '-U', 'rapidlog' ]
+      test: ['CMD', 'pg_isready', '-U', 'rapidlog']
       interval: 10s
       timeout: 5s
       retries: 5
