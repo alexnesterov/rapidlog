@@ -34,12 +34,20 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	defer journalClient.Close()
 
 	router := http.NewServeMux()
+
 	router.HandleFunc("/health", httpapi.NewHealthHandler())
 	router.HandleFunc("POST /api/bullets", httpapi.NewCreateBulletHandler(journalClient, logger))
 	router.HandleFunc("GET /api/bullets", httpapi.NewListBulletsHandler(journalClient))
-	router.HandleFunc("POST /api/bullets/{id}/complete", httpapi.NewCompleteBulletHandler(journalClient, logger))
+
+	router.HandleFunc("POST /api/bullets/{id}/complete",
+		httpapi.NewCompleteBulletHandler(journalClient, logger),
+	)
+
 	router.HandleFunc("POST /api/bullets/{id}/migrate", httpapi.EmptyHandler)
-	router.HandleFunc("POST /api/bullets/{id}/cancel", httpapi.EmptyHandler)
+
+	router.HandleFunc("POST /api/bullets/{id}/cancel",
+		httpapi.NewCancelBulletHandler(journalClient, logger),
+	)
 
 	var handler http.Handler = router
 	handler = middleware.Session(identityClient, cfg.Session.CookieName, cfg.Session.CookieTTL, cfg.Session.CookieSecure)(handler)
