@@ -110,8 +110,8 @@ func (r *bulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*entit
 func (r *bulletRepository) Update(ctx context.Context, bullet *entity.Bullet) error {
 	query := `
 		UPDATE bullets
-		SET type = $2, signifier = $3, content = $4, updated_at = $5
-		WHERE id = $1 AND user_id = $6
+		SET type = $2, signifier = $3, content = $4, created_at = $5, updated_at = $6
+		WHERE id = $1 AND user_id = $7
 	`
 
 	_, err := transactor.GetQueryer(ctx, r.pool).Exec(ctx, query,
@@ -119,6 +119,7 @@ func (r *bulletRepository) Update(ctx context.Context, bullet *entity.Bullet) er
 		bullet.Type,
 		bullet.Signifier,
 		bullet.Content,
+		bullet.CreatedAt,
 		bullet.UpdatedAt,
 		bullet.UserID,
 	)

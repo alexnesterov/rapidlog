@@ -591,14 +591,6 @@ button.log-line__mark:hover {
   stroke-linecap: round;
 }
 
-.mark-icon--migrated {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 .log-line__entry {
   position: relative;
   display: inline-flex;

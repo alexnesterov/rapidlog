@@ -218,14 +218,6 @@ func TestBullet_Complete(t *testing.T) {
 			wantErr: ErrBulletNotOpen,
 		},
 		{
-			name: "task migrated",
-			bullet: Bullet{
-				Type:      BulletTask,
-				Signifier: SignifierMigrated,
-			},
-			wantErr: ErrBulletNotOpen,
-		},
-		{
 			name: "event open",
 			bullet: Bullet{
 				Type:      BulletEvent,
@@ -282,13 +274,6 @@ func TestBullet_Migrate(t *testing.T) {
 			name:       "task completed",
 			bulletType: BulletTask,
 			signifier:  SignifierCompleted,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletNotOpenTask,
-		},
-		{
-			name:       "task migrated",
-			bulletType: BulletTask,
-			signifier:  SignifierMigrated,
 			createdAt:  time.Now().Add(-24 * time.Hour),
 			wantErr:    ErrBulletNotOpenTask,
 		},
@@ -352,31 +337,25 @@ func TestBullet_Migrate(t *testing.T) {
 				Content:   "Test task",
 				UserID:    uuid.New(),
 				CreatedAt: tc.createdAt,
-				UpdatedAt: time.Now(),
+				UpdatedAt: tc.createdAt,
 			}
 
-			initialUpdatedAt := bullet.UpdatedAt
+			initial := bullet
 
-			got, err := bullet.Migrate()
+			gotErr := bullet.Migrate()
 			if tc.wantErr != nil {
-				require.Error(t, err)
+				require.Error(t, gotErr)
 				var validationErr *ValidationError
-				assert.ErrorAs(t, err, &validationErr)
+				assert.ErrorAs(t, gotErr, &validationErr)
 				assert.ErrorIs(t, validationErr.Err, tc.wantErr)
 				return
 			}
 
-			require.NoError(t, err)
-			assert.Equal(t, SignifierMigrated, bullet.Signifier)
-			assert.True(t, bullet.UpdatedAt.After(initialUpdatedAt))
-
-			assert.Equal(t, bullet.UserID, got.UserID)
-			assert.NotEqual(t, bullet.ID, got.ID)
-			assert.Equal(t, bullet.Type, got.Type)
-			assert.Equal(t, SignifierOpen, got.Signifier)
-			assert.Equal(t, bullet.Content, got.Content)
-			assert.Equal(t, bullet.UpdatedAt, got.CreatedAt)
-			assert.Equal(t, bullet.UpdatedAt, got.UpdatedAt)
+			require.NoError(t, gotErr)
+			assert.Equal(t, initial.ID, bullet.ID)
+			assert.Equal(t, SignifierOpen, bullet.Signifier)
+			assert.True(t, bullet.CreatedAt.After(initial.CreatedAt))
+			assert.True(t, bullet.UpdatedAt.After(initial.UpdatedAt))
 		})
 	}
 }
@@ -410,11 +389,6 @@ func TestBullet_Cancel(t *testing.T) {
 		{
 			name:    "task completed",
 			bullet:  Bullet{Type: BulletTask, Signifier: SignifierCompleted},
-			wantErr: ErrBulletNotOpen,
-		},
-		{
-			name:    "task migrated",
-			bullet:  Bullet{Type: BulletTask, Signifier: SignifierMigrated},
 			wantErr: ErrBulletNotOpen,
 		},
 	}

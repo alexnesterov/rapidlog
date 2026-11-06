@@ -1,6 +1,6 @@
 MIN_COVERAGE = 30
 
-.PHONY: all build test test-fast test-cov test-html test-tdd buf up down
+.PHONY: all build test test-fast test-cov test-html test-tdd mock buf web web-lint up down
 
 all: build test-fast
 	@echo "🎉 Все проверки пройдены!"
@@ -51,6 +51,15 @@ buf:
 	@echo "🔄 Генерация buf файлов..."
 	@buf generate
 	@echo "✅ Buf файлы сгенерированы!"
+
+web:
+	@echo "🎨 Сборка фронтенда (web/dist)..."
+	@cd web && npm ci && npm run build
+	@echo "✅ Фронтенд собран!"
+
+web-lint:
+	@echo "🔍 Линтер фронтенда..."
+	@cd web && npm run lint
 
 up:
 	@echo "🚀 Запуск всех сервисов..."

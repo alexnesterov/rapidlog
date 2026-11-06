@@ -75,5 +75,5 @@ func (h *MigrateBulletHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	respond.Bytes(w, http.StatusCreated, data)
+	respond.Bytes(w, http.StatusOK, data)
 }

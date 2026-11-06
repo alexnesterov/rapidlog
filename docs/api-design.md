@@ -15,18 +15,19 @@
 | id            | UUID      |                                                                   |
 | userId        | UUID      | анонимный владелец (см. привязку к сессии)                       |
 | type          | string    | `BULLET_TYPE_TASK` \| `BULLET_TYPE_EVENT` \| `BULLET_TYPE_NOTE`, обязательное |
-| signifier     | string    | `SIGNIFIER_OPEN` \| `SIGNIFIER_COMPLETED` \| `SIGNIFIER_MIGRATED` \| `SIGNIFIER_SCHEDULED` \| `SIGNIFIER_CANCELLED` |
+| signifier     | string    | `SIGNIFIER_OPEN` \| `SIGNIFIER_COMPLETED` \| `SIGNIFIER_SCHEDULED` \| `SIGNIFIER_CANCELLED` |
 | content       | string    | обязательное, ≤200 символов                                       |
 | createdAt     | timestamp | RFC 3339, UTC                                                     |
 | updatedAt     | timestamp | RFC 3339, UTC                                                     |
 
 По аналогии с нотацией Bullet Journal: `type` описывает разновидность
 записи (задача, событие, заметка), `signifier` — её состояние (открыта,
-выполнена, перенесена, запланирована, отменена). Реализованы пока
-переходы `open` → `completed`, `open` → `migrated` и `open` →
-`cancelled` (см. `POST /api/bullets/{id}/complete`, `POST
-/api/bullets/{id}/migrate` и `POST /api/bullets/{id}/cancel`).
-`scheduled` зарезервирован под будущие операции. Ниже в тексте
+выполнена, запланирована, отменена). Реализованы пока переходы
+`open` → `completed` и `open` → `cancelled` (см. `POST
+/api/bullets/{id}/complete` и `POST /api/bullets/{id}/cancel`).
+Перенос (`POST /api/bullets/{id}/migrate`) статус не меняет: открытая
+задача переезжает в текущий день. `scheduled` зарезервирован под
+будущие операции. Ниже в тексте
 значения сокращены (`open`, `task`), в JSON они всегда полные.
 
 **Операции:** Create, List, Complete, Migrate, Cancel.
@@ -239,28 +240,26 @@
 #### POST /api/bullets/{id}/migrate
 
 **Юзкейс**: пользователь переносит незавершённую задачу на текущий
-день. Исходная строка сохраняется в журнале с признаком переноса, а в
-текущем дне появляется новая открытая задача с тем же текстом — как в
-бумажном Bullet Journal.
+день. Задача целиком переезжает в текущий день, а в исходном дне от
+неё ничего не остаётся.
 
 - **Актор**: пользователь
 - **Предусловие**: bullet существует, имеет `type = task`,
   `signifier = open` и создан не сегодня
-- **Основной поток**: исходный bullet получает
-  `signifier = migrated`; создаётся новый bullet с тем же `content`,
-  `type = task`, `signifier = open` и текущим `createdAt`
+- **Основной поток**: тот же bullet (тот же `id`, `content`,
+  `signifier = open`) получает `createdAt` и `updatedAt`, равные
+  моменту переноса, и попадает в текущий день
 - **Ошибка**: bullet не найден → `404`; bullet не является открытой
   задачей (`type != task` или `signifier != open`) → `400`
   (`"bullet is not an open task"`); bullet создан сегодня → `400`
   (`"bullet was created today"`)
 
-Тело запроса отсутствует. Перенос всегда выполняется на текущий день;
-дата исходной задачи не изменяется. `updatedAt` исходного bullet
-обновляется в момент переноса. Оба изменения делаются в одной
-транзакции. В ответе возвращается только созданная задача.
+Тело запроса отсутствует. Перенос всегда выполняется на текущий день.
+Новая запись не создаётся, поэтому исходная дата задачи теряется. В
+ответе возвращается перенесённый bullet.
 
 ```json
-// response 201
+// response 200
 {
   "data": {
     "id": "uuid",
