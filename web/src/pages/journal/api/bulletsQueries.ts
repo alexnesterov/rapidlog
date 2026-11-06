@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { cancelBullet, createBullet, listBullets, markBulletDone, migrateBullet } from "./bulletsApi";
-import type { Bullet, BulletDayGroup, CreateBulletRequest, MigrateTarget } from "../types/bullet";
-import { todayIsoDate } from "../lib/date";
+import type { Bullet, BulletDayGroup, CreateBulletRequest, MigrateTarget } from "../model/bullet";
+import { todayIsoDate } from "@/shared/lib";
 
 export const bulletsQueryKey = ["bullets"] as const;
 

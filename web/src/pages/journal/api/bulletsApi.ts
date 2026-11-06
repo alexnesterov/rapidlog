@@ -1,27 +1,5 @@
-import {
-  ApiError,
-  type ApiEnvelope,
-  type Bullet,
-  type BulletDayGroup,
-  type CreateBulletRequest,
-} from "../types/bullet";
-
-const API_BASE = "/api";
-
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...init,
-    headers: { "Content-Type": "application/json", ...init?.headers },
-  });
-
-  const body = (await res.json()) as ApiEnvelope<T>;
-
-  if (!res.ok) {
-    throw new ApiError(String(body.error?.code ?? res.status), body.error?.message ?? "request failed");
-  }
-
-  return body.data;
-}
+import { request } from "@/shared/api";
+import type { Bullet, BulletDayGroup, CreateBulletRequest } from "../model/bullet";
 
 export async function listBullets(): Promise<BulletDayGroup[]> {
   const bullets = await request<Bullet[]>("/bullets");

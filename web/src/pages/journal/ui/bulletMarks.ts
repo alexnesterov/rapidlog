@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import type { BulletType, MigrateTarget, Signifier } from "../types/bullet";
+import type { BulletType, MigrateTarget, Signifier } from "../model/bullet";
 import { CompletedMark, EventMark, NoteMark, TaskMark } from "./bulletIcons";
 
 export const TYPE_MARKS: Record<BulletType, () => ReactElement> = {

@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Bullet, MigrateTarget } from './types/bullet';
-import { useBulletsQuery, useCancelBulletMutation, useCompleteBulletMutation, useMigrateBulletMutation } from './api/bulletsQueries';
-import { todayIsoDate } from './lib/date';
-import { waitForFonts } from './lib/fonts';
-import { DaySection } from './components/DaySection';
-import './App.css';
+import type { Bullet, MigrateTarget } from '../model/bullet';
+import { useBulletsQuery, useCancelBulletMutation, useCompleteBulletMutation, useMigrateBulletMutation } from '../api/bulletsQueries';
+import { todayIsoDate, waitForFonts } from '@/shared/lib';
+import { DaySection } from './DaySection';
+import './JournalPage.css';
 
-function App() {
+export function JournalPage() {
   const { data: days = [], isPending, isFetching, isError: listError } = useBulletsQuery();
   const completeMutation = useCompleteBulletMutation();
   const cancelMutation = useCancelBulletMutation();
@@ -107,4 +106,3 @@ function App() {
   );
 }
 
-export default App;
