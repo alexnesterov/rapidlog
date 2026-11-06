@@ -1,5 +1,5 @@
-import type { Bullet, MigrateTarget } from "../types/bullet";
-import { dayNumber, month, weekday } from "../lib/date";
+import type { Bullet, MigrateTarget } from "../model/bullet";
+import { dayNumber, month, weekday } from "@/shared/lib";
 import { BulletForm } from "./BulletForm";
 import { BulletList } from "./BulletList";
 

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useCreateBulletMutation } from "../api/bulletsQueries";
-import { ApiError, type BulletType } from "../types/bullet";
-import { TYPE_LABELS, TYPE_MARKS } from "../lib/bulletMarks";
+import { ApiError } from "@/shared/api";
+import type { BulletType } from "../model/bullet";
+import { TYPE_LABELS, TYPE_MARKS } from "./bulletMarks";
 
 const TYPES: BulletType[] = ["BULLET_TYPE_TASK", "BULLET_TYPE_EVENT", "BULLET_TYPE_NOTE"];
 

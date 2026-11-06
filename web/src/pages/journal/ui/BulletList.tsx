@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactElement } from "react";
-import type { Bullet, MigrateTarget } from "../types/bullet";
-import { MIGRATE_TARGETS, SIGNIFIER_MARKS, TYPE_MARKS } from "../lib/bulletMarks";
-import { StrikeLine } from "../lib/bulletIcons";
-import { linkifyText } from "../lib/linkify";
+import type { Bullet, MigrateTarget } from "../model/bullet";
+import { MIGRATE_TARGETS, SIGNIFIER_MARKS, TYPE_MARKS } from "./bulletMarks";
+import { StrikeLine } from "./bulletIcons";
+import { linkifyText } from "@/shared/lib";
 
 function MoreIcon() {
   return (
