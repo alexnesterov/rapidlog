@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import type { BulletType, MigrateTarget, Signifier } from "../types/bullet";
-import { CompletedMark, EventMark, MigratedMark, NoteMark, TaskMark } from "./bulletIcons";
+import { CompletedMark, EventMark, NoteMark, TaskMark } from "./bulletIcons";
 
 export const TYPE_MARKS: Record<BulletType, () => ReactElement> = {
   BULLET_TYPE_TASK: TaskMark,
@@ -10,7 +10,6 @@ export const TYPE_MARKS: Record<BulletType, () => ReactElement> = {
 
 export const SIGNIFIER_MARKS: Partial<Record<Signifier, () => ReactElement>> = {
   SIGNIFIER_COMPLETED: CompletedMark,
-  SIGNIFIER_MIGRATED: MigratedMark,
 };
 
 export const TYPE_LABELS: Record<BulletType, string> = {

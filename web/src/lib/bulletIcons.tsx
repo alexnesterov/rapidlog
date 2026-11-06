@@ -33,14 +33,6 @@ export function CompletedMark() {
   );
 }
 
-export function MigratedMark() {
-  return (
-    <svg className="mark-icon mark-icon--migrated" viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M5.8 3.5c1.7 1.4 3.2 2.9 4.5 4.6-1.5 1.6-3.1 3.1-4.8 4.4" />
-    </svg>
-  );
-}
-
 interface StrikeLineProps {
   style?: CSSProperties;
 }

@@ -34,7 +34,6 @@ type Signifier string
 const (
 	SignifierOpen      Signifier = "open"
 	SignifierCompleted Signifier = "completed"
-	SignifierMigrated  Signifier = "migrated"
 	SignifierScheduled Signifier = "scheduled"
 	SignifierCancelled Signifier = "cancelled"
 )
@@ -109,30 +108,21 @@ func (b *Bullet) Complete() error {
 	return nil
 }
 
-func (b *Bullet) Migrate() (*Bullet, error) {
+func (b *Bullet) Migrate() error {
 	if b.Type != BulletTask || b.Signifier != SignifierOpen {
-		return nil, &ValidationError{Err: ErrBulletNotOpenTask}
+		return &ValidationError{Err: ErrBulletNotOpenTask}
 	}
 
 	if b.CreatedAt.Format("2006-01-02") == time.Now().Format("2006-01-02") {
-		return nil, &ValidationError{Err: ErrBulletCreatedToday}
+		return &ValidationError{Err: ErrBulletCreatedToday}
 	}
 
 	now := time.Now()
-	b.Signifier = SignifierMigrated
+
+	b.CreatedAt = now
 	b.UpdatedAt = now
 
-	migrated := &Bullet{
-		ID:        uuid.New(),
-		Type:      b.Type,
-		Signifier: SignifierOpen,
-		Content:   b.Content,
-		UserID:    b.UserID,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
-
-	return migrated, nil
+	return nil
 }
 
 func (b *Bullet) Cancel() error {

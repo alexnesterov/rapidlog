@@ -27,7 +27,7 @@ interface LineStrike {
   width: number;
 }
 
-// Open/completed/migrated rows: a mark (icon or complete-button) plus title.
+// Open/completed rows: a mark (icon or complete-button) plus title.
 // The mark is a plain flex sibling of the title, aligned to the top of the
 // row via .log-line__entry's `align-items: flex-start` — which is the first
 // line's top for any number of wrapped lines, no measurement needed.
@@ -163,7 +163,7 @@ export function BulletList({ bullets, canMigrate, onComplete, onMigrate, onCance
   return (
     <ul className="log-lines">
       {bullets.map((bullet) => {
-        const closed = bullet.signifier === "SIGNIFIER_COMPLETED" || bullet.signifier === "SIGNIFIER_MIGRATED" || bullet.signifier === "SIGNIFIER_CANCELLED";
+        const closed = bullet.signifier === "SIGNIFIER_COMPLETED" || bullet.signifier === "SIGNIFIER_CANCELLED";
         const canComplete = bullet.type === "BULLET_TYPE_TASK" && bullet.signifier === "SIGNIFIER_OPEN";
         const showMigrate = canMigrate && canComplete;
         const canCancel = bullet.signifier === "SIGNIFIER_OPEN";

@@ -29,8 +29,6 @@ func ToProtoSignifier(s entity.Signifier) (journalv1.Signifier, error) {
 		return journalv1.Signifier_SIGNIFIER_COMPLETED, nil
 	case entity.SignifierCancelled:
 		return journalv1.Signifier_SIGNIFIER_CANCELLED, nil
-	case entity.SignifierMigrated:
-		return journalv1.Signifier_SIGNIFIER_MIGRATED, nil
 	case entity.SignifierScheduled:
 		return journalv1.Signifier_SIGNIFIER_SCHEDULED, nil
 	default:

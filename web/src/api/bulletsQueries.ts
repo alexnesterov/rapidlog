@@ -23,6 +23,16 @@ function appendToToday(days: BulletDayGroup[], bullet: Bullet): BulletDayGroup[]
   return withToday(days).map((day) => (day.day === today ? { ...day, bullets: [...day.bullets, bullet] } : day));
 }
 
+// Перенос не создаёт новую запись: тот же bullet уезжает в сегодняшний день.
+// Опустевший прошлый день убираем — сервер пустых групп не отдаёт.
+function moveToToday(days: BulletDayGroup[], bullet: Bullet): BulletDayGroup[] {
+  const today = todayIsoDate();
+  const without = days
+    .map((day) => ({ ...day, bullets: day.bullets.filter((b) => b.id !== bullet.id) }))
+    .filter((day) => day.day === today || day.bullets.length > 0);
+  return appendToToday(without, bullet);
+}
+
 export function useBulletsQuery() {
   return useQuery({
     queryKey: bulletsQueryKey,
@@ -91,22 +101,17 @@ export function useMigrateBulletMutation() {
     onMutate: async (vars) => {
       await queryClient.cancelQueries({ queryKey: bulletsQueryKey });
       const previous = queryClient.getQueryData<BulletDayGroup[]>(bulletsQueryKey);
-      // Оптимистично закрываем только исходную строку; новую "сегодняшнюю"
-      // запись добавляем в onSuccess, когда известны её реальные id/content.
+      const now = new Date().toISOString();
       queryClient.setQueryData<BulletDayGroup[]>(bulletsQueryKey, (prev) =>
-        prev ? replaceBullet(prev, { ...vars.bullet, signifier: "SIGNIFIER_MIGRATED" }) : prev,
+        prev ? moveToToday(prev, { ...vars.bullet, createdAt: now, updatedAt: now }) : prev,
       );
       return { previous };
     },
     onError: (_err, _vars, context) => {
       if (context) queryClient.setQueryData(bulletsQueryKey, context.previous);
     },
-    onSuccess: (created, vars) => {
-      queryClient.setQueryData<BulletDayGroup[]>(bulletsQueryKey, (prev) => {
-        if (!prev) return prev;
-        const closed = replaceBullet(prev, { ...vars.bullet, signifier: "SIGNIFIER_MIGRATED" });
-        return appendToToday(closed, created);
-      });
+    onSuccess: (migrated) => {
+      queryClient.setQueryData<BulletDayGroup[]>(bulletsQueryKey, (prev) => (prev ? moveToToday(prev, migrated) : prev));
     },
   });
 }
