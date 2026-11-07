@@ -33,20 +33,6 @@ func (s *ListBulletsUseCaseSuite) SetupTest() {
 	s.uc = usecase.New(s.mockBulletRepo, s.mockTxMgr)
 }
 
-func (s *ListBulletsUseCaseSuite) TestListBullets_Success() {
-	userID := uuid.New()
-	want := []*entity.Bullet{{Content: "Заголовок", UserID: userID}}
-
-	s.mockBulletRepo.EXPECT().
-		List(mock.Anything, mock.AnythingOfType("uuid.UUID")).
-		Return(want, nil).
-		Once()
-
-	got, err := s.uc.ListBullets(context.Background(), userID)
-	s.NoError(err)
-	s.Equal(want, got)
-}
-
 func (s *ListBulletsUseCaseSuite) TestListBullets_ListError() {
 	wantErr := errors.New("list error")
 
@@ -55,9 +41,9 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_ListError() {
 		Return(nil, wantErr).
 		Once()
 
-	got, err := s.uc.ListBullets(context.Background(), uuid.New())
+	got, gotErr := s.uc.ListBullets(s.T().Context(), uuid.New())
 	s.Nil(got)
-	s.ErrorIs(err, wantErr)
+	s.ErrorIs(gotErr, wantErr)
 }
 
 func (s *ListBulletsUseCaseSuite) TestListBullets_Empty() {
@@ -71,7 +57,8 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_Empty() {
 		Return(nil).
 		Times(3)
 
-	s.mockTxMgr.EXPECT().WithTx(mock.Anything, mock.Anything).
+	s.mockTxMgr.EXPECT().
+		WithTx(mock.Anything, mock.Anything).
 		RunAndReturn(func(ctx context.Context, fn func(ctx context.Context) error) error {
 			return fn(ctx)
 		}).
@@ -80,8 +67,8 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_Empty() {
 	userID := uuid.New()
 	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 
-	got, err := s.uc.ListBullets(context.Background(), userID)
-	s.NoError(err)
+	got, gotErr := s.uc.ListBullets(s.T().Context(), userID)
+	s.NoError(gotErr)
 	s.Len(got, 3)
 
 	for _, b := range got {
@@ -98,9 +85,9 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_NewDemoBulletsError() {
 		Return(nil, nil).
 		Once()
 
-	got, err := s.uc.ListBullets(context.Background(), uuid.Nil)
+	got, gotErr := s.uc.ListBullets(s.T().Context(), uuid.Nil)
 	s.Nil(got)
-	s.ErrorIs(err, wantErr)
+	s.ErrorIs(gotErr, wantErr)
 }
 
 func (s *ListBulletsUseCaseSuite) TestListBullets_CreateError() {
@@ -116,15 +103,16 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_CreateError() {
 		Return(wantErr).
 		Once()
 
-	s.mockTxMgr.EXPECT().WithTx(mock.Anything, mock.Anything).
+	s.mockTxMgr.EXPECT().
+		WithTx(mock.Anything, mock.Anything).
 		RunAndReturn(func(ctx context.Context, fn func(ctx context.Context) error) error {
 			return fn(ctx)
 		}).
 		Once()
 
-	got, err := s.uc.ListBullets(context.Background(), uuid.New())
+	got, gotErr := s.uc.ListBullets(s.T().Context(), uuid.New())
 	s.Nil(got)
-	s.ErrorIs(err, wantErr)
+	s.ErrorIs(gotErr, wantErr)
 }
 
 func (s *ListBulletsUseCaseSuite) TestListBullets_TransactionError() {
@@ -138,7 +126,21 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_TransactionError() {
 		Return(wantErr).
 		Once()
 
-	got, err := s.uc.ListBullets(context.Background(), uuid.New())
+	got, gotErr := s.uc.ListBullets(s.T().Context(), uuid.New())
 	s.Nil(got)
-	s.ErrorIs(err, wantErr)
+	s.ErrorIs(gotErr, wantErr)
+}
+
+func (s *ListBulletsUseCaseSuite) TestListBullets_Success() {
+	userID := uuid.New()
+	want := []*entity.Bullet{{Content: "Заголовок", UserID: userID}}
+
+	s.mockBulletRepo.EXPECT().
+		List(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+		Return(want, nil).
+		Once()
+
+	got, gotErr := s.uc.ListBullets(s.T().Context(), userID)
+	s.NoError(gotErr)
+	s.Equal(want, got)
 }

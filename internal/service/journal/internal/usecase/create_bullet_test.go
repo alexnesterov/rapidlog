@@ -1,7 +1,6 @@
 package usecase_test
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -26,22 +25,6 @@ func TestCreateBulletUseCase(t *testing.T) {
 		want      *entity.Bullet
 		wantErr   error
 	}{
-		{
-			name: "success",
-			input: port.CreateBulletInput{
-				Content: "Заголовок",
-				Type:    entity.BulletTask,
-				UserID:  uuid.New(),
-			},
-			setupMock: func(m *mocks.MockBulletRepository) {
-				m.EXPECT().
-					Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
-					Return(nil).
-					Once()
-			},
-			want:    &entity.Bullet{Content: "Заголовок", Type: entity.BulletTask},
-			wantErr: nil,
-		},
 		{
 			name: "empty type",
 			input: port.CreateBulletInput{
@@ -78,6 +61,22 @@ func TestCreateBulletUseCase(t *testing.T) {
 			want:      nil,
 			wantErr:   entity.ErrBulletContentRequired,
 		},
+		{
+			name: "success",
+			input: port.CreateBulletInput{
+				Content: "Заголовок",
+				Type:    entity.BulletTask,
+				UserID:  uuid.New(),
+			},
+			setupMock: func(m *mocks.MockBulletRepository) {
+				m.EXPECT().
+					Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+					Return(nil).
+					Once()
+			},
+			want:    &entity.Bullet{Content: "Заголовок", Type: entity.BulletTask},
+			wantErr: nil,
+		},
 	}
 
 	for _, tc := range cases {
@@ -87,16 +86,16 @@ func TestCreateBulletUseCase(t *testing.T) {
 			mockTxMgr := mocksTransactor.NewMockTransactor(t)
 			uc := usecase.New(mockRepo, mockTxMgr)
 
-			got, err := uc.CreateBullet(context.Background(), tc.input)
+			got, gotErr := uc.CreateBullet(t.Context(), tc.input)
 			if tc.wantErr != nil {
-				require.Error(t, err)
+				require.Error(t, gotErr)
 				assert.Nil(t, got)
-				assert.ErrorIs(t, err, tc.wantErr)
+				assert.ErrorIs(t, gotErr, tc.wantErr)
 
 				return
 			}
 
-			require.NoError(t, err)
+			require.NoError(t, gotErr)
 
 			assert.Equal(t, tc.want.Content, got.Content)
 			assert.NotEqual(t, uuid.Nil, got.ID)

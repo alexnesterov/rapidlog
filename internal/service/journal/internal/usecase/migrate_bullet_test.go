@@ -1,7 +1,6 @@
 package usecase_test
 
 import (
-	"context"
 	"errors"
 	"testing"
 	"time"
@@ -18,57 +17,62 @@ import (
 
 type MigrateBulletUseCaseSuite struct {
 	suite.Suite
+	mockBulletRepo *mocks.MockBulletRepository
+	mockTxMgr      *mocksTransactor.MockTransactor
+	uc             port.Usecase
 }
 
 func TestMigrateBulletUseCaseSuite(t *testing.T) {
 	suite.Run(t, new(MigrateBulletUseCaseSuite))
 }
 
+func (s *MigrateBulletUseCaseSuite) SetupTest() {
+	s.mockBulletRepo = mocks.NewMockBulletRepository(s.T())
+	s.mockTxMgr = mocksTransactor.NewMockTransactor(s.T())
+	s.uc = usecase.New(s.mockBulletRepo, s.mockTxMgr)
+}
+
 func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotFound() {
 	id := uuid.New()
 	userID := uuid.New()
 
-	mockRepo := mocks.NewMockBulletRepository(s.T())
-	mockRepo.EXPECT().Get(mock.Anything, id, userID).
+	s.mockBulletRepo.EXPECT().
+		Get(mock.Anything, id, userID).
 		Return(nil, port.ErrNotFound).
 		Once()
 
-	mockTxMgr := mocksTransactor.NewMockTransactor(s.T())
-
-	uc := usecase.New(mockRepo, mockTxMgr)
-
-	_, err := uc.MigrateBullet(context.Background(), id, userID)
-	s.Error(err)
-	s.ErrorIs(err, port.ErrNotFound)
+	got, gotErr := s.uc.MigrateBullet(s.T().Context(), id, userID)
+	s.Nil(got)
+	s.ErrorIs(gotErr, port.ErrNotFound)
 }
 
 func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_UpdateError() {
 	id := uuid.New()
 	userID := uuid.New()
 	wantErr := errors.New("update failed")
+	dayAgo := time.Now().Add(-24 * time.Hour)
 
 	bullet := &entity.Bullet{
 		ID:        id,
 		Type:      entity.BulletTask,
 		Signifier: entity.SignifierOpen,
+		CreatedAt: dayAgo,
+		UpdatedAt: dayAgo,
 	}
 
-	mockRepo := mocks.NewMockBulletRepository(s.T())
-	mockRepo.EXPECT().Get(mock.Anything, id, userID).
+	s.mockBulletRepo.EXPECT().
+		Get(mock.Anything, id, userID).
 		Return(bullet, nil).
 		Once()
 
-	mockRepo.EXPECT().Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+	s.mockBulletRepo.EXPECT().
+		Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(wantErr).
 		Once()
 
-	mockTxMgr := mocksTransactor.NewMockTransactor(s.T())
-
-	uc := usecase.New(mockRepo, mockTxMgr)
-
-	got, err := uc.MigrateBullet(context.Background(), id, userID)
+	got, gotErr := s.uc.MigrateBullet(s.T().Context(), id, userID)
 	s.Nil(got)
-	s.ErrorIs(err, wantErr)
+	s.ErrorIs(gotErr, wantErr)
 }
 
 func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotOpenTask() {
@@ -81,18 +85,14 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotOpenTask() {
 		Signifier: entity.SignifierCompleted,
 	}
 
-	mockRepo := mocks.NewMockBulletRepository(s.T())
-	mockRepo.EXPECT().Get(mock.Anything, id, userID).
+	s.mockBulletRepo.EXPECT().
+		Get(mock.Anything, id, userID).
 		Return(bullet, nil).
 		Once()
 
-	mockTxMgr := mocksTransactor.NewMockTransactor(s.T())
-
-	uc := usecase.New(mockRepo, mockTxMgr)
-
-	got, err := uc.MigrateBullet(context.Background(), id, userID)
+	got, gotErr := s.uc.MigrateBullet(s.T().Context(), id, userID)
 	s.Nil(got)
-	s.ErrorIs(err, entity.ErrBulletNotOpenTask)
+	s.ErrorIs(gotErr, entity.ErrBulletNotOpenTask)
 }
 
 func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
@@ -109,26 +109,19 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
 		UpdatedAt: dayAgo,
 	}
 
-	mockRepo := mocks.NewMockBulletRepository(s.T())
-	mockRepo.EXPECT().Get(mock.Anything, id, userID).
+	s.mockBulletRepo.EXPECT().
+		Get(mock.Anything, id, userID).
 		Return(bullet, nil).
 		Once()
 
-	mockRepo.EXPECT().Update(mock.Anything, mock.MatchedBy(func(b *entity.Bullet) bool {
-		return b.ID == bullet.ID &&
-			b.CreatedAt.After(dayAgo) &&
-			b.UpdatedAt.After(dayAgo)
-	})).
+	s.mockBulletRepo.EXPECT().
+		Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(nil).
 		Once()
 
-	mockTxMgr := mocksTransactor.NewMockTransactor(s.T())
+	got, gotErr := s.uc.MigrateBullet(s.T().Context(), id, userID)
 
-	uc := usecase.New(mockRepo, mockTxMgr)
-
-	got, err := uc.MigrateBullet(s.T().Context(), id, userID)
-
-	s.NoError(err)
+	s.NoError(gotErr)
 	s.Same(bullet, got)
 	s.True(got.CreatedAt.After(dayAgo))
 	s.True(got.UpdatedAt.After(dayAgo))

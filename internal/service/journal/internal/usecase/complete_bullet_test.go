@@ -1,7 +1,6 @@
 package usecase_test
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -32,34 +31,15 @@ func (s *CompleteBulletUseCaseSuite) SetupTest() {
 	s.uc = usecase.New(s.mockBulletRepo, s.mockTxMgr)
 }
 
-func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_Success() {
-	s.mockBulletRepo.EXPECT().
-		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
-		Return(&entity.Bullet{
-			Type:      entity.BulletTask,
-			Signifier: entity.SignifierOpen,
-		}, nil).
-		Once()
-
-	s.mockBulletRepo.EXPECT().
-		Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
-		Return(nil).
-		Once()
-
-	got, err := s.uc.CompleteBullet(context.Background(), uuid.New(), uuid.New())
-	s.NoError(err)
-	s.Equal(entity.SignifierCompleted, got.Signifier)
-}
-
 func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_NotFound() {
 	s.mockBulletRepo.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
 		Return(nil, port.ErrNotFound).
 		Once()
 
-	got, err := s.uc.CompleteBullet(context.Background(), uuid.New(), uuid.New())
+	got, gotErr := s.uc.CompleteBullet(s.T().Context(), uuid.New(), uuid.New())
 	s.Nil(got)
-	s.ErrorIs(err, port.ErrNotFound)
+	s.ErrorIs(gotErr, port.ErrNotFound)
 }
 
 func (s *CompleteBulletUseCaseSuite) TestComleteBullet_AlreadyCompleted() {
@@ -71,8 +51,8 @@ func (s *CompleteBulletUseCaseSuite) TestComleteBullet_AlreadyCompleted() {
 		}, nil).
 		Once()
 
-	got, err := s.uc.CompleteBullet(context.Background(), uuid.New(), uuid.New())
-	s.NoError(err)
+	got, gotErr := s.uc.CompleteBullet(s.T().Context(), uuid.New(), uuid.New())
+	s.NoError(gotErr)
 	s.Equal(entity.SignifierCompleted, got.Signifier)
 }
 
@@ -85,10 +65,10 @@ func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_ValidationError() {
 		}, nil).
 		Once()
 
-	got, err := s.uc.CompleteBullet(context.Background(), uuid.New(), uuid.New())
+	got, gotErr := s.uc.CompleteBullet(s.T().Context(), uuid.New(), uuid.New())
 	s.Nil(got)
 	var validationErr *entity.ValidationError
-	s.ErrorAs(err, &validationErr)
+	s.ErrorAs(gotErr, &validationErr)
 }
 
 func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_UpdateError() {
@@ -107,7 +87,26 @@ func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_UpdateError() {
 		Return(wantErr).
 		Once()
 
-	got, err := s.uc.CompleteBullet(context.Background(), uuid.New(), uuid.New())
+	got, gotErr := s.uc.CompleteBullet(s.T().Context(), uuid.New(), uuid.New())
 	s.Nil(got)
-	s.ErrorIs(err, wantErr)
+	s.ErrorIs(gotErr, wantErr)
+}
+
+func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_Success() {
+	s.mockBulletRepo.EXPECT().
+		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
+		Return(&entity.Bullet{
+			Type:      entity.BulletTask,
+			Signifier: entity.SignifierOpen,
+		}, nil).
+		Once()
+
+	s.mockBulletRepo.EXPECT().
+		Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Return(nil).
+		Once()
+
+	got, gotErr := s.uc.CompleteBullet(s.T().Context(), uuid.New(), uuid.New())
+	s.NoError(gotErr)
+	s.Equal(entity.SignifierCompleted, got.Signifier)
 }
