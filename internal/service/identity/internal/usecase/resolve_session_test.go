@@ -16,47 +16,47 @@ import (
 
 type ResolveSessionUseCaseSuite struct {
 	suite.Suite
-	mockUserRepo *mocks.MockUserRepository
+	userRepoMock *mocks.MockUserRepository
 	uc           port.IdentityService
 }
 
 func TestResolveSessionUseCaseSuite(t *testing.T) {
-	suite.Run(t, &ResolveSessionUseCaseSuite{})
+	suite.Run(t, new(ResolveSessionUseCaseSuite))
 }
 
 func (s *ResolveSessionUseCaseSuite) SetupTest() {
-	s.mockUserRepo = mocks.NewMockUserRepository(s.T())
-	s.uc = usecase.NewIdentityService(s.mockUserRepo)
+	s.userRepoMock = mocks.NewMockUserRepository(s.T())
+	s.uc = usecase.NewIdentityService(s.userRepoMock)
 }
 
 func (s *ResolveSessionUseCaseSuite) TestResolveSession_Exists() {
 	user := entity.NewUser()
 
-	s.mockUserRepo.EXPECT().
+	s.userRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID")).
 		Return(user, nil).
 		Once()
 
-	got, err := s.uc.ResolveSession(context.Background(), user.ID)
-	s.NoError(err)
+	got, gotErr := s.uc.ResolveSession(context.Background(), user.ID)
+	s.NoError(gotErr)
 	s.Equal(user.ID, got)
 }
 
 func (s *ResolveSessionUseCaseSuite) TestResolveSession_NotExists() {
 	user := entity.NewUser()
 
-	s.mockUserRepo.EXPECT().
+	s.userRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID")).
 		Return(nil, port.ErrNotFound).
 		Once()
 
-	s.mockUserRepo.EXPECT().
+	s.userRepoMock.EXPECT().
 		Create(mock.Anything, mock.MatchedBy(func(u *entity.User) bool { return u != nil && u.ID != uuid.Nil })).
 		Return(nil).
 		Once()
 
-	got, err := s.uc.ResolveSession(context.Background(), user.ID)
-	s.NoError(err)
+	got, gotErr := s.uc.ResolveSession(context.Background(), user.ID)
+	s.NoError(gotErr)
 	s.NotEqual(user.ID, got)
 	s.NotEqual(uuid.Nil, got)
 }
@@ -65,13 +65,13 @@ func (s *ResolveSessionUseCaseSuite) TestResolveSession_GetError() {
 	user := entity.NewUser()
 	wantErr := errors.New("get error")
 
-	s.mockUserRepo.EXPECT().
+	s.userRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID")).
 		Return(nil, wantErr).
 		Once()
 
-	got, err := s.uc.ResolveSession(context.Background(), user.ID)
-	s.ErrorIs(err, wantErr)
+	got, gotErr := s.uc.ResolveSession(context.Background(), user.ID)
+	s.ErrorIs(gotErr, wantErr)
 	s.Equal(uuid.Nil, got)
 }
 
@@ -79,17 +79,17 @@ func (s *ResolveSessionUseCaseSuite) TestResolveSession_CreateError() {
 	user := entity.NewUser()
 	wantErr := errors.New("create error")
 
-	s.mockUserRepo.EXPECT().
+	s.userRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID")).
 		Return(nil, port.ErrNotFound).
 		Once()
 
-	s.mockUserRepo.EXPECT().
+	s.userRepoMock.EXPECT().
 		Create(mock.Anything, mock.MatchedBy(func(u *entity.User) bool { return u != nil && u.ID != uuid.Nil })).
 		Return(wantErr).
 		Once()
 
-	got, err := s.uc.ResolveSession(context.Background(), user.ID)
-	s.ErrorIs(err, wantErr)
+	got, gotErr := s.uc.ResolveSession(context.Background(), user.ID)
+	s.ErrorIs(gotErr, wantErr)
 	s.Equal(uuid.Nil, got)
 }

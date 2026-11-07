@@ -1,7 +1,6 @@
 package usecase_test
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -32,33 +31,15 @@ func (s *CancelBulletUseCaseSuite) SetupTest() {
 	s.uc = usecase.New(s.mockBulletRepo, s.mockTxMgr)
 }
 
-func (s *CancelBulletUseCaseSuite) TestCancelBullet_Success() {
-	s.mockBulletRepo.EXPECT().
-		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
-		Return(&entity.Bullet{
-			Signifier: entity.SignifierOpen,
-		}, nil).
-		Once()
-
-	s.mockBulletRepo.EXPECT().
-		Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
-		Return(nil).
-		Once()
-
-	got, err := s.uc.CancelBullet(context.Background(), uuid.New(), uuid.New())
-	s.NoError(err)
-	s.Equal(entity.SignifierCancelled, got.Signifier)
-}
-
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_NotFound() {
 	s.mockBulletRepo.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
 		Return(nil, port.ErrNotFound).
 		Once()
 
-	got, err := s.uc.CancelBullet(context.Background(), uuid.New(), uuid.New())
+	got, gotErr := s.uc.CancelBullet(s.T().Context(), uuid.New(), uuid.New())
 	s.Nil(got)
-	s.ErrorIs(err, port.ErrNotFound)
+	s.ErrorIs(gotErr, port.ErrNotFound)
 }
 
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_AlreadyCanceled() {
@@ -69,8 +50,8 @@ func (s *CancelBulletUseCaseSuite) TestCancelBullet_AlreadyCanceled() {
 		}, nil).
 		Once()
 
-	got, err := s.uc.CancelBullet(context.Background(), uuid.New(), uuid.New())
-	s.NoError(err)
+	got, gotErr := s.uc.CancelBullet(s.T().Context(), uuid.New(), uuid.New())
+	s.NoError(gotErr)
 	s.Equal(entity.SignifierCancelled, got.Signifier)
 }
 
@@ -82,9 +63,9 @@ func (s *CancelBulletUseCaseSuite) TestCancelBullet_NotOpen() {
 		}, nil).
 		Once()
 
-	got, err := s.uc.CancelBullet(context.Background(), uuid.New(), uuid.New())
+	got, gotErr := s.uc.CancelBullet(s.T().Context(), uuid.New(), uuid.New())
 	s.Nil(got)
-	s.ErrorIs(err, entity.ErrBulletNotOpen)
+	s.ErrorIs(gotErr, entity.ErrBulletNotOpen)
 }
 
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_UpdateError() {
@@ -102,7 +83,25 @@ func (s *CancelBulletUseCaseSuite) TestCancelBullet_UpdateError() {
 		Return(wantErr).
 		Once()
 
-	got, err := s.uc.CancelBullet(context.Background(), uuid.New(), uuid.New())
+	got, gotErr := s.uc.CancelBullet(s.T().Context(), uuid.New(), uuid.New())
 	s.Nil(got)
-	s.ErrorIs(err, wantErr)
+	s.ErrorIs(gotErr, wantErr)
+}
+
+func (s *CancelBulletUseCaseSuite) TestCancelBullet_Success() {
+	s.mockBulletRepo.EXPECT().
+		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
+		Return(&entity.Bullet{
+			Signifier: entity.SignifierOpen,
+		}, nil).
+		Once()
+
+	s.mockBulletRepo.EXPECT().
+		Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Return(nil).
+		Once()
+
+	got, gotErr := s.uc.CancelBullet(s.T().Context(), uuid.New(), uuid.New())
+	s.NoError(gotErr)
+	s.Equal(entity.SignifierCancelled, got.Signifier)
 }
