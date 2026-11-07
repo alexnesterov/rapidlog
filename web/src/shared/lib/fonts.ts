@@ -5,7 +5,8 @@ export function waitForFonts(): Promise<void> {
 
   const ready = Promise.all([
     document.fonts.load("700 56px Caveat"),
-    document.fonts.load("italic 400 16px Lora"),
+    document.fonts.load("400 30px Caveat"),
+    document.fonts.load('400 16px "Golos Text"'),
   ]).then(() => undefined);
 
   const timeout = new Promise<void>((resolve) => setTimeout(resolve, FONT_TIMEOUT_MS));

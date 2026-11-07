@@ -182,8 +182,11 @@
   gap: 4px;
 }
 
+/* each .day is its own stacking context (the rise animation leaves a
+   transform), so an open row menu would sit under the next day — lift it */
 .day:has(.scribble--type-open),
-.day:has(.scribble-card--type-open) {
+.day:has(.scribble-card--type-open),
+.day:has(.log-line.is-picking) {
   position: relative;
   z-index: 5;
 }
@@ -214,27 +217,19 @@
   margin-bottom: 6px;
 }
 
-.day__head-month {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 13px;
-  color: var(--ink-soft);
-}
-
+/* the day head is handwritten, like the entries under it */
 .day__head-day {
-  font-family: var(--font-display);
+  font-family: var(--font-hand);
   font-style: normal;
-  font-size: 20px;
+  font-size: 32px;
   font-weight: 600;
-  color: var(--ink);
+  color: var(--ink-hand);
 }
 
 .day__head-weekday {
-  font-family: var(--font-mono);
+  font-family: var(--font-hand);
   font-style: normal;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: 24px;
   color: var(--ink-soft);
 }
 
@@ -243,14 +238,13 @@
 .scribble-trigger {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
   padding: 10px 2px;
   background: transparent;
   border: none;
   cursor: pointer;
   font-family: var(--font-body);
-  font-style: italic;
   font-size: 16px;
   color: var(--ink-soft);
   text-align: left;
@@ -258,18 +252,19 @@
 }
 
 .scribble-trigger:hover {
-  color: var(--danger);
+  color: var(--accent-strong);
 }
 
 .scribble-trigger__mark {
   flex-shrink: 0;
-  width: 14px;
+  /* same 16px mark + 12px gap as .log-line, so the prompt sits in the list's columns */
+  width: 16px;
   text-align: center;
   font-family: var(--font-mono);
   font-style: normal;
   font-size: 16px;
   font-weight: 400;
-  color: var(--danger);
+  color: var(--accent);
 }
 
 /* capture card — expanded form: title line + type pill + actions */
@@ -304,7 +299,6 @@
 
 .scribble-card__input::placeholder {
   color: var(--ink-soft);
-  font-style: italic;
 }
 
 .scribble-card__input:focus {
@@ -331,7 +325,6 @@
   border: 1px solid var(--paper-line);
   border-radius: 8px;
   font-family: var(--font-body);
-  font-style: italic;
   font-size: 13px;
   color: var(--ink-soft);
   cursor: pointer;
@@ -449,7 +442,6 @@
 
 .scribble-card__error {
   font-size: 12px;
-  font-style: italic;
   color: var(--danger);
 }
 
@@ -532,7 +524,7 @@
   display: flex;
   align-items: baseline;
   gap: 12px;
-  padding: 10px 2px;
+  padding: 2px 2px;
 }
 
 .log-line__mark {
@@ -542,8 +534,9 @@
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  margin-top: 2px;
-  color: var(--accent);
+  /* centred on the first 24px × 1.2 handwritten line */
+  margin-top: 6px;
+  color: var(--ink);
   border: none;
   background: transparent;
   padding: 0;
@@ -555,7 +548,7 @@ button.log-line__mark {
 }
 
 button.log-line__mark:hover {
-  color: var(--accent-strong);
+  color: var(--ink-soft);
 }
 
 .mark-icon {
@@ -624,8 +617,14 @@ button.log-line__mark:hover {
   flex: 1;
   min-width: 0;
   overflow-wrap: anywhere;
-  font-size: 16px;
-  color: var(--ink);
+  /* entries are handwritten; Caveat runs small, so 24px reads like the
+     16px interface text. It has no italic, so keep it upright */
+  font-family: var(--font-hand);
+  font-weight: 400;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1.2;
+  color: var(--ink-hand);
 }
 
 .log-line__title a {
@@ -644,7 +643,8 @@ button.log-line__mark:hover {
   position: relative;
   flex-shrink: 0;
   align-self: flex-start;
-  margin-top: -1px;
+  /* centred on the first 24px × 1.2 handwritten line, like the mark */
+  margin-top: 3px;
   /* Reserved even when a row has no actions, so the title's available
      width — and therefore how many lines it wraps to — stays the same
      across signifier changes instead of reflowing the rows below it. */
@@ -731,19 +731,19 @@ button.log-line__mark:hover {
   z-index: 2;
 }
 
-.log-line.is-closed .log-line__mark {
-  color: var(--done);
-}
-
-.log-line.is-closed .log-line__title {
+.log-line.is-cancelled .log-line__mark {
   color: var(--ink-soft);
 }
 
-.log-line.is-closed .log-line__title a {
+.log-line.is-cancelled .log-line__title {
+  color: var(--ink-soft);
+}
+
+.log-line.is-cancelled .log-line__title a {
   color: var(--accent);
 }
 
-.log-line.is-closed .log-line__title a:hover,
-.log-line.is-closed .log-line__title a:focus-visible {
+.log-line.is-cancelled .log-line__title a:hover,
+.log-line.is-cancelled .log-line__title a:focus-visible {
   color: var(--accent-strong);
 }

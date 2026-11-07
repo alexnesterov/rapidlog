@@ -1,5 +1,5 @@
-const WEEKDAY_FORMAT = new Intl.DateTimeFormat("ru-RU", { weekday: "long" });
-const MONTH_FORMAT = new Intl.DateTimeFormat("ru-RU", { month: "long" });
+// bullet-journal style day head: "7.11 сб"
+const WEEKDAY_FORMAT = new Intl.DateTimeFormat("ru-RU", { weekday: "short" });
 
 export function todayIsoDate(): string {
   return new Date().toISOString().slice(0, 10);
@@ -13,25 +13,18 @@ function parseIsoDate(iso: string): Date {
   return date;
 }
 
-export function dayNumber(iso: string): number {
+export function dayMonth(iso: string): string {
   try {
-    return parseIsoDate(iso).getDate();
+    const date = parseIsoDate(iso);
+    return `${date.getDate()}.${String(date.getMonth() + 1).padStart(2, "0")}`;
   } catch {
-    return 0;
+    return "";
   }
 }
 
 export function weekday(iso: string): string {
   try {
     return WEEKDAY_FORMAT.format(parseIsoDate(iso));
-  } catch {
-    return "";
-  }
-}
-
-export function month(iso: string): string {
-  try {
-    return MONTH_FORMAT.format(parseIsoDate(iso));
   } catch {
     return "";
   }

@@ -1,3 +1,3 @@
-export { todayIsoDate, dayNumber, weekday, month } from "./date";
+export { todayIsoDate, dayMonth, weekday } from "./date";
 export { waitForFonts } from "./fonts";
 export { linkifyText } from "./linkify";

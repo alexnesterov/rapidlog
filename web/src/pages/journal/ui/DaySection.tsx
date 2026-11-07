@@ -1,5 +1,5 @@
 import type { Bullet, MigrateTarget } from "../model/bullet";
-import { dayNumber, month, weekday } from "@/shared/lib";
+import { dayMonth, weekday } from "@/shared/lib";
 import { BulletForm } from "./BulletForm";
 import { BulletList } from "./BulletList";
 
@@ -25,8 +25,7 @@ export function DaySection({
   return (
     <section className="day" style={{ animationDelay: `${animationDelay}ms` }}>
       <header className="day__head">
-        <span className="day__head-month">{month(date)}</span>
-        <span className="day__head-day">{dayNumber(date)}</span>
+        <span className="day__head-day">{dayMonth(date)}</span>
         <span className="day__head-weekday">{weekday(date)}</span>
       </header>
       <BulletList

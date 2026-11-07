@@ -3,6 +3,9 @@
   --paper-line: rgba(21, 19, 22, 0.14);
   --ink: #151316;
   --ink-soft: #5a5560;
+  /* handwriting ink: black thinned into the paper, softer than print;
+     resolves against whichever --ink/--paper the theme sets */
+  --ink-hand: color-mix(in srgb, var(--ink) 78%, var(--paper));
   --accent: #c97a2b;
   --accent-strong: #a85f18;
   --done: #7a8a6f;
@@ -10,7 +13,8 @@
 
   --font-display: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --font-body: "Lora", Georgia, serif;
+  /* interface reads as print, entries as handwriting (--font-hand) */
+  --font-body: "Golos Text", system-ui, sans-serif;
   --font-hand: "Caveat", "Segoe Script", cursive;
 
   color-scheme: light dark;
@@ -39,7 +43,7 @@ body {
   margin: 0;
   min-height: 100svh;
   font-family: var(--font-body);
-  font-style: italic;
+  font-style: normal;
   background-color: var(--paper);
   background-image: radial-gradient(var(--paper-line) 1px, transparent 1px);
   background-size: 22px 22px;

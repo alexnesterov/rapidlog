@@ -163,7 +163,9 @@ export function BulletList({ bullets, canMigrate, onComplete, onMigrate, onCance
   return (
     <ul className="log-lines">
       {bullets.map((bullet) => {
-        const closed = bullet.signifier === "SIGNIFIER_COMPLETED" || bullet.signifier === "SIGNIFIER_CANCELLED";
+        // only cancelled rows are dimmed (under their strike); completed ones
+        // stay full ink — the cross mark alone says they're done
+        const cancelled = bullet.signifier === "SIGNIFIER_CANCELLED";
         const canComplete = bullet.type === "BULLET_TYPE_TASK" && bullet.signifier === "SIGNIFIER_OPEN";
         const showMigrate = canMigrate && canComplete;
         const canCancel = bullet.signifier === "SIGNIFIER_OPEN";
@@ -186,8 +188,8 @@ export function BulletList({ bullets, canMigrate, onComplete, onMigrate, onCance
         }
 
         return (
-          <li className={`log-line ${closed ? "is-closed" : ""} ${pickerOpen ? "is-picking" : ""}`} key={bullet.id}>
-            {bullet.signifier === "SIGNIFIER_CANCELLED" ? (
+          <li className={`log-line ${cancelled ? "is-cancelled" : ""} ${pickerOpen ? "is-picking" : ""}`} key={bullet.id}>
+            {cancelled ? (
               <CancelledEntry content={bullet.content} TypeMark={TypeMark} />
             ) : (
               <OpenEntry
