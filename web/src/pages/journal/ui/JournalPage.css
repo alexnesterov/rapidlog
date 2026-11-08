@@ -263,7 +263,7 @@
   /* same 16px mark + 12px gap as .log-line, so the prompt sits in the list's columns */
   width: 16px;
   text-align: center;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-style: normal;
   font-size: 16px;
   font-weight: 400;
@@ -512,8 +512,8 @@
 }
 
 .log-state {
-  font-family: var(--font-mono);
-  font-size: 13px;
+  font-family: var(--font-body);
+  font-size: 14px;
   color: var(--ink-soft);
   padding: 20px 2px;
 }
