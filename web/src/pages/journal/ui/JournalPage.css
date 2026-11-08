@@ -104,9 +104,9 @@
   top: 48px;
   right: 22px;
   z-index: 40;
-  font-family: system-ui, sans-serif;
+  font-family: var(--font-body);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #b3261e;
