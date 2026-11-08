@@ -12,7 +12,6 @@
   --danger: #b3432f;
 
   --font-display: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   /* interface reads as print, entries as handwriting (--font-hand) */
   --font-body: "Golos Text", system-ui, sans-serif;
   --font-hand: "Caveat", "Segoe Script", cursive;
