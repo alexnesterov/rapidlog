@@ -1,6 +1,6 @@
 .page {
   position: relative;
-  max-width: 560px;
+  max-width: 640px;
   margin: 0 auto;
   padding: 56px 24px 40px;
   display: flex;
@@ -86,7 +86,7 @@
 }
 
 .page__accent::before {
-  content: "";
+  content: '';
   position: absolute;
   left: -3px;
   right: -3px;
@@ -173,7 +173,7 @@
 .days {
   display: flex;
   flex-direction: column;
-  gap: 44px;
+  gap: 32px;
 }
 
 .day {
@@ -230,6 +230,9 @@
   font-family: var(--font-hand);
   font-style: normal;
   font-size: 24px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--ink-soft);
 }
 
@@ -534,8 +537,8 @@
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  /* centred on the first 24px × 1.2 handwritten line */
-  margin-top: 6px;
+  /* centred on the first 24px × 1 handwritten line */
+  margin-top: 4px;
   color: var(--ink);
   border: none;
   background: transparent;
@@ -623,7 +626,7 @@ button.log-line__mark:hover {
   font-weight: 400;
   font-style: normal;
   font-size: 24px;
-  line-height: 1.2;
+  line-height: 1;
   color: var(--ink-hand);
 }
 
@@ -643,8 +646,8 @@ button.log-line__mark:hover {
   position: relative;
   flex-shrink: 0;
   align-self: flex-start;
-  /* centred on the first 24px × 1.2 handwritten line, like the mark */
-  margin-top: 3px;
+  /* centred on the first 24px × 1 handwritten line, like the mark */
+  margin-top: 1px;
   /* Reserved even when a row has no actions, so the title's available
      width — and therefore how many lines it wraps to — stays the same
      across signifier changes instead of reflowing the rows below it. */
