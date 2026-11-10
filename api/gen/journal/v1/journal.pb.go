@@ -81,7 +81,6 @@ const (
 	Signifier_SIGNIFIER_OPEN        Signifier = 1
 	Signifier_SIGNIFIER_COMPLETED   Signifier = 2
 	Signifier_SIGNIFIER_CANCELLED   Signifier = 3
-	Signifier_SIGNIFIER_SCHEDULED   Signifier = 4
 )
 
 // Enum value maps for Signifier.
@@ -91,14 +90,12 @@ var (
 		1: "SIGNIFIER_OPEN",
 		2: "SIGNIFIER_COMPLETED",
 		3: "SIGNIFIER_CANCELLED",
-		4: "SIGNIFIER_SCHEDULED",
 	}
 	Signifier_value = map[string]int32{
 		"SIGNIFIER_UNSPECIFIED": 0,
 		"SIGNIFIER_OPEN":        1,
 		"SIGNIFIER_COMPLETED":   2,
 		"SIGNIFIER_CANCELLED":   3,
-		"SIGNIFIER_SCHEDULED":   4,
 	}
 )
 
@@ -747,13 +744,12 @@ const file_journal_v1_journal_proto_rawDesc = "" +
 	"\x17BULLET_TYPE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10BULLET_TYPE_TASK\x10\x01\x12\x15\n" +
 	"\x11BULLET_TYPE_EVENT\x10\x02\x12\x14\n" +
-	"\x10BULLET_TYPE_NOTE\x10\x03*\x85\x01\n" +
+	"\x10BULLET_TYPE_NOTE\x10\x03*l\n" +
 	"\tSignifier\x12\x19\n" +
 	"\x15SIGNIFIER_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eSIGNIFIER_OPEN\x10\x01\x12\x17\n" +
 	"\x13SIGNIFIER_COMPLETED\x10\x02\x12\x17\n" +
-	"\x13SIGNIFIER_CANCELLED\x10\x03\x12\x17\n" +
-	"\x13SIGNIFIER_SCHEDULED\x10\x042\xbf\x03\n" +
+	"\x13SIGNIFIER_CANCELLED\x10\x032\xbf\x03\n" +
 	"\x0eJournalService\x12S\n" +
 	"\fCreateBullet\x12\x1f.journal.v1.CreateBulletRequest\x1a .journal.v1.CreateBulletResponse\"\x00\x12P\n" +
 	"\vListBullets\x12\x1e.journal.v1.ListBulletsRequest\x1a\x1f.journal.v1.ListBulletsResponse\"\x00\x12Y\n" +

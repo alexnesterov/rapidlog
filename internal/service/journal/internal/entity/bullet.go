@@ -34,7 +34,6 @@ type Signifier string
 const (
 	SignifierOpen      Signifier = "open"
 	SignifierCompleted Signifier = "completed"
-	SignifierScheduled Signifier = "scheduled"
 	SignifierCancelled Signifier = "cancelled"
 )
 

@@ -15,19 +15,18 @@
 | id            | UUID      |                                                                   |
 | userId        | UUID      | анонимный владелец (см. привязку к сессии)                       |
 | type          | string    | `BULLET_TYPE_TASK` \| `BULLET_TYPE_EVENT` \| `BULLET_TYPE_NOTE`, обязательное |
-| signifier     | string    | `SIGNIFIER_OPEN` \| `SIGNIFIER_COMPLETED` \| `SIGNIFIER_SCHEDULED` \| `SIGNIFIER_CANCELLED` |
+| signifier     | string    | `SIGNIFIER_OPEN` \| `SIGNIFIER_COMPLETED` \| `SIGNIFIER_CANCELLED` |
 | content       | string    | обязательное, ≤200 символов                                       |
 | createdAt     | timestamp | RFC 3339, UTC                                                     |
 | updatedAt     | timestamp | RFC 3339, UTC                                                     |
 
 По аналогии с нотацией Bullet Journal: `type` описывает разновидность
 записи (задача, событие, заметка), `signifier` — её состояние (открыта,
-выполнена, запланирована, отменена). Реализованы пока переходы
+выполнена, отменена). Реализованы пока переходы
 `open` → `completed` и `open` → `cancelled` (см. `POST
 /api/bullets/{id}/complete` и `POST /api/bullets/{id}/cancel`).
 Перенос (`POST /api/bullets/{id}/migrate`) статус не меняет: открытая
-задача переезжает в текущий день. `scheduled` зарезервирован под
-будущие операции. Ниже в тексте
+задача переезжает в текущий день. Ниже в тексте
 значения сокращены (`open`, `task`), в JSON они всегда полные.
 
 **Операции:** Create, List, Complete, Migrate, Cancel.
