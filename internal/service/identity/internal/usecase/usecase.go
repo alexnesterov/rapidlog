@@ -2,14 +2,12 @@ package usecase
 
 import "github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/port"
 
-type identityService struct {
-	userRepo port.UserRepository
+type Usecase struct {
+	repo port.UserRepository
 }
 
-func NewIdentityService(userRepo port.UserRepository) *identityService {
-	return &identityService{
-		userRepo: userRepo,
+func New(r port.UserRepository) *Usecase {
+	return &Usecase{
+		repo: r,
 	}
 }
-
-var _ port.IdentityService = &identityService{}

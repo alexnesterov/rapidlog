@@ -19,6 +19,9 @@ packages:
   github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/port:
     config:
       all: true
+  github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/controller/grpcapi:
+    config:
+      all: true
   github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port:
     config:
       all: true

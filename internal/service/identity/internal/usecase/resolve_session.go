@@ -5,21 +5,20 @@ import (
 	"errors"
 
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/entity"
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/port"
 	"github.com/google/uuid"
 )
 
-func (s *identityService) ResolveSession(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
-	user, err := s.userRepo.Get(ctx, id)
+func (s *Usecase) ResolveSession(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
+	user, err := s.repo.Get(ctx, id)
 	if err == nil {
 		return user.ID, nil
 	}
-	if !errors.Is(err, port.ErrNotFound) {
+	if !errors.Is(err, entity.ErrNotFound) {
 		return uuid.Nil, err
 	}
 
 	newUser := entity.NewUser()
-	err = s.userRepo.Create(ctx, newUser)
+	err = s.repo.Create(ctx, newUser)
 	if err != nil {
 		return uuid.Nil, err
 	}

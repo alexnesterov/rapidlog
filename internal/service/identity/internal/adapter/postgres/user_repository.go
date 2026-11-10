@@ -52,7 +52,7 @@ func (r *userRepository) Get(ctx context.Context, id uuid.UUID) (*entity.User, e
 	)
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, port.ErrNotFound
+		return nil, entity.ErrNotFound
 	}
 	if err != nil {
 		return nil, err
