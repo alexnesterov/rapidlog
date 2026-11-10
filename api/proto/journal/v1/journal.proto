@@ -18,7 +18,6 @@ enum Signifier {
   SIGNIFIER_OPEN        = 1;
   SIGNIFIER_COMPLETED   = 2;
   SIGNIFIER_CANCELLED   = 3;
-  SIGNIFIER_SCHEDULED   = 4;
 }
 
 message Bullet {

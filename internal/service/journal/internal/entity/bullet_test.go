@@ -278,13 +278,6 @@ func TestBullet_Migrate(t *testing.T) {
 			wantErr:    ErrBulletNotOpenTask,
 		},
 		{
-			name:       "task scheduled",
-			bulletType: BulletTask,
-			signifier:  SignifierScheduled,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletNotOpenTask,
-		},
-		{
 			name:       "task cancelled",
 			bulletType: BulletTask,
 			signifier:  SignifierCancelled,

@@ -29,8 +29,6 @@ func ToProtoSignifier(s entity.Signifier) (journalv1.Signifier, error) {
 		return journalv1.Signifier_SIGNIFIER_COMPLETED, nil
 	case entity.SignifierCancelled:
 		return journalv1.Signifier_SIGNIFIER_CANCELLED, nil
-	case entity.SignifierScheduled:
-		return journalv1.Signifier_SIGNIFIER_SCHEDULED, nil
 	default:
 		return journalv1.Signifier_SIGNIFIER_UNSPECIFIED, fmt.Errorf("unknown signifier: %v", s)
 	}

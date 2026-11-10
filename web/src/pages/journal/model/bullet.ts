@@ -1,12 +1,14 @@
-export type BulletType = "BULLET_TYPE_TASK" | "BULLET_TYPE_EVENT" | "BULLET_TYPE_NOTE";
+export type BulletType =
+  | 'BULLET_TYPE_TASK'
+  | 'BULLET_TYPE_EVENT'
+  | 'BULLET_TYPE_NOTE';
 
 export type Signifier =
-  | "SIGNIFIER_OPEN"
-  | "SIGNIFIER_COMPLETED"
-  | "SIGNIFIER_SCHEDULED"
-  | "SIGNIFIER_CANCELLED";
+  | 'SIGNIFIER_OPEN'
+  | 'SIGNIFIER_COMPLETED'
+  | 'SIGNIFIER_CANCELLED';
 
-export type MigrateTarget = "today";
+export type MigrateTarget = 'today';
 
 export interface Bullet {
   id: string;
