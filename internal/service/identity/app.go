@@ -7,7 +7,6 @@ import (
 	"net"
 	"time"
 
-	identityv1 "github.com/alexnesterov/rapidlog-api/api/gen/identity/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/config"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/adapter/postgres"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/controller/grpcapi"
@@ -33,13 +32,11 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	userRepository := postgres.NewUserRepository(pool)
-	identityService := usecase.NewIdentityService(userRepository)
-
-	handler := grpcapi.NewHandler(identityService)
+	repository := postgres.NewUserRepository(pool)
+	uc := usecase.New(repository)
 
 	grpcServer := grpc.NewServer()
-	identityv1.RegisterIdentityServiceServer(grpcServer, handler)
+	grpcapi.RegisterIdentityService(grpcServer, uc)
 
 	lis, err := net.Listen("tcp", ":"+cfg.Port)
 	if err != nil {

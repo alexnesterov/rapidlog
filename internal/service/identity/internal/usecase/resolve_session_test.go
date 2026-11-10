@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/entity"
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/port"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/port/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/usecase"
 	"github.com/google/uuid"
@@ -17,7 +16,7 @@ import (
 type ResolveSessionUseCaseSuite struct {
 	suite.Suite
 	userRepoMock *mocks.MockUserRepository
-	uc           port.IdentityService
+	uc           *usecase.Usecase
 }
 
 func TestResolveSessionUseCaseSuite(t *testing.T) {
@@ -26,7 +25,7 @@ func TestResolveSessionUseCaseSuite(t *testing.T) {
 
 func (s *ResolveSessionUseCaseSuite) SetupTest() {
 	s.userRepoMock = mocks.NewMockUserRepository(s.T())
-	s.uc = usecase.NewIdentityService(s.userRepoMock)
+	s.uc = usecase.New(s.userRepoMock)
 }
 
 func (s *ResolveSessionUseCaseSuite) TestResolveSession_Exists() {
@@ -47,7 +46,7 @@ func (s *ResolveSessionUseCaseSuite) TestResolveSession_NotExists() {
 
 	s.userRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID")).
-		Return(nil, port.ErrNotFound).
+		Return(nil, entity.ErrNotFound).
 		Once()
 
 	s.userRepoMock.EXPECT().
@@ -81,7 +80,7 @@ func (s *ResolveSessionUseCaseSuite) TestResolveSession_CreateError() {
 
 	s.userRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID")).
-		Return(nil, port.ErrNotFound).
+		Return(nil, entity.ErrNotFound).
 		Once()
 
 	s.userRepoMock.EXPECT().

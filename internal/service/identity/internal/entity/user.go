@@ -1,10 +1,13 @@
 package entity
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+var ErrNotFound = errors.New("not found")
 
 type User struct {
 	ID        uuid.UUID
