@@ -21,8 +21,8 @@ example {
   response: {
     headers: {
       content-type: application/json
-      date: Mon, 03 Aug 2026 12:00:05 GMT
-      content-length: 485
+      date: Tue, 10 Nov 2026 12:13:10 GMT
+      content-length: 918
     }
 
     status: {
@@ -36,58 +36,33 @@ example {
         {
           "data": [
             {
-              "day": "2026-08-03",
-              "bullets": [
-                {
-                  "id": "e1470c22-25d7-40e1-9fba-a28571d6a929",
-                  "type": "task",
-                  "signifier": "open",
-                  "content": "Оплатить хостинг",
-                  "created_at": "2026-08-03T15:00:05.921027+03:00",
-                  "updated_at": "2026-08-03T15:00:05.921027+03:00"
-                },
-                {
-                  "id": "fd33f162-7774-4a18-9bbc-b9ce6cde586f",
-                  "type": "event",
-                  "signifier": "open",
-                  "content": "Позвонить клиенту",
-                  "created_at": "2026-08-03T15:00:05.929698+03:00",
-                  "updated_at": "2026-08-03T15:00:05.929698+03:00"
-                }
-              ]
+              "id": "2433161e-143b-4d82-970a-eb2ae00cf3e9",
+              "userId": "b5f7e648-d309-4beb-be34-f13c5b00af1a",
+              "kind": "KIND_TASK",
+              "signifier": "SIGNIFIER_OPEN",
+              "content": "Смигрируй эту задачу на сегодня",
+              "createdAt": "2026-11-09T12:13:10.062098461Z",
+              "updatedAt": "2026-11-09T12:13:10.062098461Z"
+            },
+            {
+              "id": "73331868-417f-45ea-8dbc-688269fce599",
+              "userId": "b5f7e648-d309-4beb-be34-f13c5b00af1a",
+              "kind": "KIND_EVENT",
+              "signifier": "SIGNIFIER_OPEN",
+              "content": "Встреча в 15:00",
+              "createdAt": "2026-11-09T12:13:10.062114253Z",
+              "updatedAt": "2026-11-09T12:13:10.062114253Z"
+            },
+            {
+              "id": "b5a57b26-44f0-4b96-94b1-f199076e452f",
+              "userId": "b5f7e648-d309-4beb-be34-f13c5b00af1a",
+              "kind": "KIND_NOTE",
+              "signifier": "SIGNIFIER_OPEN",
+              "content": "Идея для заметок — сюда пишешь мысли без действия",
+              "createdAt": "2026-11-09T12:13:10.062126378Z",
+              "updatedAt": "2026-11-09T12:13:10.062126378Z"
             }
           ]
-        }
-      '''
-    }
-  }
-}
-
-example {
-  name: empty list
-
-  request: {
-    url: {{baseUrl}}/api/bullets
-    method: GET
-  }
-
-  response: {
-    headers: {
-      content-type: application/json
-      date: Mon, 03 Aug 2026 12:00:00 GMT
-      content-length: 12
-    }
-
-    status: {
-      code: 200
-      text: OK
-    }
-
-    body: {
-      type: json
-      content: '''
-        {
-          "data": []
         }
       '''
     }

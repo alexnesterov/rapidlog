@@ -8,7 +8,7 @@ import (
 )
 
 func (uc *usecase) CreateBullet(ctx context.Context, input port.CreateBulletInput) (*entity.Bullet, error) {
-	bullet, err := entity.NewBullet(input.UserID, input.Type, input.Content)
+	bullet, err := entity.NewBullet(input.UserID, input.Kind, input.Content)
 	if err != nil {
 		return nil, err
 	}

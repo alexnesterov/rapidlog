@@ -12,49 +12,50 @@ post {
 
 body:json {
   {
-    "type": "task",
+    "kind": "KIND_TASK",
     "content": "Оплатить хостинг"
   }
 }
 
 example {
   name: success
-  
+
   request: {
     url: {{baseUrl}}/api/bullets
     method: POST
     mode: json
     body:json: {
       {
-        "type": "task",
+        "kind": "KIND_TASK",
         "content": "Оплатить хостинг"
       }
     }
   }
-  
+
   response: {
     headers: {
       content-type: application/json
-      date: Wed, 26 Aug 2026 13:48:49 GMT
-      content-length: 224
+      date: Tue, 10 Nov 2026 12:13:10 GMT
+      content-length: 284
     }
-  
+
     status: {
       code: 201
       text: Created
     }
-  
+
     body: {
       type: json
       content: '''
         {
           "data": {
-            "id": "a2592511-d4ab-409b-9535-1b2c2d194132",
-            "type": "task",
-            "signifier": "open",
+            "id": "d006ad48-58a2-4173-9c4e-c6d20e462e22",
+            "userId": "b5f7e648-d309-4beb-be34-f13c5b00af1a",
+            "kind": "KIND_TASK",
+            "signifier": "SIGNIFIER_OPEN",
             "content": "Оплатить хостинг",
-            "created_at": "2026-08-26T13:48:49.572337881Z",
-            "updated_at": "2026-08-26T13:48:49.572337881Z"
+            "createdAt": "2026-11-10T12:13:10.079754128Z",
+            "updatedAt": "2026-11-10T12:13:10.079754128Z"
           }
         }
       '''
@@ -64,7 +65,7 @@ example {
 
 example {
   name: invalid request body
-  
+
   request: {
     url: {{baseUrl}}/api/bullets
     method: POST
@@ -73,19 +74,61 @@ example {
       не json
     }
   }
-  
+
   response: {
     headers: {
       content-type: application/json
-      date: Tue, 28 Jul 2026 12:34:33 GMT
+      date: Tue, 10 Nov 2026 12:13:10 GMT
       content-length: 68
     }
-  
+
     status: {
       code: 400
       text: Bad Request
     }
-  
+
+    body: {
+      type: json
+      content: '''
+        {
+          "data": null,
+          "error": {
+            "code": 400,
+            "message": "invalid request body"
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: unknown kind
+
+  request: {
+    url: {{baseUrl}}/api/bullets
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "kind": "task",
+        "content": "Оплатить хостинг"
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json
+      date: Tue, 10 Nov 2026 12:13:10 GMT
+      content-length: 68
+    }
+
+    status: {
+      code: 400
+      text: Bad Request
+    }
+
     body: {
       type: json
       content: '''
@@ -103,38 +146,39 @@ example {
 
 example {
   name: validation error
-  
+
   request: {
     url: {{baseUrl}}/api/bullets
     method: POST
     mode: json
     body:json: {
       {
+        "kind": "KIND_TASK",
         "content": ""
       }
     }
   }
-  
+
   response: {
     headers: {
       content-type: application/json
-      date: Tue, 28 Jul 2026 12:35:56 GMT
-      content-length: 65
+      date: Tue, 10 Nov 2026 12:13:10 GMT
+      content-length: 69
     }
-  
+
     status: {
-      code: 400
-      text: Bad Request
+      code: 500
+      text: Internal Server Error
     }
-  
+
     body: {
       type: json
       content: '''
         {
           "data": null,
           "error": {
-            "code": 400,
-            "message": "content is required"
+            "code": 500,
+            "message": "Internal Server Error"
           }
         }
       '''

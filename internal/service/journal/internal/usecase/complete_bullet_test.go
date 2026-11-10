@@ -46,7 +46,7 @@ func (s *CompleteBulletUseCaseSuite) TestComleteBullet_AlreadyCompleted() {
 	s.mockBulletRepo.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
 		Return(&entity.Bullet{
-			Type:      entity.BulletTask,
+			Kind:      entity.KindTask,
 			Signifier: entity.SignifierCompleted,
 		}, nil).
 		Once()
@@ -60,7 +60,7 @@ func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_ValidationError() {
 	s.mockBulletRepo.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
 		Return(&entity.Bullet{
-			Type:      entity.BulletNote,
+			Kind:      entity.KindNote,
 			Signifier: entity.SignifierCancelled,
 		}, nil).
 		Once()
@@ -77,7 +77,7 @@ func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_UpdateError() {
 	s.mockBulletRepo.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
 		Return(&entity.Bullet{
-			Type:      entity.BulletTask,
+			Kind:      entity.KindTask,
 			Signifier: entity.SignifierOpen,
 		}, nil).
 		Once()
@@ -96,7 +96,7 @@ func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_Success() {
 	s.mockBulletRepo.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
 		Return(&entity.Bullet{
-			Type:      entity.BulletTask,
+			Kind:      entity.KindTask,
 			Signifier: entity.SignifierOpen,
 		}, nil).
 		Once()

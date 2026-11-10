@@ -14,66 +14,66 @@ func TestNewBullet(t *testing.T) {
 	userID := uuid.New()
 
 	cases := []struct {
-		name       string
-		userID     uuid.UUID
-		bulletType BulletType
-		content    string
-		wantErr    error
+		name    string
+		userID  uuid.UUID
+		kind    Kind
+		content string
+		wantErr error
 	}{
 		{
-			name:       "valid task",
-			userID:     userID,
-			bulletType: BulletTask,
-			content:    "Заголовок",
-			wantErr:    nil,
+			name:    "valid task",
+			userID:  userID,
+			kind:    KindTask,
+			content: "Заголовок",
+			wantErr: nil,
 		},
 		{
-			name:       "valid event",
-			userID:     userID,
-			bulletType: BulletEvent,
-			content:    "Заголовок",
-			wantErr:    nil,
+			name:    "valid event",
+			userID:  userID,
+			kind:    KindEvent,
+			content: "Заголовок",
+			wantErr: nil,
 		},
 		{
-			name:       "valid note",
-			userID:     userID,
-			bulletType: BulletNote,
-			content:    "Заголовок",
-			wantErr:    nil,
+			name:    "valid note",
+			userID:  userID,
+			kind:    KindNote,
+			content: "Заголовок",
+			wantErr: nil,
 		},
 		{
-			name:       "invalid type",
-			userID:     userID,
-			bulletType: BulletType("invalid"),
-			content:    "Заголовок",
-			wantErr:    ErrBulletTypeInvalid,
+			name:    "invalid type",
+			userID:  userID,
+			kind:    Kind("invalid"),
+			content: "Заголовок",
+			wantErr: ErrBulletKindInvalid,
 		},
 		{
-			name:       "required content",
-			userID:     userID,
-			bulletType: BulletTask,
-			content:    "",
-			wantErr:    ErrBulletContentRequired,
+			name:    "required content",
+			userID:  userID,
+			kind:    KindTask,
+			content: "",
+			wantErr: ErrBulletContentRequired,
 		},
 		{
-			name:       "content too long",
-			userID:     userID,
-			bulletType: BulletTask,
-			content:    strings.Repeat("a", 201),
-			wantErr:    ErrBulletContentTooLong,
+			name:    "content too long",
+			userID:  userID,
+			kind:    KindTask,
+			content: strings.Repeat("a", 201),
+			wantErr: ErrBulletContentTooLong,
 		},
 		{
-			name:       "user id required",
-			userID:     uuid.Nil,
-			bulletType: BulletTask,
-			content:    "Заголовок",
-			wantErr:    ErrBulletUserIDRequired,
+			name:    "user id required",
+			userID:  uuid.Nil,
+			kind:    KindTask,
+			content: "Заголовок",
+			wantErr: ErrBulletUserIDRequired,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := NewBullet(tc.userID, tc.bulletType, tc.content)
+			got, err := NewBullet(tc.userID, tc.kind, tc.content)
 
 			if tc.wantErr != nil {
 				require.Error(t, err)
@@ -89,7 +89,7 @@ func TestNewBullet(t *testing.T) {
 			require.NotNil(t, got)
 
 			assert.Equal(t, tc.userID, got.UserID)
-			assert.Equal(t, tc.bulletType, got.Type)
+			assert.Equal(t, tc.kind, got.Kind)
 			assert.Equal(t, tc.content, got.Content)
 			assert.Equal(t, SignifierOpen, got.Signifier)
 			assert.NotEqual(t, uuid.Nil, got.ID)
@@ -110,25 +110,25 @@ func TestBullet_Validate(t *testing.T) {
 			bullet: Bullet{
 				UserID:  uuid.New(),
 				Content: "Заголовок",
-				Type:    "invalid",
+				Kind:    "invalid",
 			},
-			wantErr: ErrBulletTypeInvalid,
+			wantErr: ErrBulletKindInvalid,
 		},
 		{
 			name: "type empty",
 			bullet: Bullet{
 				UserID:  uuid.New(),
 				Content: "Заголовок",
-				Type:    "",
+				Kind:    "",
 			},
-			wantErr: ErrBulletTypeInvalid,
+			wantErr: ErrBulletKindInvalid,
 		},
 		{
 			name: "valid content",
 			bullet: Bullet{
 				UserID:  uuid.New(),
 				Content: "Заголовок",
-				Type:    BulletTask,
+				Kind:    KindTask,
 			},
 			wantErr: nil,
 		},
@@ -137,7 +137,7 @@ func TestBullet_Validate(t *testing.T) {
 			bullet: Bullet{
 				UserID:  uuid.New(),
 				Content: "",
-				Type:    BulletTask,
+				Kind:    KindTask,
 			},
 			wantErr: ErrBulletContentRequired,
 		},
@@ -146,7 +146,7 @@ func TestBullet_Validate(t *testing.T) {
 			bullet: Bullet{
 				UserID:  uuid.New(),
 				Content: strings.Repeat("а", 201),
-				Type:    BulletTask,
+				Kind:    KindTask,
 			},
 			wantErr: ErrBulletContentTooLong,
 		},
@@ -155,7 +155,7 @@ func TestBullet_Validate(t *testing.T) {
 			bullet: Bullet{
 				UserID:  uuid.New(),
 				Content: strings.Repeat("ф", 200),
-				Type:    BulletTask,
+				Kind:    KindTask,
 			},
 			wantErr: nil,
 		},
@@ -164,7 +164,7 @@ func TestBullet_Validate(t *testing.T) {
 			bullet: Bullet{
 				UserID:  uuid.Nil,
 				Content: "Заголовок",
-				Type:    BulletTask,
+				Kind:    KindTask,
 			},
 			wantErr: ErrBulletUserIDRequired,
 		},
@@ -196,7 +196,7 @@ func TestBullet_Complete(t *testing.T) {
 		{
 			name: "task open",
 			bullet: Bullet{
-				Type:      BulletTask,
+				Kind:      KindTask,
 				Signifier: SignifierOpen,
 			},
 			wantErr: nil,
@@ -204,7 +204,7 @@ func TestBullet_Complete(t *testing.T) {
 		{
 			name: "task completed",
 			bullet: Bullet{
-				Type:      BulletTask,
+				Kind:      KindTask,
 				Signifier: SignifierCompleted,
 			},
 			wantErr: ErrBulletAlreadyCompleted,
@@ -212,7 +212,7 @@ func TestBullet_Complete(t *testing.T) {
 		{
 			name: "task canceled",
 			bullet: Bullet{
-				Type:      BulletTask,
+				Kind:      KindTask,
 				Signifier: SignifierCancelled,
 			},
 			wantErr: ErrBulletNotOpen,
@@ -220,7 +220,7 @@ func TestBullet_Complete(t *testing.T) {
 		{
 			name: "event open",
 			bullet: Bullet{
-				Type:      BulletEvent,
+				Kind:      KindEvent,
 				Signifier: SignifierOpen,
 			},
 			wantErr: ErrBulletNotTask,
@@ -228,7 +228,7 @@ func TestBullet_Complete(t *testing.T) {
 		{
 			name: "note open",
 			bullet: Bullet{
-				Type:      BulletNote,
+				Kind:      KindNote,
 				Signifier: SignifierOpen,
 			},
 			wantErr: ErrBulletNotTask,
@@ -257,67 +257,67 @@ func TestBullet_Complete(t *testing.T) {
 
 func TestBullet_Migrate(t *testing.T) {
 	cases := []struct {
-		name       string
-		bulletType BulletType
-		signifier  Signifier
-		createdAt  time.Time
-		wantErr    error
+		name      string
+		kind      Kind
+		signifier Signifier
+		createdAt time.Time
+		wantErr   error
 	}{
 		{
-			name:       "task open",
-			bulletType: BulletTask,
-			signifier:  SignifierOpen,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    nil,
+			name:      "task open",
+			kind:      KindTask,
+			signifier: SignifierOpen,
+			createdAt: time.Now().Add(-24 * time.Hour),
+			wantErr:   nil,
 		},
 		{
-			name:       "task completed",
-			bulletType: BulletTask,
-			signifier:  SignifierCompleted,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletNotOpenTask,
+			name:      "task completed",
+			kind:      KindTask,
+			signifier: SignifierCompleted,
+			createdAt: time.Now().Add(-24 * time.Hour),
+			wantErr:   ErrBulletNotOpenTask,
 		},
 		{
-			name:       "task cancelled",
-			bulletType: BulletTask,
-			signifier:  SignifierCancelled,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletNotOpenTask,
+			name:      "task cancelled",
+			kind:      KindTask,
+			signifier: SignifierCancelled,
+			createdAt: time.Now().Add(-24 * time.Hour),
+			wantErr:   ErrBulletNotOpenTask,
 		},
 		{
-			name:       "event open",
-			bulletType: BulletEvent,
-			signifier:  SignifierOpen,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletNotOpenTask,
+			name:      "event open",
+			kind:      KindEvent,
+			signifier: SignifierOpen,
+			createdAt: time.Now().Add(-24 * time.Hour),
+			wantErr:   ErrBulletNotOpenTask,
 		},
 		{
-			name:       "event canceled",
-			bulletType: BulletEvent,
-			signifier:  SignifierCancelled,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletNotOpenTask,
+			name:      "event canceled",
+			kind:      KindEvent,
+			signifier: SignifierCancelled,
+			createdAt: time.Now().Add(-24 * time.Hour),
+			wantErr:   ErrBulletNotOpenTask,
 		},
 		{
-			name:       "note open",
-			bulletType: BulletNote,
-			signifier:  SignifierOpen,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletNotOpenTask,
+			name:      "note open",
+			kind:      KindNote,
+			signifier: SignifierOpen,
+			createdAt: time.Now().Add(-24 * time.Hour),
+			wantErr:   ErrBulletNotOpenTask,
 		},
 		{
-			name:       "note canceled",
-			bulletType: BulletNote,
-			signifier:  SignifierCancelled,
-			createdAt:  time.Now().Add(-24 * time.Hour),
-			wantErr:    ErrBulletNotOpenTask,
+			name:      "note canceled",
+			kind:      KindNote,
+			signifier: SignifierCancelled,
+			createdAt: time.Now().Add(-24 * time.Hour),
+			wantErr:   ErrBulletNotOpenTask,
 		},
 		{
-			name:       "created at today",
-			bulletType: BulletTask,
-			signifier:  SignifierOpen,
-			createdAt:  time.Now(),
-			wantErr:    ErrBulletCreatedToday,
+			name:      "created at today",
+			kind:      KindTask,
+			signifier: SignifierOpen,
+			createdAt: time.Now(),
+			wantErr:   ErrBulletCreatedToday,
 		},
 	}
 
@@ -325,7 +325,7 @@ func TestBullet_Migrate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			bullet := Bullet{
 				ID:        uuid.New(),
-				Type:      tc.bulletType,
+				Kind:      tc.kind,
 				Signifier: tc.signifier,
 				Content:   "Test task",
 				UserID:    uuid.New(),
@@ -361,27 +361,27 @@ func TestBullet_Cancel(t *testing.T) {
 	}{
 		{
 			name:    "task open",
-			bullet:  Bullet{Type: BulletTask, Signifier: SignifierOpen},
+			bullet:  Bullet{Kind: KindTask, Signifier: SignifierOpen},
 			wantErr: nil,
 		},
 		{
 			name:    "event open",
-			bullet:  Bullet{Type: BulletEvent, Signifier: SignifierOpen},
+			bullet:  Bullet{Kind: KindEvent, Signifier: SignifierOpen},
 			wantErr: nil,
 		},
 		{
 			name:    "note open",
-			bullet:  Bullet{Type: BulletNote, Signifier: SignifierOpen},
+			bullet:  Bullet{Kind: KindNote, Signifier: SignifierOpen},
 			wantErr: nil,
 		},
 		{
 			name:    "task cancelled",
-			bullet:  Bullet{Type: BulletTask, Signifier: SignifierCancelled},
+			bullet:  Bullet{Kind: KindTask, Signifier: SignifierCancelled},
 			wantErr: ErrBulletAlreadyCancelled,
 		},
 		{
 			name:    "task completed",
-			bullet:  Bullet{Type: BulletTask, Signifier: SignifierCompleted},
+			bullet:  Bullet{Kind: KindTask, Signifier: SignifierCompleted},
 			wantErr: ErrBulletNotOpen,
 		},
 	}

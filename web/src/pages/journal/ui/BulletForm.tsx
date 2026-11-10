@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useCreateBulletMutation } from "../api/bulletsQueries";
 import { ApiError } from "@/shared/api";
-import type { BulletType } from "../model/bullet";
-import { TYPE_LABELS, TYPE_MARKS } from "./bulletMarks";
+import type { Kind } from "../model/bullet";
+import { KIND_LABELS, KIND_MARKS } from "./bulletMarks";
 
-const TYPES: BulletType[] = ["BULLET_TYPE_TASK", "BULLET_TYPE_EVENT", "BULLET_TYPE_NOTE"];
+const KINDS: Kind[] = ["KIND_TASK", "KIND_EVENT", "KIND_NOTE"];
 
 export function BulletForm() {
   const createMutation = useCreateBulletMutation();
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState("");
-  const [type, setType] = useState<BulletType>("BULLET_TYPE_TASK");
+  const [kind, setKind] = useState<Kind>("KIND_TASK");
   const [typeOpen, setTypeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitting = createMutation.isPending;
@@ -59,9 +59,9 @@ export function BulletForm() {
     }
 
     try {
-      await createMutation.mutateAsync({ content: title.trim(), type });
+      await createMutation.mutateAsync({ content: title.trim(), kind });
       setTitle("");
-      setType("BULLET_TYPE_TASK");
+      setKind("KIND_TASK");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "не удалось создать запись");
     }
@@ -82,7 +82,7 @@ export function BulletForm() {
     );
   }
 
-  const CurrentTypeMark = TYPE_MARKS[type];
+  const CurrentKindMark = KIND_MARKS[kind];
 
   return (
     <form
@@ -116,32 +116,32 @@ export function BulletForm() {
             disabled={submitting}
             aria-haspopup="listbox"
             aria-expanded={typeOpen}
-            aria-label={`Тип записи: ${TYPE_LABELS[type]}`}
+            aria-label={`Тип записи: ${KIND_LABELS[kind]}`}
           >
             <span className="scribble-card__type-mark">
-              <CurrentTypeMark />
+              <CurrentKindMark />
             </span>
-            {TYPE_LABELS[type]}
+            {KIND_LABELS[kind]}
           </button>
           {typeOpen && (
             <ul className="scribble__type-menu" role="listbox" aria-label="Тип записи">
-              {TYPES.map((t) => {
-                const OptionMark = TYPE_MARKS[t];
+              {KINDS.map((t) => {
+                const OptionMark = KIND_MARKS[t];
                 return (
                   <li
                     key={t}
                     role="option"
-                    aria-selected={t === type}
-                    className={`scribble__type-option ${t === type ? "scribble__type-option--selected" : ""}`}
+                    aria-selected={t === kind}
+                    className={`scribble__type-option ${t === kind ? "scribble__type-option--selected" : ""}`}
                     onClick={() => {
-                      setType(t);
+                      setKind(t);
                       setTypeOpen(false);
                     }}
                   >
                     <span className="scribble__type-option-mark">
                       <OptionMark />
                     </span>
-                    <span className="scribble__type-option-label">{TYPE_LABELS[t]}</span>
+                    <span className="scribble__type-option-label">{KIND_LABELS[t]}</span>
                   </li>
                 );
               })}

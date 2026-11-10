@@ -1,7 +1,7 @@
-export type BulletType =
-  | 'BULLET_TYPE_TASK'
-  | 'BULLET_TYPE_EVENT'
-  | 'BULLET_TYPE_NOTE';
+export type Kind =
+  | 'KIND_TASK'
+  | 'KIND_EVENT'
+  | 'KIND_NOTE';
 
 export type Signifier =
   | 'SIGNIFIER_OPEN'
@@ -12,7 +12,7 @@ export type MigrateTarget = 'today';
 
 export interface Bullet {
   id: string;
-  type: BulletType;
+  kind: Kind;
   signifier: Signifier;
   content: string;
   createdAt: string;
@@ -21,7 +21,7 @@ export interface Bullet {
 
 export interface CreateBulletRequest {
   content: string;
-  type?: BulletType;
+  kind?: Kind;
 }
 
 // GET /api/bullets отдаёт плоский список; группировку по дню делает listBullets

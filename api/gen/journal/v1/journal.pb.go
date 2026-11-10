@@ -22,55 +22,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type BulletType int32
+type Kind int32
 
 const (
-	BulletType_BULLET_TYPE_UNSPECIFIED BulletType = 0
-	BulletType_BULLET_TYPE_TASK        BulletType = 1
-	BulletType_BULLET_TYPE_EVENT       BulletType = 2
-	BulletType_BULLET_TYPE_NOTE        BulletType = 3
+	Kind_KIND_UNSPECIFIED Kind = 0
+	Kind_KIND_TASK        Kind = 1
+	Kind_KIND_EVENT       Kind = 2
+	Kind_KIND_NOTE        Kind = 3
 )
 
-// Enum value maps for BulletType.
+// Enum value maps for Kind.
 var (
-	BulletType_name = map[int32]string{
-		0: "BULLET_TYPE_UNSPECIFIED",
-		1: "BULLET_TYPE_TASK",
-		2: "BULLET_TYPE_EVENT",
-		3: "BULLET_TYPE_NOTE",
+	Kind_name = map[int32]string{
+		0: "KIND_UNSPECIFIED",
+		1: "KIND_TASK",
+		2: "KIND_EVENT",
+		3: "KIND_NOTE",
 	}
-	BulletType_value = map[string]int32{
-		"BULLET_TYPE_UNSPECIFIED": 0,
-		"BULLET_TYPE_TASK":        1,
-		"BULLET_TYPE_EVENT":       2,
-		"BULLET_TYPE_NOTE":        3,
+	Kind_value = map[string]int32{
+		"KIND_UNSPECIFIED": 0,
+		"KIND_TASK":        1,
+		"KIND_EVENT":       2,
+		"KIND_NOTE":        3,
 	}
 )
 
-func (x BulletType) Enum() *BulletType {
-	p := new(BulletType)
+func (x Kind) Enum() *Kind {
+	p := new(Kind)
 	*p = x
 	return p
 }
 
-func (x BulletType) String() string {
+func (x Kind) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (BulletType) Descriptor() protoreflect.EnumDescriptor {
+func (Kind) Descriptor() protoreflect.EnumDescriptor {
 	return file_journal_v1_journal_proto_enumTypes[0].Descriptor()
 }
 
-func (BulletType) Type() protoreflect.EnumType {
+func (Kind) Type() protoreflect.EnumType {
 	return &file_journal_v1_journal_proto_enumTypes[0]
 }
 
-func (x BulletType) Number() protoreflect.EnumNumber {
+func (x Kind) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use BulletType.Descriptor instead.
-func (BulletType) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use Kind.Descriptor instead.
+func (Kind) EnumDescriptor() ([]byte, []int) {
 	return file_journal_v1_journal_proto_rawDescGZIP(), []int{0}
 }
 
@@ -129,10 +129,10 @@ func (Signifier) EnumDescriptor() ([]byte, []int) {
 type Bullet struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Type          BulletType             `protobuf:"varint,2,opt,name=type,proto3,enum=journal.v1.BulletType" json:"type,omitempty"`
-	Signifier     Signifier              `protobuf:"varint,3,opt,name=signifier,proto3,enum=journal.v1.Signifier" json:"signifier,omitempty"`
-	Content       string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`
-	UserId        string                 `protobuf:"bytes,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Kind          Kind                   `protobuf:"varint,3,opt,name=kind,proto3,enum=journal.v1.Kind" json:"kind,omitempty"`
+	Signifier     Signifier              `protobuf:"varint,4,opt,name=signifier,proto3,enum=journal.v1.Signifier" json:"signifier,omitempty"`
+	Content       string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -176,11 +176,18 @@ func (x *Bullet) GetId() string {
 	return ""
 }
 
-func (x *Bullet) GetType() BulletType {
+func (x *Bullet) GetUserId() string {
 	if x != nil {
-		return x.Type
+		return x.UserId
 	}
-	return BulletType_BULLET_TYPE_UNSPECIFIED
+	return ""
+}
+
+func (x *Bullet) GetKind() Kind {
+	if x != nil {
+		return x.Kind
+	}
+	return Kind_KIND_UNSPECIFIED
 }
 
 func (x *Bullet) GetSignifier() Signifier {
@@ -193,13 +200,6 @@ func (x *Bullet) GetSignifier() Signifier {
 func (x *Bullet) GetContent() string {
 	if x != nil {
 		return x.Content
-	}
-	return ""
-}
-
-func (x *Bullet) GetUserId() string {
-	if x != nil {
-		return x.UserId
 	}
 	return ""
 }
@@ -220,7 +220,7 @@ func (x *Bullet) GetUpdatedAt() *timestamppb.Timestamp {
 
 type CreateBulletRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          BulletType             `protobuf:"varint,1,opt,name=type,proto3,enum=journal.v1.BulletType" json:"type,omitempty"`
+	Kind          Kind                   `protobuf:"varint,1,opt,name=kind,proto3,enum=journal.v1.Kind" json:"kind,omitempty"`
 	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
 	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -257,11 +257,11 @@ func (*CreateBulletRequest) Descriptor() ([]byte, []int) {
 	return file_journal_v1_journal_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *CreateBulletRequest) GetType() BulletType {
+func (x *CreateBulletRequest) GetKind() Kind {
 	if x != nil {
-		return x.Type
+		return x.Kind
 	}
-	return BulletType_BULLET_TYPE_UNSPECIFIED
+	return Kind_KIND_UNSPECIFIED
 }
 
 func (x *CreateBulletRequest) GetContent() string {
@@ -703,19 +703,19 @@ var File_journal_v1_journal_proto protoreflect.FileDescriptor
 const file_journal_v1_journal_proto_rawDesc = "" +
 	"\n" +
 	"\x18journal/v1/journal.proto\x12\n" +
-	"journal.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa2\x02\n" +
+	"journal.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9c\x02\n" +
 	"\x06Bullet\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12*\n" +
-	"\x04type\x18\x02 \x01(\x0e2\x16.journal.v1.BulletTypeR\x04type\x123\n" +
-	"\tsignifier\x18\x03 \x01(\x0e2\x15.journal.v1.SignifierR\tsignifier\x12\x18\n" +
-	"\acontent\x18\x04 \x01(\tR\acontent\x12\x17\n" +
-	"\auser_id\x18\x05 \x01(\tR\x06userId\x129\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12$\n" +
+	"\x04kind\x18\x03 \x01(\x0e2\x10.journal.v1.KindR\x04kind\x123\n" +
+	"\tsignifier\x18\x04 \x01(\x0e2\x15.journal.v1.SignifierR\tsignifier\x12\x18\n" +
+	"\acontent\x18\x05 \x01(\tR\acontent\x129\n" +
 	"\n" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"t\n" +
-	"\x13CreateBulletRequest\x12*\n" +
-	"\x04type\x18\x01 \x01(\x0e2\x16.journal.v1.BulletTypeR\x04type\x12\x18\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"n\n" +
+	"\x13CreateBulletRequest\x12$\n" +
+	"\x04kind\x18\x01 \x01(\x0e2\x10.journal.v1.KindR\x04kind\x12\x18\n" +
 	"\acontent\x18\x02 \x01(\tR\acontent\x12\x17\n" +
 	"\auser_id\x18\x03 \x01(\tR\x06userId\">\n" +
 	"\x14CreateBulletResponse\x12&\n" +
@@ -738,13 +738,13 @@ const file_journal_v1_journal_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\">\n" +
 	"\x14CancelBulletResponse\x12&\n" +
-	"\x04data\x18\x01 \x01(\v2\x12.journal.v1.BulletR\x04data*l\n" +
+	"\x04data\x18\x01 \x01(\v2\x12.journal.v1.BulletR\x04data*J\n" +
+	"\x04Kind\x12\x14\n" +
+	"\x10KIND_UNSPECIFIED\x10\x00\x12\r\n" +
+	"\tKIND_TASK\x10\x01\x12\x0e\n" +
 	"\n" +
-	"BulletType\x12\x1b\n" +
-	"\x17BULLET_TYPE_UNSPECIFIED\x10\x00\x12\x14\n" +
-	"\x10BULLET_TYPE_TASK\x10\x01\x12\x15\n" +
-	"\x11BULLET_TYPE_EVENT\x10\x02\x12\x14\n" +
-	"\x10BULLET_TYPE_NOTE\x10\x03*l\n" +
+	"KIND_EVENT\x10\x02\x12\r\n" +
+	"\tKIND_NOTE\x10\x03*l\n" +
 	"\tSignifier\x12\x19\n" +
 	"\x15SIGNIFIER_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eSIGNIFIER_OPEN\x10\x01\x12\x17\n" +
@@ -772,7 +772,7 @@ func file_journal_v1_journal_proto_rawDescGZIP() []byte {
 var file_journal_v1_journal_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_journal_v1_journal_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_journal_v1_journal_proto_goTypes = []any{
-	(BulletType)(0),                // 0: journal.v1.BulletType
+	(Kind)(0),                      // 0: journal.v1.Kind
 	(Signifier)(0),                 // 1: journal.v1.Signifier
 	(*Bullet)(nil),                 // 2: journal.v1.Bullet
 	(*CreateBulletRequest)(nil),    // 3: journal.v1.CreateBulletRequest
@@ -788,11 +788,11 @@ var file_journal_v1_journal_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil),  // 13: google.protobuf.Timestamp
 }
 var file_journal_v1_journal_proto_depIdxs = []int32{
-	0,  // 0: journal.v1.Bullet.type:type_name -> journal.v1.BulletType
+	0,  // 0: journal.v1.Bullet.kind:type_name -> journal.v1.Kind
 	1,  // 1: journal.v1.Bullet.signifier:type_name -> journal.v1.Signifier
 	13, // 2: journal.v1.Bullet.created_at:type_name -> google.protobuf.Timestamp
 	13, // 3: journal.v1.Bullet.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 4: journal.v1.CreateBulletRequest.type:type_name -> journal.v1.BulletType
+	0,  // 4: journal.v1.CreateBulletRequest.kind:type_name -> journal.v1.Kind
 	2,  // 5: journal.v1.CreateBulletResponse.data:type_name -> journal.v1.Bullet
 	2,  // 6: journal.v1.ListBulletsResponse.data:type_name -> journal.v1.Bullet
 	2,  // 7: journal.v1.CompleteBulletResponse.data:type_name -> journal.v1.Bullet

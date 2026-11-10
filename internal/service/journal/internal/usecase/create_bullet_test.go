@@ -28,17 +28,17 @@ func TestCreateBulletUseCase(t *testing.T) {
 		{
 			name: "empty type",
 			input: port.CreateBulletInput{
-				Type:    "",
+				Kind:    "",
 				Content: "Заголовок",
 			},
 			setupMock: func(m *mocks.MockBulletRepository) {},
 			want:      nil,
-			wantErr:   entity.ErrBulletTypeInvalid,
+			wantErr:   entity.ErrBulletKindInvalid,
 		},
 		{
 			name: "repo error",
 			input: port.CreateBulletInput{
-				Type:    entity.BulletTask,
+				Kind:    entity.KindTask,
 				Content: "Заголовок",
 				UserID:  uuid.New(),
 			},
@@ -54,7 +54,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 		{
 			name: "empty content",
 			input: port.CreateBulletInput{
-				Type:    entity.BulletTask,
+				Kind:    entity.KindTask,
 				Content: "",
 			},
 			setupMock: func(m *mocks.MockBulletRepository) {},
@@ -65,7 +65,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 			name: "success",
 			input: port.CreateBulletInput{
 				Content: "Заголовок",
-				Type:    entity.BulletTask,
+				Kind:    entity.KindTask,
 				UserID:  uuid.New(),
 			},
 			setupMock: func(m *mocks.MockBulletRepository) {
@@ -74,7 +74,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 					Return(nil).
 					Once()
 			},
-			want:    &entity.Bullet{Content: "Заголовок", Type: entity.BulletTask},
+			want:    &entity.Bullet{Content: "Заголовок", Kind: entity.KindTask},
 			wantErr: nil,
 		},
 	}
@@ -99,7 +99,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 
 			assert.Equal(t, tc.want.Content, got.Content)
 			assert.NotEqual(t, uuid.Nil, got.ID)
-			assert.Equal(t, tc.want.Type, got.Type)
+			assert.Equal(t, tc.want.Kind, got.Kind)
 			assert.Equal(t, entity.SignifierOpen, got.Signifier)
 			assert.False(t, got.CreatedAt.IsZero())
 			assert.False(t, got.UpdatedAt.IsZero())

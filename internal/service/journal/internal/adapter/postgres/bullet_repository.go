@@ -22,13 +22,13 @@ func NewBulletRepository(pool *pgxpool.Pool) *bulletRepository {
 
 func (r *bulletRepository) Create(ctx context.Context, bullet *entity.Bullet) error {
 	query := `
-		INSERT INTO bullets (id, type, signifier, content, user_id, created_at, updated_at)
+		INSERT INTO bullets (id, kind, signifier, content, user_id, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`
 
 	_, err := transactor.GetQueryer(ctx, r.pool).Exec(ctx, query,
 		bullet.ID,
-		bullet.Type,
+		bullet.Kind,
 		bullet.Signifier,
 		bullet.Content,
 		bullet.UserID,
@@ -41,7 +41,7 @@ func (r *bulletRepository) Create(ctx context.Context, bullet *entity.Bullet) er
 
 func (r *bulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
 	query := `
-		SELECT id, type, signifier, content, user_id, created_at, updated_at
+		SELECT id, kind, signifier, content, user_id, created_at, updated_at
 		FROM bullets
 		WHERE id = $1 AND user_id = $2
 	`
@@ -51,7 +51,7 @@ func (r *bulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*enti
 	bullet := &entity.Bullet{}
 	err := row.Scan(
 		&bullet.ID,
-		&bullet.Type,
+		&bullet.Kind,
 		&bullet.Signifier,
 		&bullet.Content,
 		&bullet.UserID,
@@ -71,7 +71,7 @@ func (r *bulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*enti
 
 func (r *bulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error) {
 	query := `
-		SELECT id, type, signifier, content, user_id, created_at, updated_at
+		SELECT id, kind, signifier, content, user_id, created_at, updated_at
 		FROM bullets
 		WHERE user_id = $1
 	`
@@ -87,7 +87,7 @@ func (r *bulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*entit
 			bullet := &entity.Bullet{}
 			err := row.Scan(
 				&bullet.ID,
-				&bullet.Type,
+				&bullet.Kind,
 				&bullet.Signifier,
 				&bullet.Content,
 				&bullet.UserID,
@@ -110,13 +110,13 @@ func (r *bulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*entit
 func (r *bulletRepository) Update(ctx context.Context, bullet *entity.Bullet) error {
 	query := `
 		UPDATE bullets
-		SET type = $2, signifier = $3, content = $4, created_at = $5, updated_at = $6
+		SET kind = $2, signifier = $3, content = $4, created_at = $5, updated_at = $6
 		WHERE id = $1 AND user_id = $7
 	`
 
 	_, err := transactor.GetQueryer(ctx, r.pool).Exec(ctx, query,
 		bullet.ID,
-		bullet.Type,
+		bullet.Kind,
 		bullet.Signifier,
 		bullet.Content,
 		bullet.CreatedAt,

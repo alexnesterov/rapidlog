@@ -17,7 +17,7 @@ import (
 )
 
 func TestJournalServer_CompleteBullet(t *testing.T) {
-	bullet, err := entity.NewBullet(uuid.New(), entity.BulletTask, "test")
+	bullet, err := entity.NewBullet(uuid.New(), entity.KindTask, "test")
 	require.NoError(t, err)
 
 	err = bullet.Complete()

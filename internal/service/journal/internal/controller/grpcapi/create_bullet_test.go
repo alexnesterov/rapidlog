@@ -17,7 +17,7 @@ import (
 )
 
 func TestJournalServer_CreateBullet(t *testing.T) {
-	bullet, err := entity.NewBullet(uuid.New(), entity.BulletTask, "test")
+	bullet, err := entity.NewBullet(uuid.New(), entity.KindTask, "test")
 	require.NoError(t, err)
 
 	protoBullet, err := grpcapi.ToProtoBullet(bullet)
@@ -34,7 +34,7 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 			name: "parse user id error",
 			req: &journalv1.CreateBulletRequest{
 				UserId:  "invalid-uuid",
-				Type:    journalv1.BulletType_BULLET_TYPE_TASK,
+				Kind:    journalv1.Kind_KIND_TASK,
 				Content: "test",
 			},
 			want:      nil,
@@ -45,7 +45,7 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 			name: "usecase create bullet error",
 			req: &journalv1.CreateBulletRequest{
 				UserId:  protoBullet.UserId,
-				Type:    protoBullet.Type,
+				Kind:    protoBullet.Kind,
 				Content: protoBullet.Content,
 			},
 			want:    nil,
@@ -64,7 +64,7 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 			name: "usecase validation error",
 			req: &journalv1.CreateBulletRequest{
 				UserId:  protoBullet.UserId,
-				Type:    protoBullet.Type,
+				Kind:    protoBullet.Kind,
 				Content: protoBullet.Content,
 			},
 			want:    nil,
@@ -83,7 +83,7 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 			name: "convert bullet to proto error",
 			req: &journalv1.CreateBulletRequest{
 				UserId:  protoBullet.UserId,
-				Type:    protoBullet.Type,
+				Kind:    protoBullet.Kind,
 				Content: protoBullet.Content,
 			},
 			want:    nil,
@@ -102,7 +102,7 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 			name: "success",
 			req: &journalv1.CreateBulletRequest{
 				UserId:  protoBullet.UserId,
-				Type:    protoBullet.Type,
+				Kind:    protoBullet.Kind,
 				Content: protoBullet.Content,
 			},
 			want: &journalv1.CreateBulletResponse{

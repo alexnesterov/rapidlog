@@ -10,7 +10,7 @@ import (
 
 var ErrBulletContentRequired = errors.New("bullet content is required")
 var ErrBulletContentTooLong = errors.New("bullet content is too long")
-var ErrBulletTypeInvalid = errors.New("bullet type must be task, event or note")
+var ErrBulletKindInvalid = errors.New("bullet kind must be task, event or note")
 var ErrBulletCreatedToday = errors.New("bullet was created today")
 var ErrBulletUserIDRequired = errors.New("bullet user id is required")
 
@@ -23,12 +23,12 @@ var ErrBulletAlreadyCancelled = errors.New("bullet already cancelled")
 
 const MaxBulletContentLength = 200
 
-type BulletType string
+type Kind string
 
 const (
-	BulletTask  BulletType = "task"
-	BulletEvent BulletType = "event"
-	BulletNote  BulletType = "note"
+	KindTask  Kind = "task"
+	KindEvent Kind = "event"
+	KindNote  Kind = "note"
 )
 
 type Signifier string
@@ -40,21 +40,21 @@ const (
 )
 
 type Bullet struct {
-	ID        uuid.UUID  `json:"id"`
-	Type      BulletType `json:"type"`
-	Signifier Signifier  `json:"signifier"`
-	Content   string     `json:"content"`
-	UserID    uuid.UUID  `json:"user_id"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
+	ID        uuid.UUID `json:"id"`
+	UserID    uuid.UUID `json:"user_id"`
+	Kind      Kind      `json:"kind"`
+	Signifier Signifier `json:"signifier"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func NewBullet(userID uuid.UUID, bulletType BulletType, content string) (*Bullet, error) {
+func NewBullet(userID uuid.UUID, kind Kind, content string) (*Bullet, error) {
 	now := time.Now()
 
 	bullet := &Bullet{
 		ID:        uuid.New(),
-		Type:      bulletType,
+		Kind:      kind,
 		Signifier: SignifierOpen,
 		Content:   content,
 		UserID:    userID,
@@ -70,10 +70,10 @@ func NewBullet(userID uuid.UUID, bulletType BulletType, content string) (*Bullet
 }
 
 func (b *Bullet) Validate() error {
-	switch b.Type {
-	case BulletTask, BulletEvent, BulletNote:
+	switch b.Kind {
+	case KindTask, KindEvent, KindNote:
 	default:
-		return &ValidationError{Err: ErrBulletTypeInvalid}
+		return &ValidationError{Err: ErrBulletKindInvalid}
 	}
 
 	if b.Content == "" {
@@ -99,7 +99,7 @@ func (b *Bullet) Complete() error {
 		return &ValidationError{Err: ErrBulletNotOpen}
 	}
 
-	if b.Type != BulletTask {
+	if b.Kind != KindTask {
 		return &ValidationError{Err: ErrBulletNotTask}
 	}
 
@@ -110,7 +110,7 @@ func (b *Bullet) Complete() error {
 }
 
 func (b *Bullet) Migrate() error {
-	if b.Type != BulletTask || b.Signifier != SignifierOpen {
+	if b.Kind != KindTask || b.Signifier != SignifierOpen {
 		return &ValidationError{Err: ErrBulletNotOpenTask}
 	}
 
