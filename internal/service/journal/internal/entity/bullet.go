@@ -21,6 +21,8 @@ var ErrBulletNotOpenTask = errors.New("bullet is not an open task")
 var ErrBulletAlreadyCompleted = errors.New("bullet already completed")
 var ErrBulletAlreadyCancelled = errors.New("bullet already cancelled")
 
+const MaxBulletContentLength = 200
+
 type BulletType string
 
 const (
@@ -78,7 +80,7 @@ func (b *Bullet) Validate() error {
 		return &ValidationError{Err: ErrBulletContentRequired}
 	}
 
-	if utf8.RuneCountInString(b.Content) > 200 {
+	if utf8.RuneCountInString(b.Content) > MaxBulletContentLength {
 		return &ValidationError{Err: ErrBulletContentTooLong}
 	}
 
