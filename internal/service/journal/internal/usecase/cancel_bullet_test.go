@@ -34,12 +34,12 @@ func (s *CancelBulletUseCaseSuite) SetupTest() {
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_NotFound() {
 	s.mockBulletRepo.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
-		Return(nil, port.ErrNotFound).
+		Return(nil, entity.ErrNotFound).
 		Once()
 
 	got, gotErr := s.uc.CancelBullet(s.T().Context(), uuid.New(), uuid.New())
 	s.Nil(got)
-	s.ErrorIs(gotErr, port.ErrNotFound)
+	s.ErrorIs(gotErr, entity.ErrNotFound)
 }
 
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_AlreadyCanceled() {

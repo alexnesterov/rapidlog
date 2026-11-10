@@ -60,7 +60,7 @@ func (r *bulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*enti
 	)
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, port.ErrNotFound
+		return nil, entity.ErrNotFound
 	}
 	if err != nil {
 		return nil, err

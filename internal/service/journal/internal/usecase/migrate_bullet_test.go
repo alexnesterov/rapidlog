@@ -38,12 +38,12 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotFound() {
 
 	s.mockBulletRepo.EXPECT().
 		Get(mock.Anything, id, userID).
-		Return(nil, port.ErrNotFound).
+		Return(nil, entity.ErrNotFound).
 		Once()
 
 	got, gotErr := s.uc.MigrateBullet(s.T().Context(), id, userID)
 	s.Nil(got)
-	s.ErrorIs(gotErr, port.ErrNotFound)
+	s.ErrorIs(gotErr, entity.ErrNotFound)
 }
 
 func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_UpdateError() {
