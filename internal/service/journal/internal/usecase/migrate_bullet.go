@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (uc *usecase) MigrateBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
+func (uc *Usecase) MigrateBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
 	bullet, err := uc.repo.Get(ctx, id, userID)
 	if err != nil {
 		return nil, err

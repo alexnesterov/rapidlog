@@ -6,7 +6,6 @@ import (
 
 	mocksTransactor "github.com/alexnesterov/rapidlog-api/internal/pkg/transactor/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
@@ -18,7 +17,7 @@ type CompleteBulletUseCaseSuite struct {
 	suite.Suite
 	mockBulletRepo *mocks.MockBulletRepository
 	mockTxMgr      *mocksTransactor.MockTransactor
-	uc             port.Usecase
+	uc             *usecase.Usecase
 }
 
 func TestCompleteBulletUseCaseSuite(t *testing.T) {

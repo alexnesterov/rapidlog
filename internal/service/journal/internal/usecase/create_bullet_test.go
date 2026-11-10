@@ -6,7 +6,6 @@ import (
 
 	mocksTransactor "github.com/alexnesterov/rapidlog-api/internal/pkg/transactor/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
@@ -20,14 +19,14 @@ func TestCreateBulletUseCase(t *testing.T) {
 
 	cases := []struct {
 		name      string
-		input     port.CreateBulletInput
+		input     usecase.CreateBulletInput
 		setupMock func(m *mocks.MockBulletRepository)
 		want      *entity.Bullet
 		wantErr   error
 	}{
 		{
 			name: "empty type",
-			input: port.CreateBulletInput{
+			input: usecase.CreateBulletInput{
 				Kind:    "",
 				Content: "Заголовок",
 			},
@@ -37,7 +36,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 		},
 		{
 			name: "repo error",
-			input: port.CreateBulletInput{
+			input: usecase.CreateBulletInput{
 				Kind:    entity.KindTask,
 				Content: "Заголовок",
 				UserID:  uuid.New(),
@@ -53,7 +52,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 		},
 		{
 			name: "empty content",
-			input: port.CreateBulletInput{
+			input: usecase.CreateBulletInput{
 				Kind:    entity.KindTask,
 				Content: "",
 			},
@@ -63,7 +62,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 		},
 		{
 			name: "success",
-			input: port.CreateBulletInput{
+			input: usecase.CreateBulletInput{
 				Content: "Заголовок",
 				Kind:    entity.KindTask,
 				UserID:  uuid.New(),
