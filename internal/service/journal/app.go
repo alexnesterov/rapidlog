@@ -35,15 +35,15 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 
 	txMgr := transactor.NewTxManager(pool)
 	repository := postgres.NewBulletRepository(pool)
-	usecase := usecase.New(repository, txMgr)
+	uc := usecase.New(repository, txMgr)
+
+	grpcServer := grpc.NewServer()
+	grpcapi.RegisterJournalService(grpcServer, uc, logger)
 
 	ln, err := net.Listen("tcp", ":"+cfg.Port)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
-
-	grpcServer := grpc.NewServer()
-	grpcapi.RegisterJournalService(grpcServer, usecase, logger)
 
 	go func() {
 		logger.Info("gRPC server listening", "port", cfg.Port)

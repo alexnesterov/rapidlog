@@ -11,7 +11,7 @@ import (
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/pkg/protoenum"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 )
 
 func (s *JournalService) CreateBullet(
@@ -24,7 +24,7 @@ func (s *JournalService) CreateBullet(
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	input := port.CreateBulletInput{
+	input := usecase.CreateBulletInput{
 		UserID:  userID,
 		Kind:    entity.Kind(protoenum.ToCleanString(req.GetKind())),
 		Content: req.GetContent(),

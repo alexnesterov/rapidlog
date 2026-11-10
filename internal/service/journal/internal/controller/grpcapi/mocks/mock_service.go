@@ -8,7 +8,7 @@ import (
 	"context"
 
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -198,7 +198,7 @@ func (_c *MockUsecase_CompleteBullet_Call) RunAndReturn(run func(ctx context.Con
 }
 
 // CreateBullet provides a mock function for the type MockUsecase
-func (_mock *MockUsecase) CreateBullet(ctx context.Context, input port.CreateBulletInput) (*entity.Bullet, error) {
+func (_mock *MockUsecase) CreateBullet(ctx context.Context, input usecase.CreateBulletInput) (*entity.Bullet, error) {
 	ret := _mock.Called(ctx, input)
 
 	if len(ret) == 0 {
@@ -207,17 +207,17 @@ func (_mock *MockUsecase) CreateBullet(ctx context.Context, input port.CreateBul
 
 	var r0 *entity.Bullet
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, port.CreateBulletInput) (*entity.Bullet, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CreateBulletInput) (*entity.Bullet, error)); ok {
 		return returnFunc(ctx, input)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, port.CreateBulletInput) *entity.Bullet); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CreateBulletInput) *entity.Bullet); ok {
 		r0 = returnFunc(ctx, input)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*entity.Bullet)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, port.CreateBulletInput) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, usecase.CreateBulletInput) error); ok {
 		r1 = returnFunc(ctx, input)
 	} else {
 		r1 = ret.Error(1)
@@ -232,20 +232,20 @@ type MockUsecase_CreateBullet_Call struct {
 
 // CreateBullet is a helper method to define mock.On call
 //   - ctx context.Context
-//   - input port.CreateBulletInput
+//   - input usecase.CreateBulletInput
 func (_e *MockUsecase_Expecter) CreateBullet(ctx any, input any) *MockUsecase_CreateBullet_Call {
 	return &MockUsecase_CreateBullet_Call{Call: _e.mock.On("CreateBullet", ctx, input)}
 }
 
-func (_c *MockUsecase_CreateBullet_Call) Run(run func(ctx context.Context, input port.CreateBulletInput)) *MockUsecase_CreateBullet_Call {
+func (_c *MockUsecase_CreateBullet_Call) Run(run func(ctx context.Context, input usecase.CreateBulletInput)) *MockUsecase_CreateBullet_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 port.CreateBulletInput
+		var arg1 usecase.CreateBulletInput
 		if args[1] != nil {
-			arg1 = args[1].(port.CreateBulletInput)
+			arg1 = args[1].(usecase.CreateBulletInput)
 		}
 		run(
 			arg0,
@@ -260,7 +260,7 @@ func (_c *MockUsecase_CreateBullet_Call) Return(bullet *entity.Bullet, err error
 	return _c
 }
 
-func (_c *MockUsecase_CreateBullet_Call) RunAndReturn(run func(ctx context.Context, input port.CreateBulletInput) (*entity.Bullet, error)) *MockUsecase_CreateBullet_Call {
+func (_c *MockUsecase_CreateBullet_Call) RunAndReturn(run func(ctx context.Context, input usecase.CreateBulletInput) (*entity.Bullet, error)) *MockUsecase_CreateBullet_Call {
 	_c.Call.Return(run)
 	return _c
 }
