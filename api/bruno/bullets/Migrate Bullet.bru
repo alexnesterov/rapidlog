@@ -11,7 +11,7 @@ post {
 }
 
 params:path {
-  id: fbc31795-b650-4788-9858-cd172da3c8b6
+  id: 2433161e-143b-4d82-970a-eb2ae00cf3e9
 }
 
 settings {
@@ -21,39 +21,40 @@ settings {
 
 example {
   name: success
-  
+
   request: {
     url: {{baseUrl}}/api/bullets/:id/migrate
     method: POST
     mode: none
     params:path: {
-      id: 0d6ac062-91e5-46f9-aa5d-891376cb7987
+      id: 2433161e-143b-4d82-970a-eb2ae00cf3e9
     }
   }
-  
+
   response: {
     headers: {
       content-type: application/json
-      date: Mon, 24 Aug 2026 09:13:35 GMT
-      content-length: 290
+      date: Tue, 10 Nov 2026 12:13:19 GMT
+      content-length: 311
     }
-  
+
     status: {
       code: 200
       text: OK
     }
-  
+
     body: {
       type: json
       content: '''
         {
           "data": {
-            "id": "faebf177-058a-457d-8014-c92062a4f875",
-            "type": "task",
-            "signifier": "open",
-            "content": "Создайте свою первую задачу – нажмите на поле ниже",
-            "created_at": "2026-08-24T12:13:35.811269+03:00",
-            "updated_at": "2026-08-24T12:13:35.811269+03:00"
+            "id": "2433161e-143b-4d82-970a-eb2ae00cf3e9",
+            "userId": "b5f7e648-d309-4beb-be34-f13c5b00af1a",
+            "kind": "KIND_TASK",
+            "signifier": "SIGNIFIER_OPEN",
+            "content": "Смигрируй эту задачу на сегодня",
+            "createdAt": "2026-11-10T12:13:19.386253466Z",
+            "updatedAt": "2026-11-10T12:13:19.386253466Z"
           }
         }
       '''
@@ -63,114 +64,36 @@ example {
 
 example {
   name: validation error
-  
-  request: {
-    url: {{baseUrl}}/api/bullets/:id/migrate
-    method: POST
-    mode: none
-    params:path: {
-      id: 0d6ac062-91e5-46f9-aa5d-891376cb7987
-    }
-  }
-  
-  response: {
-    headers: {
-      content-type: application/json
-      date: Mon, 24 Aug 2026 11:20:52 GMT
-      content-length: 74
-    }
-  
-    status: {
-      code: 400
-      text: Bad Request
-    }
-  
-    body: {
-      type: json
-      content: '''
-        {
-          "data": null,
-          "error": {
-            "code": 400,
-            "message": "bullet is not an open task"
-          }
-        }
-      '''
-    }
-  }
-}
 
-example {
-  name: not found
-  
   request: {
     url: {{baseUrl}}/api/bullets/:id/migrate
     method: POST
     mode: none
     params:path: {
-      id: 0d6ac062-91e5-46f9-aa5d-891376cb6987
+      id: d006ad48-58a2-4173-9c4e-c6d20e462e22
     }
   }
-  
-  response: {
-    headers: {
-      content-type: application/json
-      date: Mon, 24 Aug 2026 11:25:22 GMT
-      content-length: 64
-    }
-  
-    status: {
-      code: 404
-      text: Not Found
-    }
-  
-    body: {
-      type: json
-      content: '''
-        {
-          "data": null,
-          "error": {
-            "code": 404,
-            "message": "bullet not found"
-          }
-        }
-      '''
-    }
-  }
-}
 
-example {
-  name: invalid id
-  
-  request: {
-    url: {{baseUrl}}/api/bullets/:id/migrate
-    method: POST
-    mode: none
-    params:path: {
-      id: 123
-    }
-  }
-  
   response: {
     headers: {
       content-type: application/json
-      date: Mon, 24 Aug 2026 11:26:09 GMT
-      content-length: 58
+      date: Tue, 10 Nov 2026 12:13:19 GMT
+      content-length: 69
     }
-  
+
     status: {
-      code: 400
-      text: Bad Request
+      code: 500
+      text: Internal Server Error
     }
-  
+
     body: {
       type: json
       content: '''
         {
           "data": null,
           "error": {
-            "code": 400,
-            "message": "invalid id"
+            "code": 500,
+            "message": "Internal Server Error"
           }
         }
       '''

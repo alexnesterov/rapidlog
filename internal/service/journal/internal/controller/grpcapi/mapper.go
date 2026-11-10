@@ -8,16 +8,16 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func ToProtoBulletType(t entity.BulletType) (journalv1.BulletType, error) {
-	switch t {
-	case entity.BulletTask:
-		return journalv1.BulletType_BULLET_TYPE_TASK, nil
-	case entity.BulletEvent:
-		return journalv1.BulletType_BULLET_TYPE_EVENT, nil
-	case entity.BulletNote:
-		return journalv1.BulletType_BULLET_TYPE_NOTE, nil
+func ToProtoKind(k entity.Kind) (journalv1.Kind, error) {
+	switch k {
+	case entity.KindTask:
+		return journalv1.Kind_KIND_TASK, nil
+	case entity.KindEvent:
+		return journalv1.Kind_KIND_EVENT, nil
+	case entity.KindNote:
+		return journalv1.Kind_KIND_NOTE, nil
 	default:
-		return journalv1.BulletType_BULLET_TYPE_UNSPECIFIED, fmt.Errorf("unknown bullet type: %v", t)
+		return journalv1.Kind_KIND_UNSPECIFIED, fmt.Errorf("unknown bullet kind: %v", k)
 	}
 }
 
@@ -35,7 +35,7 @@ func ToProtoSignifier(s entity.Signifier) (journalv1.Signifier, error) {
 }
 
 func ToProtoBullet(bullet *entity.Bullet) (*journalv1.Bullet, error) {
-	typeProto, err := ToProtoBulletType(bullet.Type)
+	kindProto, err := ToProtoKind(bullet.Kind)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func ToProtoBullet(bullet *entity.Bullet) (*journalv1.Bullet, error) {
 		Id:        bullet.ID.String(),
 		UserId:    bullet.UserID.String(),
 		Content:   bullet.Content,
-		Type:      typeProto,
+		Kind:      kindProto,
 		Signifier: signifierProto,
 		CreatedAt: timestamppb.New(bullet.CreatedAt),
 		UpdatedAt: timestamppb.New(bullet.UpdatedAt),

@@ -8,7 +8,7 @@ import (
 )
 
 type CreateBulletInput struct {
-	Type    entity.BulletType
+	Kind    entity.Kind
 	Content string
 	UserID  uuid.UUID `json:"-"`
 }

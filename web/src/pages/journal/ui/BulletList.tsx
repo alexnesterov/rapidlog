@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactElement } from "react";
 import type { Bullet, MigrateTarget } from "../model/bullet";
-import { MIGRATE_TARGETS, SIGNIFIER_MARKS, TYPE_MARKS } from "./bulletMarks";
+import { MIGRATE_TARGETS, SIGNIFIER_MARKS, KIND_MARKS } from "./bulletMarks";
 import { StrikeLine } from "./bulletIcons";
 import { linkifyText } from "@/shared/lib";
 
@@ -64,7 +64,7 @@ function OpenEntry({
 // the title (a single absolutely-positioned line can't follow wrapped
 // text), so — unlike OpenEntry — this one does need to measure the title's
 // line boxes via Range.getClientRects().
-function CancelledEntry({ content, TypeMark }: { content: string; TypeMark: () => ReactElement }) {
+function CancelledEntry({ content, KindMark }: { content: string; KindMark: () => ReactElement }) {
   const entryRef = useRef<HTMLSpanElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
   const [strikes, setStrikes] = useState<LineStrike[]>([]);
@@ -111,7 +111,7 @@ function CancelledEntry({ content, TypeMark }: { content: string; TypeMark: () =
   return (
     <span className="log-line__entry" ref={entryRef}>
       <span className="log-line__mark" aria-hidden="true">
-        <TypeMark />
+        <KindMark />
       </span>
       <span className="log-line__title" ref={textRef}>
         {linkifyText(content)}
@@ -166,12 +166,12 @@ export function BulletList({ bullets, canMigrate, onComplete, onMigrate, onCance
         // only cancelled rows are dimmed (under their strike); completed ones
         // stay full ink — the cross mark alone says they're done
         const cancelled = bullet.signifier === "SIGNIFIER_CANCELLED";
-        const canComplete = bullet.type === "BULLET_TYPE_TASK" && bullet.signifier === "SIGNIFIER_OPEN";
+        const canComplete = bullet.kind === "KIND_TASK" && bullet.signifier === "SIGNIFIER_OPEN";
         const showMigrate = canMigrate && canComplete;
         const canCancel = bullet.signifier === "SIGNIFIER_OPEN";
         const pickerOpen = openId === bullet.id;
         const ClosedMark = SIGNIFIER_MARKS[bullet.signifier];
-        const TypeMark = TYPE_MARKS[bullet.type];
+        const KindMark = KIND_MARKS[bullet.kind];
 
         const actions: LineAction[] = [];
         if (showMigrate) {
@@ -190,11 +190,11 @@ export function BulletList({ bullets, canMigrate, onComplete, onMigrate, onCance
         return (
           <li className={`log-line ${cancelled ? "is-cancelled" : ""} ${pickerOpen ? "is-picking" : ""}`} key={bullet.id}>
             {cancelled ? (
-              <CancelledEntry content={bullet.content} TypeMark={TypeMark} />
+              <CancelledEntry content={bullet.content} KindMark={KindMark} />
             ) : (
               <OpenEntry
                 content={bullet.content}
-                Mark={ClosedMark ?? TypeMark}
+                Mark={ClosedMark ?? KindMark}
                 interactive={canComplete}
                 onMarkClick={() => onComplete(bullet)}
                 markAriaLabel="Отметить выполненным"

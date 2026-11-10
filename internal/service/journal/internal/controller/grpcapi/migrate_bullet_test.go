@@ -20,7 +20,7 @@ func TestJournalServer_MigrateBullet(t *testing.T) {
 	bulletID := uuid.New()
 
 	// Usecase возвращает новый open-bullet, созданный при миграции.
-	migrated, err := entity.NewBullet(uuid.New(), entity.BulletTask, "test")
+	migrated, err := entity.NewBullet(uuid.New(), entity.KindTask, "test")
 	require.NoError(t, err)
 
 	protoBullet, err := grpcapi.ToProtoBullet(migrated)

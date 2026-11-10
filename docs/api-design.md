@@ -4,7 +4,7 @@
 > точка входа для браузера. Сессию он резолвит gRPC-вызовом к `identity`, операции с bullet'ами
 > проксирует gRPC-вызовами к `journal`. Тела ответов — это gRPC-ответы `journal`,
 > сериализованные `protojson` (`api/proto/journal/v1/journal.proto`), поэтому поля в
-> camelCase, а значения enum'ов — полные имена из proto (`BULLET_TYPE_TASK`, `SIGNIFIER_OPEN`).
+> camelCase, а значения enum'ов — полные имена из proto (`KIND_TASK`, `SIGNIFIER_OPEN`).
 
 ## 1. Сущности
 
@@ -14,13 +14,13 @@
 | ------------- | --------- | ----------------------------------------------------------------- |
 | id            | UUID      |                                                                   |
 | userId        | UUID      | анонимный владелец (см. привязку к сессии)                       |
-| type          | string    | `BULLET_TYPE_TASK` \| `BULLET_TYPE_EVENT` \| `BULLET_TYPE_NOTE`, обязательное |
+| kind          | string    | `KIND_TASK` \| `KIND_EVENT` \| `KIND_NOTE`, обязательное |
 | signifier     | string    | `SIGNIFIER_OPEN` \| `SIGNIFIER_COMPLETED` \| `SIGNIFIER_CANCELLED` |
 | content       | string    | обязательное, ≤200 символов                                       |
 | createdAt     | timestamp | RFC 3339, UTC                                                     |
 | updatedAt     | timestamp | RFC 3339, UTC                                                     |
 
-По аналогии с нотацией Bullet Journal: `type` описывает разновидность
+По аналогии с нотацией Bullet Journal: `kind` описывает разновидность
 записи (задача, событие, заметка), `signifier` — её состояние (открыта,
 выполнена, отменена). Реализованы пока переходы
 `open` → `completed` и `open` → `cancelled` (см. `POST
@@ -123,19 +123,19 @@
 
 - **Актор**: пользователь
 - **Предусловие**: нет (bullet создаётся с нуля)
-- **Основной поток**: `content` и `type` не пустые → создаётся bullet
+- **Основной поток**: `content` и `kind` не пустые → создаётся bullet
   со `signifier = open`
 - **Ошибка**: тело не разбирается как `CreateBulletRequest` (в том числе
-  неизвестное значение `type`, например `"task"`) → `400`
+  неизвестное значение `kind`, например `"task"`) → `400`
   (`"invalid request body"`); `content` пустой или длиннее 200 символов,
-  либо `type` не указан → `400` (`"bullet content is required"`,
-  `"bullet content is too long"`, `"bullet type must be task, event or note"`)
+  либо `kind` не указан → `400` (`"bullet content is required"`,
+  `"bullet content is too long"`, `"bullet kind must be task, event or note"`)
 
 ```json
 // request
 {
   "content": "Оплатить хостинг",
-  "type": "BULLET_TYPE_TASK"
+  "kind": "KIND_TASK"
 }
 ```
 
@@ -144,7 +144,7 @@
 {
   "data": {
     "id": "uuid",
-    "type": "BULLET_TYPE_TASK",
+    "kind": "KIND_TASK",
     "signifier": "SIGNIFIER_OPEN",
     "content": "Оплатить хостинг",
     "userId": "uuid",
@@ -199,7 +199,7 @@
 как галочка в бумажном bullet journal.
 
 - **Актор**: пользователь
-- **Предусловие**: bullet с данным `id` существует, имеет `type = task`
+- **Предусловие**: bullet с данным `id` существует, имеет `kind = task`
   и `signifier = open`
 - **Основной поток**: bullet переводится в `signifier = completed`
 - **Ошибка**: bullet с данным `id` не найден → `404`; bullet уже
@@ -215,7 +215,7 @@
 {
   "data": {
     "id": "uuid",
-    "type": "BULLET_TYPE_TASK",
+    "kind": "KIND_TASK",
     "signifier": "SIGNIFIER_COMPLETED",
     "content": "Оплатить хостинг",
     "userId": "uuid",
@@ -243,13 +243,13 @@
 неё ничего не остаётся.
 
 - **Актор**: пользователь
-- **Предусловие**: bullet существует, имеет `type = task`,
+- **Предусловие**: bullet существует, имеет `kind = task`,
   `signifier = open` и создан не сегодня
 - **Основной поток**: тот же bullet (тот же `id`, `content`,
   `signifier = open`) получает `createdAt` и `updatedAt`, равные
   моменту переноса, и попадает в текущий день
 - **Ошибка**: bullet не найден → `404`; bullet не является открытой
-  задачей (`type != task` или `signifier != open`) → `400`
+  задачей (`kind != task` или `signifier != open`) → `400`
   (`"bullet is not an open task"`); bullet создан сегодня → `400`
   (`"bullet was created today"`)
 
@@ -262,7 +262,7 @@
 {
   "data": {
     "id": "uuid",
-    "type": "BULLET_TYPE_TASK",
+    "kind": "KIND_TASK",
     "signifier": "SIGNIFIER_OPEN",
     "content": "Оплатить хостинг",
     "userId": "uuid",
@@ -301,7 +301,7 @@
 
 - **Актор**: пользователь
 - **Предусловие**: bullet с данным `id` существует, имеет
-  `signifier = open` (любой `type`, не только `task`)
+  `signifier = open` (любой `kind`, не только `task`)
 - **Основной поток**: bullet переводится в `signifier = cancelled`
 - **Ошибка**: bullet с данным `id` не найден → `404`; bullet уже
   `cancelled` → `400` (`"bullet already cancelled"`); bullet в другом
@@ -315,7 +315,7 @@
 {
   "data": {
     "id": "bac1e168-356d-41f5-ab1b-c5c1046a6158",
-    "type": "BULLET_TYPE_TASK",
+    "kind": "KIND_TASK",
     "signifier": "SIGNIFIER_CANCELLED",
     "content": "Оплатить хостинг",
     "userId": "2f168d69-2bd3-4691-ad7f-72addb4270e0",

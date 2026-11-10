@@ -26,7 +26,7 @@ func (s *JournalService) CreateBullet(
 
 	input := port.CreateBulletInput{
 		UserID:  userID,
-		Type:    entity.BulletType(protoenum.ToCleanString(req.GetType())),
+		Kind:    entity.Kind(protoenum.ToCleanString(req.GetKind())),
 		Content: req.GetContent(),
 	}
 

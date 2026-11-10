@@ -54,7 +54,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_UpdateError() {
 
 	bullet := &entity.Bullet{
 		ID:        id,
-		Type:      entity.BulletTask,
+		Kind:      entity.KindTask,
 		Signifier: entity.SignifierOpen,
 		CreatedAt: dayAgo,
 		UpdatedAt: dayAgo,
@@ -81,7 +81,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotOpenTask() {
 
 	bullet := &entity.Bullet{
 		ID:        id,
-		Type:      entity.BulletTask,
+		Kind:      entity.KindTask,
 		Signifier: entity.SignifierCompleted,
 	}
 
@@ -102,7 +102,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
 
 	bullet := &entity.Bullet{
 		ID:        id,
-		Type:      entity.BulletTask,
+		Kind:      entity.KindTask,
 		Signifier: entity.SignifierOpen,
 		Content:   "Test task",
 		CreatedAt: dayAgo,

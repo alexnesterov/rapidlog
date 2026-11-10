@@ -19,13 +19,13 @@ import (
 
 func TestJournalServer_ListBullets(t *testing.T) {
 	userID := uuid.New()
-	task, err := entity.NewBullet(userID, entity.BulletTask, "Test bullet")
+	task, err := entity.NewBullet(userID, entity.KindTask, "Test bullet")
 	require.NoError(t, err)
 
-	event, err := entity.NewBullet(userID, entity.BulletEvent, "Test event")
+	event, err := entity.NewBullet(userID, entity.KindEvent, "Test event")
 	require.NoError(t, err)
 
-	note, err := entity.NewBullet(userID, entity.BulletNote, "Test note")
+	note, err := entity.NewBullet(userID, entity.KindNote, "Test note")
 	require.NoError(t, err)
 
 	protoTask, err := grpcapi.ToProtoBullet(task)

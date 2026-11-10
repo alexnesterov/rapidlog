@@ -7,18 +7,18 @@ import (
 )
 
 var demoBullets = []struct {
-	Type    BulletType
+	Kind    Kind
 	Content string
 }{
-	{BulletTask, "Смигрируй эту задачу на сегодня"},
-	{BulletEvent, "Встреча в 15:00"},
-	{BulletNote, "Идея для заметок — сюда пишешь мысли без действия"},
+	{KindTask, "Смигрируй эту задачу на сегодня"},
+	{KindEvent, "Встреча в 15:00"},
+	{KindNote, "Идея для заметок — сюда пишешь мысли без действия"},
 }
 
 func NewDemoBullets(userID uuid.UUID) ([]*Bullet, error) {
 	bullets := make([]*Bullet, 0, len(demoBullets))
 	for _, d := range demoBullets {
-		bullet, err := NewBullet(userID, d.Type, d.Content)
+		bullet, err := NewBullet(userID, d.Kind, d.Content)
 		if err != nil {
 			return nil, err
 		}

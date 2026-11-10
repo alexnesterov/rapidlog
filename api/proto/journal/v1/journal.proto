@@ -6,11 +6,11 @@ option go_package = "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1;jou
 
 import "google/protobuf/timestamp.proto";
 
-enum BulletType {
-  BULLET_TYPE_UNSPECIFIED = 0;
-  BULLET_TYPE_TASK        = 1;
-  BULLET_TYPE_EVENT       = 2;
-  BULLET_TYPE_NOTE        = 3;
+enum Kind {
+  KIND_UNSPECIFIED = 0;
+  KIND_TASK        = 1;
+  KIND_EVENT       = 2;
+  KIND_NOTE        = 3;
 }
 
 enum Signifier {
@@ -22,18 +22,18 @@ enum Signifier {
 
 message Bullet {
   string                    id         = 1;
-  BulletType                type       = 2;
-  Signifier                 signifier  = 3;
-  string                    content    = 4;
-  string                    user_id    = 5;
+  string                    user_id    = 2;
+  Kind                      kind       = 3;
+  Signifier                 signifier  = 4;
+  string                    content    = 5;
   google.protobuf.Timestamp created_at = 6;
   google.protobuf.Timestamp updated_at = 7;
 }
 
 message CreateBulletRequest {
-  BulletType type    = 1;
-  string     content = 2;
-  string     user_id = 3;
+  Kind   kind    = 1;
+  string content = 2;
+  string user_id = 3;
 }
 
 message CreateBulletResponse {
