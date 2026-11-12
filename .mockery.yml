@@ -22,7 +22,7 @@ packages:
   github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/controller/grpcapi:
     config:
       all: true
-  github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port:
+  github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase:
     config:
       all: true
   github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi:

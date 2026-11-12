@@ -6,21 +6,20 @@ import (
 
 	"github.com/alexnesterov/rapidlog-api/internal/pkg/transactor"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/port"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type bulletRepository struct {
+type BulletRepository struct {
 	pool *pgxpool.Pool
 }
 
-func NewBulletRepository(pool *pgxpool.Pool) *bulletRepository {
-	return &bulletRepository{pool: pool}
+func NewBulletRepository(pool *pgxpool.Pool) *BulletRepository {
+	return &BulletRepository{pool: pool}
 }
 
-func (r *bulletRepository) Create(ctx context.Context, bullet *entity.Bullet) error {
+func (r *BulletRepository) Create(ctx context.Context, bullet *entity.Bullet) error {
 	query := `
 		INSERT INTO bullets (id, kind, signifier, content, user_id, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -39,7 +38,7 @@ func (r *bulletRepository) Create(ctx context.Context, bullet *entity.Bullet) er
 	return err
 }
 
-func (r *bulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
+func (r *BulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
 	query := `
 		SELECT id, kind, signifier, content, user_id, created_at, updated_at
 		FROM bullets
@@ -69,7 +68,7 @@ func (r *bulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*enti
 	return bullet, nil
 }
 
-func (r *bulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error) {
+func (r *BulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error) {
 	query := `
 		SELECT id, kind, signifier, content, user_id, created_at, updated_at
 		FROM bullets
@@ -107,7 +106,7 @@ func (r *bulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*entit
 	return bullets, nil
 }
 
-func (r *bulletRepository) Update(ctx context.Context, bullet *entity.Bullet) error {
+func (r *BulletRepository) Update(ctx context.Context, bullet *entity.Bullet) error {
 	query := `
 		UPDATE bullets
 		SET kind = $2, signifier = $3, content = $4, created_at = $5, updated_at = $6
@@ -126,5 +125,3 @@ func (r *bulletRepository) Update(ctx context.Context, bullet *entity.Bullet) er
 
 	return err
 }
-
-var _ port.BulletRepository = &bulletRepository{}
