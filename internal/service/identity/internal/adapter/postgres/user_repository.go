@@ -5,21 +5,20 @@ import (
 	"errors"
 
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/entity"
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/port"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type userRepository struct {
+type UserRepository struct {
 	pool *pgxpool.Pool
 }
 
-func NewUserRepository(pool *pgxpool.Pool) *userRepository {
-	return &userRepository{pool: pool}
+func NewUserRepository(pool *pgxpool.Pool) *UserRepository {
+	return &UserRepository{pool: pool}
 }
 
-func (r *userRepository) Create(ctx context.Context, user *entity.User) error {
+func (r *UserRepository) Create(ctx context.Context, user *entity.User) error {
 	query := `
 		INSERT INTO users (id, created_at)
 		VALUES ($1, $2)
@@ -36,7 +35,7 @@ func (r *userRepository) Create(ctx context.Context, user *entity.User) error {
 	return nil
 }
 
-func (r *userRepository) Get(ctx context.Context, id uuid.UUID) (*entity.User, error) {
+func (r *UserRepository) Get(ctx context.Context, id uuid.UUID) (*entity.User, error) {
 	query := `
 		SELECT id, created_at
 		FROM users
@@ -60,5 +59,3 @@ func (r *userRepository) Get(ctx context.Context, id uuid.UUID) (*entity.User, e
 
 	return user, nil
 }
-
-var _ port.UserRepository = &userRepository{}
