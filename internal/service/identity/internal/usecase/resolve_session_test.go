@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/entity"
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/port/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/usecase"
+	"github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/usecase/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
