@@ -5,7 +5,7 @@ import (
 	"time"
 
 	identityv1 "github.com/alexnesterov/rapidlog-api/api/gen/identity/v1"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/pkg/respond"
 	"github.com/google/uuid"
 )

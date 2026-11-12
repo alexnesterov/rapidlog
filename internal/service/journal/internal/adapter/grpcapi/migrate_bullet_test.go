@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/adapter/grpcapi"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/adapter/grpcapi/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -16,27 +16,27 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func TestJournalServer_CompleteBullet(t *testing.T) {
-	bullet, err := entity.NewBullet(uuid.New(), entity.KindTask, "test")
+func TestJournalServer_MigrateBullet(t *testing.T) {
+	bulletID := uuid.New()
+
+	// Usecase возвращает новый open-bullet, созданный при миграции.
+	migrated, err := entity.NewBullet(uuid.New(), entity.KindTask, "test")
 	require.NoError(t, err)
 
-	err = bullet.Complete()
-	require.NoError(t, err)
-
-	protoBullet, err := grpcapi.ToProtoBullet(bullet)
+	protoBullet, err := grpcapi.ToProtoBullet(migrated)
 	require.NoError(t, err)
 
 	tests := []struct {
 		name      string
-		req       *journalv1.CompleteBulletRequest
-		want      *journalv1.CompleteBulletResponse
+		req       *journalv1.MigrateBulletRequest
+		want      *journalv1.MigrateBulletResponse
 		wantErr   error
 		setupMock func(*mocks.MockUsecase)
 	}{
 		{
 			name: "parse user id error",
-			req: &journalv1.CompleteBulletRequest{
-				Id:     bullet.ID.String(),
+			req: &journalv1.MigrateBulletRequest{
+				Id:     bulletID.String(),
 				UserId: "invalid-uuid",
 			},
 			want:      nil,
@@ -45,28 +45,28 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 		},
 		{
 			name: "parse bullet id error",
-			req: &journalv1.CompleteBulletRequest{
+			req: &journalv1.MigrateBulletRequest{
 				Id:     "invalid-uuid",
-				UserId: bullet.UserID.String(),
+				UserId: migrated.UserID.String(),
 			},
 			want:      nil,
 			wantErr:   status.Error(codes.InvalidArgument, "invalid bullet id"),
 			setupMock: func(_ *mocks.MockUsecase) {},
 		},
 		{
-			name: "usecase complete bullet error",
-			req: &journalv1.CompleteBulletRequest{
-				Id:     bullet.ID.String(),
-				UserId: bullet.UserID.String(),
+			name: "usecase migrate bullet error",
+			req: &journalv1.MigrateBulletRequest{
+				Id:     bulletID.String(),
+				UserId: migrated.UserID.String(),
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
 			setupMock: func(m *mocks.MockUsecase) {
 				m.EXPECT().
-					CompleteBullet(
+					MigrateBullet(
 						mock.Anything,
-						bullet.ID,
-						bullet.UserID,
+						bulletID,
+						migrated.UserID,
 					).
 					Return(nil, assert.AnError).
 					Once()
@@ -74,18 +74,18 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 		},
 		{
 			name: "usecase validation error",
-			req: &journalv1.CompleteBulletRequest{
-				Id:     bullet.ID.String(),
-				UserId: bullet.UserID.String(),
+			req: &journalv1.MigrateBulletRequest{
+				Id:     bulletID.String(),
+				UserId: migrated.UserID.String(),
 			},
 			want:    nil,
 			wantErr: status.Error(codes.InvalidArgument, assert.AnError.Error()),
 			setupMock: func(m *mocks.MockUsecase) {
 				m.EXPECT().
-					CompleteBullet(
+					MigrateBullet(
 						mock.Anything,
-						bullet.ID,
-						bullet.UserID,
+						bulletID,
+						migrated.UserID,
 					).
 					Return(nil, &entity.ValidationError{Err: assert.AnError}).
 					Once()
@@ -93,18 +93,18 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 		},
 		{
 			name: "convert bullet to proto error",
-			req: &journalv1.CompleteBulletRequest{
-				Id:     bullet.ID.String(),
-				UserId: bullet.UserID.String(),
+			req: &journalv1.MigrateBulletRequest{
+				Id:     bulletID.String(),
+				UserId: migrated.UserID.String(),
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
 			setupMock: func(m *mocks.MockUsecase) {
 				m.EXPECT().
-					CompleteBullet(
+					MigrateBullet(
 						mock.Anything,
-						bullet.ID,
-						bullet.UserID,
+						bulletID,
+						migrated.UserID,
 					).
 					Return(&entity.Bullet{}, nil).
 					Once()
@@ -112,22 +112,22 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 		},
 		{
 			name: "success",
-			req: &journalv1.CompleteBulletRequest{
-				Id:     bullet.ID.String(),
-				UserId: bullet.UserID.String(),
+			req: &journalv1.MigrateBulletRequest{
+				Id:     bulletID.String(),
+				UserId: migrated.UserID.String(),
 			},
-			want: &journalv1.CompleteBulletResponse{
+			want: &journalv1.MigrateBulletResponse{
 				Data: protoBullet,
 			},
 			wantErr: nil,
 			setupMock: func(m *mocks.MockUsecase) {
 				m.EXPECT().
-					CompleteBullet(
+					MigrateBullet(
 						mock.Anything,
-						bullet.ID,
-						bullet.UserID,
+						bulletID,
+						migrated.UserID,
 					).
-					Return(bullet, nil).
+					Return(migrated, nil).
 					Once()
 			},
 		},
@@ -139,7 +139,7 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 
 			s := grpcapi.NewJournalService(usecaseMock, slog.Default())
 
-			got, gotErr := s.CompleteBullet(t.Context(), tt.req)
+			got, gotErr := s.MigrateBullet(t.Context(), tt.req)
 			if tt.wantErr != nil {
 				require.Error(t, gotErr)
 				assert.Equal(t, tt.wantErr, gotErr)
