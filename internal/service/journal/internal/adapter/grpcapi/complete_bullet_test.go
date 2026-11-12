@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/adapter/grpcapi"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/adapter/grpcapi/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -16,11 +16,11 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func TestJournalServer_CancelBullet(t *testing.T) {
+func TestJournalServer_CompleteBullet(t *testing.T) {
 	bullet, err := entity.NewBullet(uuid.New(), entity.KindTask, "test")
 	require.NoError(t, err)
 
-	err = bullet.Cancel()
+	err = bullet.Complete()
 	require.NoError(t, err)
 
 	protoBullet, err := grpcapi.ToProtoBullet(bullet)
@@ -28,14 +28,14 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		req       *journalv1.CancelBulletRequest
-		want      *journalv1.CancelBulletResponse
+		req       *journalv1.CompleteBulletRequest
+		want      *journalv1.CompleteBulletResponse
 		wantErr   error
 		setupMock func(*mocks.MockUsecase)
 	}{
 		{
 			name: "parse user id error",
-			req: &journalv1.CancelBulletRequest{
+			req: &journalv1.CompleteBulletRequest{
 				Id:     bullet.ID.String(),
 				UserId: "invalid-uuid",
 			},
@@ -45,7 +45,7 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 		},
 		{
 			name: "parse bullet id error",
-			req: &journalv1.CancelBulletRequest{
+			req: &journalv1.CompleteBulletRequest{
 				Id:     "invalid-uuid",
 				UserId: bullet.UserID.String(),
 			},
@@ -55,7 +55,7 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 		},
 		{
 			name: "usecase complete bullet error",
-			req: &journalv1.CancelBulletRequest{
+			req: &journalv1.CompleteBulletRequest{
 				Id:     bullet.ID.String(),
 				UserId: bullet.UserID.String(),
 			},
@@ -63,7 +63,7 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 			wantErr: status.Error(codes.Internal, "internal error"),
 			setupMock: func(m *mocks.MockUsecase) {
 				m.EXPECT().
-					CancelBullet(
+					CompleteBullet(
 						mock.Anything,
 						bullet.ID,
 						bullet.UserID,
@@ -74,7 +74,7 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 		},
 		{
 			name: "usecase validation error",
-			req: &journalv1.CancelBulletRequest{
+			req: &journalv1.CompleteBulletRequest{
 				Id:     bullet.ID.String(),
 				UserId: bullet.UserID.String(),
 			},
@@ -82,7 +82,7 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 			wantErr: status.Error(codes.InvalidArgument, assert.AnError.Error()),
 			setupMock: func(m *mocks.MockUsecase) {
 				m.EXPECT().
-					CancelBullet(
+					CompleteBullet(
 						mock.Anything,
 						bullet.ID,
 						bullet.UserID,
@@ -93,7 +93,7 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 		},
 		{
 			name: "convert bullet to proto error",
-			req: &journalv1.CancelBulletRequest{
+			req: &journalv1.CompleteBulletRequest{
 				Id:     bullet.ID.String(),
 				UserId: bullet.UserID.String(),
 			},
@@ -101,7 +101,7 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 			wantErr: status.Error(codes.Internal, "internal error"),
 			setupMock: func(m *mocks.MockUsecase) {
 				m.EXPECT().
-					CancelBullet(
+					CompleteBullet(
 						mock.Anything,
 						bullet.ID,
 						bullet.UserID,
@@ -112,17 +112,17 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 		},
 		{
 			name: "success",
-			req: &journalv1.CancelBulletRequest{
+			req: &journalv1.CompleteBulletRequest{
 				Id:     bullet.ID.String(),
 				UserId: bullet.UserID.String(),
 			},
-			want: &journalv1.CancelBulletResponse{
+			want: &journalv1.CompleteBulletResponse{
 				Data: protoBullet,
 			},
 			wantErr: nil,
 			setupMock: func(m *mocks.MockUsecase) {
 				m.EXPECT().
-					CancelBullet(
+					CompleteBullet(
 						mock.Anything,
 						bullet.ID,
 						bullet.UserID,
@@ -139,7 +139,7 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 
 			s := grpcapi.NewJournalService(usecaseMock, slog.Default())
 
-			got, gotErr := s.CancelBullet(t.Context(), tt.req)
+			got, gotErr := s.CompleteBullet(t.Context(), tt.req)
 			if tt.wantErr != nil {
 				require.Error(t, gotErr)
 				assert.Equal(t, tt.wantErr, gotErr)

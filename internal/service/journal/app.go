@@ -9,8 +9,8 @@ import (
 
 	"github.com/alexnesterov/rapidlog-api/internal/pkg/transactor"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/config"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/adapter/grpcapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/adapter/postgres"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"google.golang.org/grpc"
 )
