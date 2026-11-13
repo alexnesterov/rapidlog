@@ -33,34 +33,29 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	}
 	defer journalClient.Close()
 
+	api := http.NewServeMux()
+	api.Handle("POST /api/bullets", httpapi.NewCreateBulletHandler(journalClient, logger))
+	api.Handle("GET /api/bullets", httpapi.NewListBulletsHandler(journalClient))
+	api.Handle("POST /api/bullets/{id}/complete", httpapi.NewCompleteBulletHandler(journalClient, logger))
+	api.Handle("POST /api/bullets/{id}/migrate", httpapi.NewMigrateBulletHandler(journalClient, logger))
+	api.Handle("POST /api/bullets/{id}/cancel", httpapi.NewCancelBulletHandler(journalClient, logger))
+
 	router := http.NewServeMux()
-
 	router.HandleFunc("/health", httpapi.NewHealthHandler())
-	router.Handle("POST /api/bullets", httpapi.NewCreateBulletHandler(journalClient, logger))
-	router.Handle("GET /api/bullets", httpapi.NewListBulletsHandler(journalClient))
-
-	router.Handle("POST /api/bullets/{id}/complete",
-		httpapi.NewCompleteBulletHandler(journalClient, logger),
-	)
-
-	router.Handle("POST /api/bullets/{id}/migrate",
-		httpapi.NewMigrateBulletHandler(journalClient, logger),
-	)
-
-	router.Handle("POST /api/bullets/{id}/cancel",
-		httpapi.NewCancelBulletHandler(journalClient, logger),
-	)
-
-	var handler http.Handler = router
-	handler = middleware.Session(identityClient, cfg.Session.CookieName, cfg.Session.CookieTTL, cfg.Session.CookieSecure)(handler)
-	handler = middleware.Logging(logger)(handler)
-	handler = middleware.Recovery(logger)(handler)
 
 	frontend, err := fs.Sub(web.Dist, "dist")
 	if err != nil {
 		return fmt.Errorf("failed to load embedded frontend: %w", err)
 	}
 	router.Handle("/", http.FileServer(http.FS(frontend)))
+
+	router.Handle("/api/",
+		middleware.Session(identityClient, cfg.Session.CookieName, cfg.Session.CookieTTL, cfg.Session.CookieSecure, logger)(api),
+	)
+
+	var handler http.Handler = router
+	handler = middleware.Logging(logger)(handler)
+	handler = middleware.Recovery(logger)(handler)
 
 	server := &http.Server{
 		Addr:         ":" + cfg.Port,

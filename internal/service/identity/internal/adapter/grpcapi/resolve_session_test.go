@@ -27,6 +27,15 @@ func TestResolveSession(t *testing.T) {
 		setupMock func(m *mocks.MockResolveSessionUsecase)
 	}{
 		{
+			name: "parse session id error",
+			req: &identityv1.ResolveSessionRequest{
+				SessionId: "invalid-uuid",
+			},
+			want:      nil,
+			wantErr:   status.Error(codes.InvalidArgument, "invalid session id"),
+			setupMock: func(_ *mocks.MockResolveSessionUsecase) {},
+		},
+		{
 			name: "usecase error",
 			req: &identityv1.ResolveSessionRequest{
 				SessionId: fixedSessionID.String(),
