@@ -20,16 +20,16 @@ type MigrateBulletClient interface {
 	) (*journalv1.MigrateBulletResponse, error)
 }
 
-type MigrateBulletHandler struct {
+type MigrateBullet struct {
 	api    MigrateBulletClient
 	logger *slog.Logger
 }
 
-func NewMigrateBulletHandler(api MigrateBulletClient, logger *slog.Logger) *MigrateBulletHandler {
-	return &MigrateBulletHandler{api: api, logger: logger}
+func NewMigrateBullet(api MigrateBulletClient, logger *slog.Logger) *MigrateBullet {
+	return &MigrateBullet{api: api, logger: logger}
 }
 
-func (h *MigrateBulletHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *MigrateBullet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID, ok := UserIDFromContext(r.Context())
 	if !ok {
 		h.logger.Error("user id not found in context")

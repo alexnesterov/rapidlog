@@ -20,16 +20,16 @@ type CompleteBulletClient interface {
 	) (*journalv1.CompleteBulletResponse, error)
 }
 
-type CompleteBulletHandler struct {
+type CompleteBullet struct {
 	api    CompleteBulletClient
 	logger *slog.Logger
 }
 
-func NewCompleteBulletHandler(api CompleteBulletClient, logger *slog.Logger) *CompleteBulletHandler {
-	return &CompleteBulletHandler{api: api, logger: logger}
+func NewCompleteBullet(api CompleteBulletClient, logger *slog.Logger) *CompleteBullet {
+	return &CompleteBullet{api: api, logger: logger}
 }
 
-func (h *CompleteBulletHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *CompleteBullet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID, ok := UserIDFromContext(r.Context())
 	if !ok {
 		h.logger.Error("user id not found in context")

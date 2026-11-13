@@ -33,11 +33,11 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	defer journalClient.Close()
 
 	api := http.NewServeMux()
-	api.Handle("POST /api/bullets", httpapi.NewCreateBulletHandler(journalClient, logger))
-	api.Handle("GET /api/bullets", httpapi.NewListBulletsHandler(journalClient))
-	api.Handle("POST /api/bullets/{id}/complete", httpapi.NewCompleteBulletHandler(journalClient, logger))
-	api.Handle("POST /api/bullets/{id}/migrate", httpapi.NewMigrateBulletHandler(journalClient, logger))
-	api.Handle("POST /api/bullets/{id}/cancel", httpapi.NewCancelBulletHandler(journalClient, logger))
+	api.Handle("POST /api/bullets", httpapi.NewCreateBullet(journalClient, logger))
+	api.Handle("GET /api/bullets", httpapi.NewListBullets(journalClient))
+	api.Handle("POST /api/bullets/{id}/complete", httpapi.NewCompleteBullet(journalClient, logger))
+	api.Handle("POST /api/bullets/{id}/migrate", httpapi.NewMigrateBullet(journalClient, logger))
+	api.Handle("POST /api/bullets/{id}/cancel", httpapi.NewCancelBullet(journalClient, logger))
 
 	router := http.NewServeMux()
 	router.HandleFunc("/health", httpapi.NewHealthHandler())

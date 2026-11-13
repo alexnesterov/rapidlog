@@ -20,16 +20,16 @@ type CancelBulletClient interface {
 	) (*journalv1.CancelBulletResponse, error)
 }
 
-type CancelBulletHandler struct {
+type CancelBullet struct {
 	api    CancelBulletClient
 	logger *slog.Logger
 }
 
-func NewCancelBulletHandler(api CancelBulletClient, logger *slog.Logger) *CancelBulletHandler {
-	return &CancelBulletHandler{api: api, logger: logger}
+func NewCancelBullet(api CancelBulletClient, logger *slog.Logger) *CancelBullet {
+	return &CancelBullet{api: api, logger: logger}
 }
 
-func (h *CancelBulletHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *CancelBullet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID, ok := UserIDFromContext(r.Context())
 	if !ok {
 		h.logger.Error("user id not found in context")
