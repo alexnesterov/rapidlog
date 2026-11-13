@@ -52,7 +52,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	)
 
 	var handler http.Handler = router
-	handler = middleware.Session(identityClient, cfg.Session.CookieName, cfg.Session.CookieTTL, cfg.Session.CookieSecure)(handler)
+	handler = middleware.Session(identityClient, cfg.Session.CookieName, cfg.Session.CookieTTL, cfg.Session.CookieSecure, logger)(handler)
 	handler = middleware.Logging(logger)(handler)
 	handler = middleware.Recovery(logger)(handler)
 
