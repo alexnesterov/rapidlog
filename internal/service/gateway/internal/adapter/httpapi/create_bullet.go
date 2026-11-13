@@ -20,16 +20,16 @@ type CreateBulletClient interface {
 	) (*journalv1.CreateBulletResponse, error)
 }
 
-type CreateBulletHandler struct {
+type CreateBullet struct {
 	api    CreateBulletClient
 	logger *slog.Logger
 }
 
-func NewCreateBulletHandler(api CreateBulletClient, logger *slog.Logger) *CreateBulletHandler {
-	return &CreateBulletHandler{api: api, logger: logger}
+func NewCreateBullet(api CreateBulletClient, logger *slog.Logger) *CreateBullet {
+	return &CreateBullet{api: api, logger: logger}
 }
 
-func (h *CreateBulletHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *CreateBullet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID, ok := UserIDFromContext(r.Context())
 	if !ok {
 		respond.Error(w, http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))

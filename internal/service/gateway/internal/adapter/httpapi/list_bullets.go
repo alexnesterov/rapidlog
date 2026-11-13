@@ -18,15 +18,15 @@ type ListBulletsClient interface {
 	) (*journalv1.ListBulletsResponse, error)
 }
 
-type ListBulletsHandler struct {
+type ListBullets struct {
 	api ListBulletsClient
 }
 
-func NewListBulletsHandler(api ListBulletsClient) *ListBulletsHandler {
-	return &ListBulletsHandler{api: api}
+func NewListBullets(api ListBulletsClient) *ListBullets {
+	return &ListBullets{api: api}
 }
 
-func (h *ListBulletsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *ListBullets) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID, ok := UserIDFromContext(r.Context())
 	if !ok {
 		respond.Error(w, http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))

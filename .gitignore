@@ -1,6 +1,10 @@
+web/node_modules/
+web/dist/*
+!web/dist/.gitkeep
+backups/
+
 # Binaries
-/bin/
-/dist/
+bin/
 *.exe
 *.test
 
@@ -20,3 +24,4 @@ go.work.sum
 
 # Environment
 .env
+.env.prod
