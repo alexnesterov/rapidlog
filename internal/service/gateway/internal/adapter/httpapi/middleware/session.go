@@ -20,7 +20,10 @@ func Session(identityClient identityv1.IdentityServiceClient, cookieName string,
 
 			var id uuid.UUID
 			if c, err := r.Cookie(cookieName); err == nil {
-				id, _ = uuid.Parse(c.Value)
+				parsed, perr := uuid.Parse(c.Value)
+				if perr == nil {
+					id = parsed
+				}
 			}
 
 			resp, err := identityClient.ResolveSession(r.Context(), &identityv1.ResolveSessionRequest{SessionId: id.String()})
@@ -29,7 +32,11 @@ func Session(identityClient identityv1.IdentityServiceClient, cookieName string,
 				return
 			}
 
-			resolved := uuid.MustParse(resp.GetUserId())
+			resolved, err := uuid.Parse(resp.GetUserId())
+			if err != nil {
+				respond.Error(w, http.StatusInternalServerError, httpapi.ErrInternal.Error())
+				return
+			}
 
 			ctx := httpapi.WithUserID(r.Context(), resolved)
 			r = r.WithContext(ctx)
