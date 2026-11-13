@@ -14,11 +14,6 @@ import (
 func Session(identityClient identityv1.IdentityServiceClient, cookieName string, maxAge time.Duration, secure bool, logger *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.URL.Path == "/health" {
-				next.ServeHTTP(w, r)
-				return
-			}
-
 			var id uuid.UUID
 			if c, err := r.Cookie(cookieName); err == nil {
 				parsed, perr := uuid.Parse(c.Value)
