@@ -103,9 +103,10 @@ npm run build     # сборка в web/dist
 npm run lint      # oxlint
 ```
 
-Те же операции обёрнуты в `Makefile`: `make build`, `make test`, `make test-cov`
-(покрытие с порогом 30%), `make test-tdd dir=./internal/...`, `make mock`,
-`make buf`, `make up`/`make down` (`docker compose up -d --build` / `down`).
+Те же операции обёрнуты в [Taskfile](https://taskfile.dev/) (`Taskfile.yml`, список —
+`task --list`): `task build`, `task test`, `task test-cov` (сквозное покрытие),
+`task test-tdd DIR=./internal/...`, `task mock`, `task buf`, `task web`,
+`task up`/`task down` (`docker compose up -d --build` / `down`).
 
 Моки генерируются [mockery](https://vektra.github.io/mockery/) v3 по `.mockery.yml`
 (`internal/pkg/...`, `port`-пакеты `identity` и `journal`, `httpapi` в `gateway`;
@@ -115,7 +116,8 @@ mockery не удаляет — их нужно удалить вручную.
 
 gRPC-контракты (`api/proto/identity/v1/identity.proto`,
 `api/proto/journal/v1/journal.proto`) описаны через [buf](https://buf.build/);
-после правки `.proto` — `buf generate` (сгенерированный код в `api/gen/`
+после правки `.proto` — `task buf` (ставит buf и плагины `protoc-gen-go`/`protoc-gen-go-grpc`
+в `bin/` и запускает `buf generate`; сгенерированный код в `api/gen/`
 коммитится, в CI `buf` не запускается).
 
 Юнит-тестами покрыты usecase и gRPC-хендлеры `identity` и `journal`.
