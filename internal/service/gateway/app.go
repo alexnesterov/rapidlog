@@ -3,7 +3,6 @@ package gateway
 import (
 	"context"
 	"fmt"
-	"io/fs"
 	"log/slog"
 	"net/http"
 
@@ -42,12 +41,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 
 	router := http.NewServeMux()
 	router.HandleFunc("/health", httpapi.NewHealthHandler())
-
-	frontend, err := fs.Sub(web.Dist, "dist")
-	if err != nil {
-		return fmt.Errorf("failed to load embedded frontend: %w", err)
-	}
-	router.Handle("/", http.FileServer(http.FS(frontend)))
+	router.Handle("/", web.Handler())
 
 	router.Handle("/api/",
 		middleware.Session(identityClient, cfg.Session.CookieName, cfg.Session.CookieTTL, cfg.Session.CookieSecure, logger)(api),
