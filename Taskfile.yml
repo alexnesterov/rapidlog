@@ -1,0 +1,154 @@
+version: '3'
+
+vars:
+  MOCKERY_VERSION: v3.8.0
+  BUF_VERSION: v1.72.0
+  PROTOC_GEN_GO_VERSION: v1.36.12
+  PROTOC_GEN_GO_GRPC_VERSION: v1.6.2
+
+  BIN_DIR: '{{.ROOT_DIR}}/bin'
+  MOCKERY: '{{.BIN_DIR}}/mockery'
+  BUF: '{{.BIN_DIR}}/buf'
+  PROTOC_GEN_GO: '{{.BIN_DIR}}/protoc-gen-go'
+  PROTOC_GEN_GO_GRPC: '{{.BIN_DIR}}/protoc-gen-go-grpc'
+
+  GREEN: echo "🟩 [GREEN] Отлично! Все тесты прошли."
+  RED: echo "🟥 [RED] Тесты упали! Исправляй код." && exit 1
+
+tasks:
+  default:
+    desc: Сборка и быстрые тесты
+    cmds:
+      - task: build
+      - task: test-fast
+      - echo "🎉 Все проверки пройдены!"
+    silent: true
+
+  build:
+    desc: Проверка сборки всех пакетов
+    cmds:
+      - echo "🏗️  Проверка сборки всех пакетов (go build ./...)..."
+      - go build ./...
+      - echo "✅ Сборка успешно проверена!"
+    silent: true
+
+  test:
+    desc: Все тесты проекта
+    cmds:
+      - echo "🧪 Запуск всех тестов проекта..."
+      - go test ./... && {{.GREEN}} || ({{.RED}})
+    silent: true
+
+  test-fast:
+    desc: Тесты без кэша
+    cmds:
+      - echo "⚡ Быстрый перезапуск тестов без кэша..."
+      - go test -count=1 ./... && {{.GREEN}} || ({{.RED}})
+    silent: true
+
+  test-cov:
+    desc: Тесты со сквозным покрытием
+    cmds:
+      - echo "🧪 Запуск тестов со сквозным покрытием пакетов..."
+      - go test -coverprofile=coverage.out -coverpkg=./... ./...
+      - |
+        echo "📊 Общее покрытие: $(go tool cover -func=coverage.out | awk '/^total:/ {print $3}')"
+    silent: true
+
+  test-html:
+    desc: Отчёт о покрытии в браузере
+    deps: [test-cov]
+    cmds:
+      - echo "🌐 Открытие отчета в браузере..."
+      - go tool cover -html=coverage.out
+    silent: true
+
+  install-mockery:
+    desc: Установка mockery {{.MOCKERY_VERSION}}
+    cmds:
+      - echo "📦 Установка mockery {{.MOCKERY_VERSION}}..."
+      - GOBIN={{.BIN_DIR}} go install github.com/vektra/mockery/v3@{{.MOCKERY_VERSION}}
+      - echo "✅ mockery установлена в {{.MOCKERY}}"
+    status:
+      - '{{.MOCKERY}} version 2>/dev/null | grep -qx {{.MOCKERY_VERSION}}'
+    silent: true
+
+  mock:
+    desc: Генерация моков (mockery)
+    deps: [install-mockery]
+    cmds:
+      - echo "🔄 Генерация mock файлов..."
+      - '{{.MOCKERY}}'
+      - echo "✅ Mock файлы сгенерированы!"
+    silent: true
+
+  install-buf:
+    desc: Установка buf {{.BUF_VERSION}}
+    cmds:
+      - echo "📦 Установка buf {{.BUF_VERSION}}..."
+      - GOBIN={{.BIN_DIR}} go install github.com/bufbuild/buf/cmd/buf@{{.BUF_VERSION}}
+      - echo "✅ buf установлена в {{.BUF}}"
+    status:
+      - '{{.BUF}} --version 2>/dev/null | grep -qx {{trimPrefix "v" .BUF_VERSION}}'
+    silent: true
+
+  install-protoc-gen-go:
+    desc: Установка protoc-gen-go {{.PROTOC_GEN_GO_VERSION}}
+    cmds:
+      - echo "📦 Установка protoc-gen-go {{.PROTOC_GEN_GO_VERSION}}..."
+      - GOBIN={{.BIN_DIR}} go install google.golang.org/protobuf/cmd/protoc-gen-go@{{.PROTOC_GEN_GO_VERSION}}
+      - echo "✅ protoc-gen-go установлен в {{.PROTOC_GEN_GO}}"
+    status:
+      - "{{.PROTOC_GEN_GO}} --version 2>/dev/null | grep -qx 'protoc-gen-go {{.PROTOC_GEN_GO_VERSION}}'"
+    silent: true
+
+  install-protoc-gen-go-grpc:
+    desc: Установка protoc-gen-go-grpc {{.PROTOC_GEN_GO_GRPC_VERSION}}
+    cmds:
+      - echo "📦 Установка protoc-gen-go-grpc {{.PROTOC_GEN_GO_GRPC_VERSION}}..."
+      - GOBIN={{.BIN_DIR}} go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@{{.PROTOC_GEN_GO_GRPC_VERSION}}
+      - echo "✅ protoc-gen-go-grpc установлен в {{.PROTOC_GEN_GO_GRPC}}"
+    status:
+      - '{{.PROTOC_GEN_GO_GRPC}} --version 2>/dev/null | grep -qx ''protoc-gen-go-grpc {{trimPrefix "v" .PROTOC_GEN_GO_GRPC_VERSION}}'''
+    silent: true
+
+  buf:
+    desc: Генерация кода из proto (buf)
+    deps: [install-buf, install-protoc-gen-go, install-protoc-gen-go-grpc]
+    cmds:
+      - echo "🔄 Генерация buf файлов..."
+      - '{{.BUF}} generate'
+      - echo "✅ Buf файлы сгенерированы!"
+    silent: true
+
+  web:
+    desc: Сборка фронтенда в web/dist
+    dir: web
+    cmds:
+      - echo "🎨 Сборка фронтенда (web/dist)..."
+      - npm ci
+      - npm run build
+      - echo "✅ Фронтенд собран!"
+    silent: true
+
+  web-lint:
+    desc: Линтер фронтенда
+    dir: web
+    cmds:
+      - echo "🔍 Линтер фронтенда..."
+      - npm run lint
+    silent: true
+
+  up:
+    desc: docker compose up -d --build
+    cmds:
+      - echo "🚀 Запуск всех сервисов..."
+      - docker compose up -d --build
+    silent: true
+
+  down:
+    desc: docker compose down
+    cmds:
+      - echo "🛑 Остановка всех сервисов..."
+      - docker compose down
+    silent: true
