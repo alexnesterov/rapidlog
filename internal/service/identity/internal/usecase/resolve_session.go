@@ -8,8 +8,18 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *Usecase) ResolveSession(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
-	user, err := s.repo.Get(ctx, id)
+type ResolveSession struct {
+	userRepo UserRepository
+}
+
+func NewResolveSession(userRepo UserRepository) *ResolveSession {
+	return &ResolveSession{
+		userRepo: userRepo,
+	}
+}
+
+func (uc *ResolveSession) Execute(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
+	user, err := uc.userRepo.Get(ctx, id)
 	if err == nil {
 		return user.ID, nil
 	}
@@ -18,7 +28,7 @@ func (s *Usecase) ResolveSession(ctx context.Context, id uuid.UUID) (uuid.UUID, 
 	}
 
 	newUser := entity.NewUser()
-	err = s.repo.Create(ctx, newUser)
+	err = uc.userRepo.Create(ctx, newUser)
 	if err != nil {
 		return uuid.Nil, err
 	}

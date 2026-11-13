@@ -2,6 +2,7 @@ package grpcapi_test
 
 import (
 	"errors"
+	"log/slog"
 	"testing"
 
 	identityv1 "github.com/alexnesterov/rapidlog-api/api/gen/identity/v1"
@@ -23,7 +24,7 @@ func TestResolveSession(t *testing.T) {
 		req       *identityv1.ResolveSessionRequest
 		want      *identityv1.ResolveSessionResponse
 		wantErr   error
-		setupMock func(m *mocks.MockUsecase)
+		setupMock func(m *mocks.MockResolveSessionUsecase)
 	}{
 		{
 			name: "usecase error",
@@ -32,9 +33,9 @@ func TestResolveSession(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockUsecase) {
+			setupMock: func(m *mocks.MockResolveSessionUsecase) {
 				m.EXPECT().
-					ResolveSession(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+					Execute(mock.Anything, mock.AnythingOfType("uuid.UUID")).
 					Return(uuid.Nil, errors.New("usecase error")).
 					Once()
 			},
@@ -48,9 +49,9 @@ func TestResolveSession(t *testing.T) {
 				UserId: fixedSessionID.String(),
 			},
 			wantErr: nil,
-			setupMock: func(m *mocks.MockUsecase) {
+			setupMock: func(m *mocks.MockResolveSessionUsecase) {
 				m.EXPECT().
-					ResolveSession(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+					Execute(mock.Anything, mock.AnythingOfType("uuid.UUID")).
 					Return(fixedSessionID, nil).
 					Once()
 			},
@@ -59,10 +60,12 @@ func TestResolveSession(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			usecaseMock := mocks.NewMockUsecase(t)
-			tt.setupMock(usecaseMock)
+			resolveSessionUsecasMock := mocks.NewMockResolveSessionUsecase(t)
+			tt.setupMock(resolveSessionUsecasMock)
 
-			s := grpcapi.NewIdentityService(usecaseMock)
+			s := grpcapi.NewIdentityService(grpcapi.Usecase{
+				ResolveSession: resolveSessionUsecasMock,
+			}, slog.Default())
 
 			got, gotErr := s.ResolveSession(t.Context(), tt.req)
 			if tt.wantErr != nil {

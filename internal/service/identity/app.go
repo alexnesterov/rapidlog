@@ -32,11 +32,12 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	repository := postgres.NewUserRepository(pool)
-	uc := usecase.New(repository)
+	userRepository := postgres.NewUserRepository(pool)
 
 	grpcServer := grpc.NewServer()
-	grpcapi.RegisterIdentityService(grpcServer, uc)
+	grpcapi.RegisterIdentityService(grpcServer, grpcapi.Usecase{
+		ResolveSession: usecase.NewResolveSession(userRepository),
+	}, logger)
 
 	lis, err := net.Listen("tcp", ":"+cfg.Port)
 	if err != nil {

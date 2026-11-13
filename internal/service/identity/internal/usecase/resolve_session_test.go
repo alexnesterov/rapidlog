@@ -13,22 +13,22 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type ResolveSessionUseCaseSuite struct {
+type ResolveSessionSuite struct {
 	suite.Suite
 	userRepoMock *mocks.MockUserRepository
-	uc           *usecase.Usecase
+	uc           *usecase.ResolveSession
 }
 
-func TestResolveSessionUseCaseSuite(t *testing.T) {
-	suite.Run(t, new(ResolveSessionUseCaseSuite))
+func TestResolveSessionSuite(t *testing.T) {
+	suite.Run(t, new(ResolveSessionSuite))
 }
 
-func (s *ResolveSessionUseCaseSuite) SetupTest() {
+func (s *ResolveSessionSuite) SetupTest() {
 	s.userRepoMock = mocks.NewMockUserRepository(s.T())
-	s.uc = usecase.New(s.userRepoMock)
+	s.uc = usecase.NewResolveSession(s.userRepoMock)
 }
 
-func (s *ResolveSessionUseCaseSuite) TestResolveSession_Exists() {
+func (s *ResolveSessionSuite) TestResolveSession_Exists() {
 	user := entity.NewUser()
 
 	s.userRepoMock.EXPECT().
@@ -36,12 +36,12 @@ func (s *ResolveSessionUseCaseSuite) TestResolveSession_Exists() {
 		Return(user, nil).
 		Once()
 
-	got, gotErr := s.uc.ResolveSession(context.Background(), user.ID)
+	got, gotErr := s.uc.Execute(context.Background(), user.ID)
 	s.NoError(gotErr)
 	s.Equal(user.ID, got)
 }
 
-func (s *ResolveSessionUseCaseSuite) TestResolveSession_NotExists() {
+func (s *ResolveSessionSuite) TestResolveSession_NotExists() {
 	user := entity.NewUser()
 
 	s.userRepoMock.EXPECT().
@@ -54,13 +54,13 @@ func (s *ResolveSessionUseCaseSuite) TestResolveSession_NotExists() {
 		Return(nil).
 		Once()
 
-	got, gotErr := s.uc.ResolveSession(context.Background(), user.ID)
+	got, gotErr := s.uc.Execute(context.Background(), user.ID)
 	s.NoError(gotErr)
 	s.NotEqual(user.ID, got)
 	s.NotEqual(uuid.Nil, got)
 }
 
-func (s *ResolveSessionUseCaseSuite) TestResolveSession_GetError() {
+func (s *ResolveSessionSuite) TestResolveSession_GetError() {
 	user := entity.NewUser()
 	wantErr := errors.New("get error")
 
@@ -69,12 +69,12 @@ func (s *ResolveSessionUseCaseSuite) TestResolveSession_GetError() {
 		Return(nil, wantErr).
 		Once()
 
-	got, gotErr := s.uc.ResolveSession(context.Background(), user.ID)
+	got, gotErr := s.uc.Execute(context.Background(), user.ID)
 	s.ErrorIs(gotErr, wantErr)
 	s.Equal(uuid.Nil, got)
 }
 
-func (s *ResolveSessionUseCaseSuite) TestResolveSession_CreateError() {
+func (s *ResolveSessionSuite) TestResolveSession_CreateError() {
 	user := entity.NewUser()
 	wantErr := errors.New("create error")
 
@@ -88,7 +88,7 @@ func (s *ResolveSessionUseCaseSuite) TestResolveSession_CreateError() {
 		Return(wantErr).
 		Once()
 
-	got, gotErr := s.uc.ResolveSession(context.Background(), user.ID)
+	got, gotErr := s.uc.Execute(s.T().Context(), user.ID)
 	s.ErrorIs(gotErr, wantErr)
 	s.Equal(uuid.Nil, got)
 }
