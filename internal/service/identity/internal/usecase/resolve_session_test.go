@@ -1,7 +1,6 @@
 package usecase_test
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -36,7 +35,7 @@ func (s *ResolveSessionSuite) TestResolveSession_Exists() {
 		Return(user, nil).
 		Once()
 
-	got, gotErr := s.uc.Execute(context.Background(), user.ID)
+	got, gotErr := s.uc.Execute(s.T().Context(), user.ID)
 	s.NoError(gotErr)
 	s.Equal(user.ID, got)
 }
@@ -54,7 +53,7 @@ func (s *ResolveSessionSuite) TestResolveSession_NotExists() {
 		Return(nil).
 		Once()
 
-	got, gotErr := s.uc.Execute(context.Background(), user.ID)
+	got, gotErr := s.uc.Execute(s.T().Context(), user.ID)
 	s.NoError(gotErr)
 	s.NotEqual(user.ID, got)
 	s.NotEqual(uuid.Nil, got)
@@ -69,7 +68,7 @@ func (s *ResolveSessionSuite) TestResolveSession_GetError() {
 		Return(nil, wantErr).
 		Once()
 
-	got, gotErr := s.uc.Execute(context.Background(), user.ID)
+	got, gotErr := s.uc.Execute(s.T().Context(), user.ID)
 	s.ErrorIs(gotErr, wantErr)
 	s.Equal(uuid.Nil, got)
 }
