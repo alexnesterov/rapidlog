@@ -12,8 +12,9 @@ import (
 func (s *IdentityService) ResolveSession(ctx context.Context, req *identityv1.ResolveSessionRequest) (*identityv1.ResolveSessionResponse, error) {
 	id, _ := uuid.Parse(req.GetSessionId())
 
-	userID, err := s.usecase.ResolveSession(ctx, id)
+	userID, err := s.usecase.ResolveSession.Execute(ctx, id)
 	if err != nil {
+		s.logger.Error("failed to resolve session", "error", err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
