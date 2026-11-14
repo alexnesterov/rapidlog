@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"time"
@@ -16,13 +17,15 @@ func Session(identityClient identityv1.IdentityServiceClient, cookieName string,
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			var id uuid.UUID
 			if c, err := r.Cookie(cookieName); err == nil {
-				parsed, perr := uuid.Parse(c.Value)
-				if perr == nil {
+				if parsed, perr := uuid.Parse(c.Value); perr == nil {
 					id = parsed
 				}
 			}
 
-			resp, err := identityClient.ResolveSession(r.Context(), &identityv1.ResolveSessionRequest{SessionId: id.String()})
+			ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+			defer cancel()
+
+			resp, err := identityClient.ResolveSession(ctx, &identityv1.ResolveSessionRequest{SessionId: id.String()})
 			if err != nil {
 				logger.Error("failed to resolve session", "error", err)
 				respond.Error(w, http.StatusInternalServerError, httpapi.ErrInternal.Error())
@@ -36,8 +39,7 @@ func Session(identityClient identityv1.IdentityServiceClient, cookieName string,
 				return
 			}
 
-			ctx := httpapi.WithUserID(r.Context(), resolved)
-			r = r.WithContext(ctx)
+			r = r.WithContext(httpapi.WithUserID(r.Context(), resolved))
 
 			if resolved != id {
 				http.SetCookie(w, &http.Cookie{
