@@ -21,10 +21,10 @@ func NewClient(addr string) (*Client, error) {
 
 	return &Client{
 		IdentityServiceClient: identityv1.NewIdentityServiceClient(conn),
-		conn: conn,
+		conn:                  conn,
 	}, nil
 }
 
-func (c *Client) Close() {
-	c.conn.Close()
+func (c *Client) Close() error {
+	return c.conn.Close()
 }
