@@ -59,6 +59,17 @@ func (s *ResolveSessionSuite) TestResolveSession_NotExists() {
 	s.NotEqual(uuid.Nil, got)
 }
 
+func (s *ResolveSessionSuite) TestResolveSession_NilID() {
+	s.userRepoMock.EXPECT().
+		Create(mock.Anything, mock.MatchedBy(func(u *entity.User) bool { return u != nil && u.ID != uuid.Nil })).
+		Return(nil).
+		Once()
+
+	got, gotErr := s.uc.Execute(s.T().Context(), uuid.Nil)
+	s.NoError(gotErr)
+	s.NotEqual(uuid.Nil, got)
+}
+
 func (s *ResolveSessionSuite) TestResolveSession_GetError() {
 	user := entity.NewUser()
 	wantErr := errors.New("get error")
