@@ -24,13 +24,13 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	if err != nil {
 		return fmt.Errorf("identity new client: %w", err)
 	}
-	defer identityClient.Close()
+	defer func() { _ = identityClient.Close() }()
 
 	journalClient, err := journalgrpc.NewClient(cfg.Journal)
 	if err != nil {
 		return fmt.Errorf("journal new client: %w", err)
 	}
-	defer journalClient.Close()
+	defer func() { _ = journalClient.Close() }()
 
 	api := http.NewServeMux()
 	api.Handle("POST /api/bullets", httpapi.NewCreateBullet(journalClient, logger))

@@ -42,7 +42,6 @@ func (h *CreateBullet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		respond.Error(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
-	defer r.Body.Close()
 
 	var req journalv1.CreateBulletRequest
 	if err := protojson.Unmarshal(bodyBytes, &req); err != nil {
