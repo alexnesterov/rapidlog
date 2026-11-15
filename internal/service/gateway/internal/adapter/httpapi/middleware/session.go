@@ -15,17 +15,15 @@ import (
 func Session(identityClient identityv1.IdentityServiceClient, cookieName string, maxAge time.Duration, secure bool, logger *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			var id uuid.UUID
+			var sessionID string
 			if c, err := r.Cookie(cookieName); err == nil {
-				if parsed, perr := uuid.Parse(c.Value); perr == nil {
-					id = parsed
-				}
+				sessionID = c.Value
 			}
 
 			ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 			defer cancel()
 
-			resp, err := identityClient.ResolveSession(ctx, &identityv1.ResolveSessionRequest{SessionId: id.String()})
+			resp, err := identityClient.ResolveSession(ctx, &identityv1.ResolveSessionRequest{SessionId: sessionID})
 			if err != nil {
 				logger.Error("failed to resolve session", "error", err)
 				respond.Error(w, http.StatusInternalServerError, httpapi.ErrInternal.Error())
@@ -41,7 +39,7 @@ func Session(identityClient identityv1.IdentityServiceClient, cookieName string,
 
 			r = r.WithContext(httpapi.WithUserID(r.Context(), resolved))
 
-			if resolved != id {
+			if resolved.String() != sessionID {
 				http.SetCookie(w, &http.Cookie{
 					Name:     cookieName,
 					Value:    resolved.String(),

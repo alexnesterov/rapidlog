@@ -18,6 +18,7 @@ import (
 
 func TestResolveSession(t *testing.T) {
 	fixedSessionID := uuid.New()
+	newUserID := uuid.New()
 
 	tests := []struct {
 		name      string
@@ -27,13 +28,36 @@ func TestResolveSession(t *testing.T) {
 		setupMock func(m *mocks.MockResolveSessionUsecase)
 	}{
 		{
-			name: "parse session id error",
+			name: "invalid session id resolves as new session",
 			req: &identityv1.ResolveSessionRequest{
 				SessionId: "invalid-uuid",
 			},
-			want:      nil,
-			wantErr:   status.Error(codes.InvalidArgument, "invalid session id"),
-			setupMock: func(_ *mocks.MockResolveSessionUsecase) {},
+			want: &identityv1.ResolveSessionResponse{
+				UserId: newUserID.String(),
+			},
+			wantErr: nil,
+			setupMock: func(m *mocks.MockResolveSessionUsecase) {
+				m.EXPECT().
+					Execute(mock.Anything, uuid.Nil).
+					Return(newUserID, nil).
+					Once()
+			},
+		},
+		{
+			name: "empty session id resolves as new session",
+			req: &identityv1.ResolveSessionRequest{
+				SessionId: "",
+			},
+			want: &identityv1.ResolveSessionResponse{
+				UserId: newUserID.String(),
+			},
+			wantErr: nil,
+			setupMock: func(m *mocks.MockResolveSessionUsecase) {
+				m.EXPECT().
+					Execute(mock.Anything, uuid.Nil).
+					Return(newUserID, nil).
+					Once()
+			},
 		},
 		{
 			name: "usecase error",

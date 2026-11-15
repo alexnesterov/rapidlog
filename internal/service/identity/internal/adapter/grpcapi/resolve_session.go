@@ -12,8 +12,10 @@ import (
 func (s *IdentityService) ResolveSession(ctx context.Context, req *identityv1.ResolveSessionRequest) (*identityv1.ResolveSessionResponse, error) {
 	id, err := uuid.Parse(req.GetSessionId())
 	if err != nil {
-		s.logger.Warn("invalid session id", "session_id", req.GetSessionId(), "error", err)
-		return nil, status.Error(codes.InvalidArgument, "invalid session id")
+		if req.GetSessionId() != "" {
+			s.logger.Debug("invalid session id, starting new session", "error", err)
+		}
+		id = uuid.Nil
 	}
 
 	userID, err := s.usecase.ResolveSession.Execute(ctx, id)
