@@ -70,7 +70,7 @@ func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_ValidationError() {
 	s.ErrorAs(gotErr, &validationErr)
 }
 
-func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_UpdateError() {
+func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_SaveError() {
 	wantErr := errors.New("update failed")
 
 	s.mockBulletRepo.EXPECT().
@@ -82,7 +82,7 @@ func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_UpdateError() {
 		Once()
 
 	s.mockBulletRepo.EXPECT().
-		Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(wantErr).
 		Once()
 
@@ -101,7 +101,7 @@ func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_Success() {
 		Once()
 
 	s.mockBulletRepo.EXPECT().
-		Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(nil).
 		Once()
 

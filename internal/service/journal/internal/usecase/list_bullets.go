@@ -24,7 +24,7 @@ func (uc *Usecase) ListBullets(ctx context.Context, userID uuid.UUID) ([]*entity
 
 	err = uc.transactor.WithTx(ctx, func(ctx context.Context) error {
 		for _, b := range bullets {
-			err := uc.repo.Create(ctx, b)
+			err := uc.repo.Save(ctx, b)
 			if err != nil {
 				return err
 			}

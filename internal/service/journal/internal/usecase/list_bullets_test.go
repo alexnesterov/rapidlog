@@ -52,7 +52,7 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_Empty() {
 		Once()
 
 	s.mockBulletRepo.EXPECT().
-		Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(nil).
 		Times(3)
 
@@ -89,7 +89,7 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_NewDemoBulletsError() {
 	s.ErrorIs(gotErr, wantErr)
 }
 
-func (s *ListBulletsUseCaseSuite) TestListBullets_CreateError() {
+func (s *ListBulletsUseCaseSuite) TestListBullets_SaveError() {
 	wantErr := errors.New("create bullets error")
 
 	s.mockBulletRepo.EXPECT().
@@ -98,7 +98,7 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_CreateError() {
 		Once()
 
 	s.mockBulletRepo.EXPECT().
-		Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(wantErr).
 		Once()
 

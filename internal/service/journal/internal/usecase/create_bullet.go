@@ -19,7 +19,7 @@ func (uc *Usecase) CreateBullet(ctx context.Context, input CreateBulletInput) (*
 		return nil, err
 	}
 
-	if err := uc.repo.Create(ctx, bullet); err != nil {
+	if err := uc.repo.Save(ctx, bullet); err != nil {
 		return nil, err
 	}
 

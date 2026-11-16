@@ -19,25 +19,6 @@ func NewBulletRepository(pool *pgxpool.Pool) *BulletRepository {
 	return &BulletRepository{pool: pool}
 }
 
-func (r *BulletRepository) Create(ctx context.Context, bullet *entity.Bullet) error {
-	query := `
-		INSERT INTO bullets (id, kind, signifier, content, user_id, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`
-
-	_, err := transactor.GetQueryer(ctx, r.pool).Exec(ctx, query,
-		bullet.ID,
-		bullet.Kind,
-		bullet.Signifier,
-		bullet.Content,
-		bullet.UserID,
-		bullet.CreatedAt,
-		bullet.UpdatedAt,
-	)
-
-	return err
-}
-
 func (r *BulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
 	query := `
 		SELECT id, kind, signifier, content, user_id, created_at, updated_at
@@ -106,22 +87,35 @@ func (r *BulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*entit
 	return bullets, nil
 }
 
-func (r *BulletRepository) Update(ctx context.Context, bullet *entity.Bullet) error {
+func (r *BulletRepository) Save(ctx context.Context, bullet *entity.Bullet) error {
 	query := `
-		UPDATE bullets
-		SET kind = $2, signifier = $3, content = $4, created_at = $5, updated_at = $6
-		WHERE id = $1 AND user_id = $7
+		INSERT INTO bullets (id, kind, signifier, content, user_id, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		ON CONFLICT (id) DO UPDATE
+		SET kind = EXCLUDED.kind,
+			signifier = EXCLUDED.signifier,
+			content = EXCLUDED.content,
+			created_at = EXCLUDED.created_at,
+			updated_at = EXCLUDED.updated_at
+		WHERE bullets.user_id = EXCLUDED.user_id
 	`
 
-	_, err := transactor.GetQueryer(ctx, r.pool).Exec(ctx, query,
+	tag, err := transactor.GetQueryer(ctx, r.pool).Exec(ctx, query,
 		bullet.ID,
 		bullet.Kind,
 		bullet.Signifier,
 		bullet.Content,
+		bullet.UserID,
 		bullet.CreatedAt,
 		bullet.UpdatedAt,
-		bullet.UserID,
 	)
+	if err != nil {
+		return err
+	}
 
-	return err
+	if tag.RowsAffected() == 0 {
+		return entity.ErrOwnerMismatch
+	}
+
+	return nil
 }
