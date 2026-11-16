@@ -8,6 +8,6 @@ import (
 )
 
 type UserRepository interface {
-	Create(ctx context.Context, user *entity.User) error
 	Get(ctx context.Context, id uuid.UUID) (*entity.User, error)
+	Save(ctx context.Context, user *entity.User) error
 }

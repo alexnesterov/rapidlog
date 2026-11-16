@@ -49,7 +49,7 @@ func (s *ResolveSessionSuite) TestResolveSession_NotExists() {
 		Once()
 
 	s.userRepoMock.EXPECT().
-		Create(mock.Anything, mock.MatchedBy(func(u *entity.User) bool { return u != nil && u.ID != uuid.Nil })).
+		Save(mock.Anything, mock.MatchedBy(func(u *entity.User) bool { return u != nil && u.ID != uuid.Nil })).
 		Return(nil).
 		Once()
 
@@ -61,7 +61,7 @@ func (s *ResolveSessionSuite) TestResolveSession_NotExists() {
 
 func (s *ResolveSessionSuite) TestResolveSession_NilID() {
 	s.userRepoMock.EXPECT().
-		Create(mock.Anything, mock.MatchedBy(func(u *entity.User) bool { return u != nil && u.ID != uuid.Nil })).
+		Save(mock.Anything, mock.MatchedBy(func(u *entity.User) bool { return u != nil && u.ID != uuid.Nil })).
 		Return(nil).
 		Once()
 
@@ -84,7 +84,7 @@ func (s *ResolveSessionSuite) TestResolveSession_GetError() {
 	s.Equal(uuid.Nil, got)
 }
 
-func (s *ResolveSessionSuite) TestResolveSession_CreateError() {
+func (s *ResolveSessionSuite) TestResolveSession_SaveError() {
 	user := entity.NewUser()
 	wantErr := errors.New("create error")
 
@@ -94,7 +94,7 @@ func (s *ResolveSessionSuite) TestResolveSession_CreateError() {
 		Once()
 
 	s.userRepoMock.EXPECT().
-		Create(mock.Anything, mock.MatchedBy(func(u *entity.User) bool { return u != nil && u.ID != uuid.Nil })).
+		Save(mock.Anything, mock.MatchedBy(func(u *entity.User) bool { return u != nil && u.ID != uuid.Nil })).
 		Return(wantErr).
 		Once()
 

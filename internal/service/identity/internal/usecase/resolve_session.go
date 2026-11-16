@@ -30,7 +30,7 @@ func (uc *ResolveSession) Execute(ctx context.Context, id uuid.UUID) (uuid.UUID,
 	}
 
 	newUser := entity.NewUser()
-	if err := uc.userRepo.Create(ctx, newUser); err != nil {
+	if err := uc.userRepo.Save(ctx, newUser); err != nil {
 		return uuid.Nil, err
 	}
 
