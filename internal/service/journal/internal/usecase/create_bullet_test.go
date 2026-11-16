@@ -43,7 +43,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 			},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().
-					Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+					Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 					Return(errRepo).
 					Once()
 			},
@@ -69,7 +69,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 			},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().
-					Create(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+					Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 					Return(nil).
 					Once()
 			},

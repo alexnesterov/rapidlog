@@ -67,7 +67,7 @@ func (s *CancelBulletUseCaseSuite) TestCancelBullet_NotOpen() {
 	s.ErrorIs(gotErr, entity.ErrBulletNotOpen)
 }
 
-func (s *CancelBulletUseCaseSuite) TestCancelBullet_UpdateError() {
+func (s *CancelBulletUseCaseSuite) TestCancelBullet_SaveError() {
 	wantErr := fmt.Errorf("update failed")
 
 	s.mockBulletRepo.EXPECT().
@@ -78,7 +78,7 @@ func (s *CancelBulletUseCaseSuite) TestCancelBullet_UpdateError() {
 		Once()
 
 	s.mockBulletRepo.EXPECT().
-		Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(wantErr).
 		Once()
 
@@ -96,7 +96,7 @@ func (s *CancelBulletUseCaseSuite) TestCancelBullet_Success() {
 		Once()
 
 	s.mockBulletRepo.EXPECT().
-		Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(nil).
 		Once()
 

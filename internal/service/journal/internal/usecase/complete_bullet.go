@@ -22,7 +22,7 @@ func (uc *Usecase) CompleteBullet(ctx context.Context, id, userID uuid.UUID) (*e
 		return nil, err
 	}
 
-	if err := uc.repo.Update(ctx, bullet); err != nil {
+	if err := uc.repo.Save(ctx, bullet); err != nil {
 		return nil, err
 	}
 

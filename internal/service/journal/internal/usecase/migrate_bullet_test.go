@@ -45,7 +45,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotFound() {
 	s.ErrorIs(gotErr, entity.ErrNotFound)
 }
 
-func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_UpdateError() {
+func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_SaveError() {
 	id := uuid.New()
 	userID := uuid.New()
 	wantErr := errors.New("update failed")
@@ -65,7 +65,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_UpdateError() {
 		Once()
 
 	s.mockBulletRepo.EXPECT().
-		Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(wantErr).
 		Once()
 
@@ -114,7 +114,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
 		Once()
 
 	s.mockBulletRepo.EXPECT().
-		Update(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(nil).
 		Once()
 
