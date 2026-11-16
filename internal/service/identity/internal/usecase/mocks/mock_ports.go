@@ -48,63 +48,6 @@ func (_m *MockUserRepository) EXPECT() *MockUserRepository_Expecter {
 	return &MockUserRepository_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function for the type MockUserRepository
-func (_mock *MockUserRepository) Create(ctx context.Context, user *entity.User) error {
-	ret := _mock.Called(ctx, user)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Create")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *entity.User) error); ok {
-		r0 = returnFunc(ctx, user)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// MockUserRepository_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
-type MockUserRepository_Create_Call struct {
-	*mock.Call
-}
-
-// Create is a helper method to define mock.On call
-//   - ctx context.Context
-//   - user *entity.User
-func (_e *MockUserRepository_Expecter) Create(ctx any, user any) *MockUserRepository_Create_Call {
-	return &MockUserRepository_Create_Call{Call: _e.mock.On("Create", ctx, user)}
-}
-
-func (_c *MockUserRepository_Create_Call) Run(run func(ctx context.Context, user *entity.User)) *MockUserRepository_Create_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 *entity.User
-		if args[1] != nil {
-			arg1 = args[1].(*entity.User)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *MockUserRepository_Create_Call) Return(err error) *MockUserRepository_Create_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *MockUserRepository_Create_Call) RunAndReturn(run func(ctx context.Context, user *entity.User) error) *MockUserRepository_Create_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // Get provides a mock function for the type MockUserRepository
 func (_mock *MockUserRepository) Get(ctx context.Context, id uuid.UUID) (*entity.User, error) {
 	ret := _mock.Called(ctx, id)
@@ -169,6 +112,63 @@ func (_c *MockUserRepository_Get_Call) Return(user *entity.User, err error) *Moc
 }
 
 func (_c *MockUserRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (*entity.User, error)) *MockUserRepository_Get_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Save provides a mock function for the type MockUserRepository
+func (_mock *MockUserRepository) Save(ctx context.Context, user *entity.User) error {
+	ret := _mock.Called(ctx, user)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Save")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *entity.User) error); ok {
+		r0 = returnFunc(ctx, user)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockUserRepository_Save_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Save'
+type MockUserRepository_Save_Call struct {
+	*mock.Call
+}
+
+// Save is a helper method to define mock.On call
+//   - ctx context.Context
+//   - user *entity.User
+func (_e *MockUserRepository_Expecter) Save(ctx any, user any) *MockUserRepository_Save_Call {
+	return &MockUserRepository_Save_Call{Call: _e.mock.On("Save", ctx, user)}
+}
+
+func (_c *MockUserRepository_Save_Call) Run(run func(ctx context.Context, user *entity.User)) *MockUserRepository_Save_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *entity.User
+		if args[1] != nil {
+			arg1 = args[1].(*entity.User)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUserRepository_Save_Call) Return(err error) *MockUserRepository_Save_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockUserRepository_Save_Call) RunAndReturn(run func(ctx context.Context, user *entity.User) error) *MockUserRepository_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }

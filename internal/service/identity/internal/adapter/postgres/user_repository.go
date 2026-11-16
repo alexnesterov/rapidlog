@@ -18,10 +18,11 @@ func NewUserRepository(pool *pgxpool.Pool) *UserRepository {
 	return &UserRepository{pool: pool}
 }
 
-func (r *UserRepository) Create(ctx context.Context, user *entity.User) error {
+func (r *UserRepository) Save(ctx context.Context, user *entity.User) error {
 	query := `
 		INSERT INTO users (id, created_at)
 		VALUES ($1, $2)
+		ON CONFLICT (id) DO NOTHING
 	`
 
 	_, err := r.pool.Exec(ctx, query,
