@@ -26,6 +26,10 @@ const validateAuthSearch = (search: Record<string, unknown>): AuthSearch => ({
 });
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
+  // любая страница впервые показывается уже с Caveat/Golos, без подмены системного шрифта
+  // (шрифты Google подключены с display=swap); пока ждём — сплэш из index.html. Для уже загруженных
+  // шрифтов document.fonts.load разрешается сразу, так что на переходах это бесплатно.
+  loader: () => waitForFonts(),
   component: Outlet,
   notFoundComponent: () => <Navigate to="/" />,
 });
@@ -40,7 +44,7 @@ const journalRoute = createRoute({
     }
   },
   // prefetch, а не ensure: ошибку загрузки записей показывает сама страница
-  loader: ({ context }) => Promise.all([context.queryClient.prefetchQuery(bulletsQuery), waitForFonts()]),
+  loader: ({ context }) => context.queryClient.prefetchQuery(bulletsQuery),
   component: JournalPage,
 });
 
@@ -89,7 +93,7 @@ export function createAppRouter(queryClient: QueryClient) {
     defaultPreload: "intent",
     // свежесть данных решает TanStack Query, роутер всегда зовёт loader (повтор берётся из кэша)
     defaultPreloadStaleTime: 0,
-    // сплэш — только если переход/холодный старт затянулся
+    // переход внутри SPA затянулся дольше секунды — тоже сплэш
     defaultPendingComponent: Splash,
   });
 }

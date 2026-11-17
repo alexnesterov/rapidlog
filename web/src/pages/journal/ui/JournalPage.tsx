@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { Bullet, MigrateTarget } from '../model/bullet';
 import { useBulletsQuery, useCancelBulletMutation, useCompleteBulletMutation, useMigrateBulletMutation } from '../api/bulletsQueries';
 import { useRouter } from '@tanstack/react-router';
 import { useLogout, useSession } from '@/entities/session';
-import { fontsLoaded as fontsAlreadyLoaded, todayIsoDate, waitForFonts } from '@/shared/lib';
+import { todayIsoDate } from '@/shared/lib';
 import { Logo } from '@/shared/ui/logo';
 import { Splash } from '@/shared/ui/splash';
 import { DaySection } from './DaySection';
@@ -19,15 +19,6 @@ export function JournalPage() {
   const logoutMutation = useLogout(() => router.navigate({ to: '/login', search: {} }));
 
   const [error, setError] = useState<string | null>(null);
-  // Обычно шрифты уже дождался loader маршрута — тогда сплэш не мелькает ни на кадр.
-  const [fontsLoaded, setFontsLoaded] = useState(fontsAlreadyLoaded);
-  const fontsReady = useRef(waitForFonts()).current;
-
-  useEffect(() => {
-    fontsReady.then(() => setFontsLoaded(true));
-  }, [fontsReady]);
-
-  const initialized = fontsLoaded && !isPending;
 
   const completeBullet = useCallback(
     (bullet: Bullet) => {
@@ -66,7 +57,9 @@ export function JournalPage() {
   const today = todayIsoDate();
   const displayError = listError ? 'не удалось загрузить записи' : error;
 
-  if (!initialized) {
+  // шрифты ждёт корневой loader, записи — loader маршрута; сюда попадаем, только если
+  // записей в кэше всё же нет (например, prefetch ещё не успел)
+  if (isPending) {
     return <Splash />;
   }
 

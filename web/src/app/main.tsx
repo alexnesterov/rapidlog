@@ -14,6 +14,13 @@ const queryClient = createQueryClient(() => {
 })
 const router = createAppRouter(queryClient)
 
+// статический сплэш из index.html убираем, когда первая страница уже нарисована
+// (onResolved — после загрузки данных/шрифтов в loader'ах и коммита в DOM)
+const unsubscribe = router.subscribe('onResolved', () => {
+  document.getElementById('boot-splash')?.remove()
+  unsubscribe()
+})
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>

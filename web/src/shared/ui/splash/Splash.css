@@ -1,4 +1,4 @@
-/* first-load splash — shown once, before there's anything real to render */
+/* сплэш для долгих переходов роутера (defaultPendingComponent); первая загрузка — копия в index.html */
 
 .splash {
   position: fixed;
