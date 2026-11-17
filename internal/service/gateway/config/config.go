@@ -16,7 +16,7 @@ type HTTPConfig struct {
 }
 
 type KratosConfig struct {
-	// Публичный API Kratos: проверка сессии (whoami) и прокси /.ory/* для браузера
+	// Публичный API Kratos: проверка сессии (whoami) и прокси /auth/* для браузера
 	PublicURL string `mapstructure:"public_url"`
 }
 

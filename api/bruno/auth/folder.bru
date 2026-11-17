@@ -4,7 +4,7 @@ meta {
 }
 
 docs {
-  Вход через Ory Kratos (API-flow, проксируется gateway по /.ory/*).
+  Вход через Ory Kratos (API-flow, проксируется gateway по /auth/*).
   Login или Register сохраняют session_token в переменную sessionToken —
   запросы из bullets/ отправляют её заголовком X-Session-Token.
   Учётные данные — переменные окружения email / password.

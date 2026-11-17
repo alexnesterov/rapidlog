@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/.ory/self-service/registration?flow={{registrationFlowId}}
+  url: {{baseUrl}}/auth/self-service/registration?flow={{registrationFlowId}}
   body: json
   auth: none
 }
@@ -27,7 +27,7 @@ body:json {
 script:pre-request {
   const flow = await bru.sendRequest({
     method: "GET",
-    url: `${bru.getEnvVar("baseUrl")}/.ory/self-service/registration/api`,
+    url: `${bru.getEnvVar("baseUrl")}/auth/self-service/registration/api`,
   });
   bru.setVar("registrationFlowId", flow.data.id);
 }

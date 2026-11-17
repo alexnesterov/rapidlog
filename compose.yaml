@@ -51,7 +51,7 @@ services:
       DSN: ${KRATOS_DSN:-postgres://rapidlog:rapidlog@db:5432/kratos?sslmode=disable}
       SECRETS_COOKIE_0: ${KRATOS_SECRETS_COOKIE:-local-dev-cookie-secret-change-me-32+}
       SECRETS_CIPHER_0: ${KRATOS_SECRETS_CIPHER:-32-long-local-dev-cipher-secret!}
-      SERVE_PUBLIC_BASE_URL: ${KRATOS_APP_URL:-http://localhost:8080}/.ory/
+      SERVE_PUBLIC_BASE_URL: ${KRATOS_APP_URL:-http://localhost:8080}/auth/
       SELFSERVICE_DEFAULT_BROWSER_RETURN_URL: ${KRATOS_APP_URL:-http://localhost:8080}/
       SELFSERVICE_FLOWS_ERROR_UI_URL: ${KRATOS_APP_URL:-http://localhost:8080}/error
       SELFSERVICE_FLOWS_LOGIN_UI_URL: ${KRATOS_APP_URL:-http://localhost:8080}/login

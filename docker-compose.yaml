@@ -43,8 +43,8 @@ services:
       - DSN=${KRATOS_DSN}
       - SECRETS_COOKIE_0=${KRATOS_SECRETS_COOKIE}
       - SECRETS_CIPHER_0=${KRATOS_SECRETS_CIPHER}
-      # публичный URL приложения: Kratos доступен браузеру через gateway по /.ory/
-      - SERVE_PUBLIC_BASE_URL=${KRATOS_APP_URL}/.ory/
+      # публичный URL приложения: Kratos доступен браузеру через gateway по /auth/
+      - SERVE_PUBLIC_BASE_URL=${KRATOS_APP_URL}/auth/
       - SELFSERVICE_DEFAULT_BROWSER_RETURN_URL=${KRATOS_APP_URL}/
       - SELFSERVICE_FLOWS_ERROR_UI_URL=${KRATOS_APP_URL}/error
       - SELFSERVICE_FLOWS_LOGIN_UI_URL=${KRATOS_APP_URL}/login

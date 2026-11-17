@@ -113,12 +113,12 @@
 Аккаунты и сессии ведёт [Ory Kratos](https://www.ory.sh/docs/kratos/). Метод входа — email +
 пароль; регистрация одной формой и сразу выдаёт сессию. Своих эндпоинтов логина у `gateway` нет.
 
-- **`/.ory/*`** — публичный API Kratos, проксируется `gateway` без изменений (префикс `/.ory`
+- **`/auth/*`** — публичный API Kratos, проксируется `gateway` без изменений (префикс `/auth`
   снимается). Браузер ходит в Kratos только так: cookie сессии `ory_kratos_session` и CSRF-cookie
   живут на том же origin, что и SPA, CORS не нужен. Основные пути:
-  `/.ory/self-service/{login,registration}/browser` (SPA, `Accept: application/json`),
-  `/.ory/self-service/{login,registration}/api` (API-клиенты), `/.ory/sessions/whoami`,
-  `/.ory/self-service/logout/browser`.
+  `/auth/self-service/{login,registration}/browser` (SPA, `Accept: application/json`),
+  `/auth/self-service/{login,registration}/api` (API-клиенты), `/auth/sessions/whoami`,
+  `/auth/self-service/logout/browser`.
 - **`/api/*`** — `gateway` на каждый запрос вызывает Kratos `/sessions/whoami`, передавая
   `Cookie` браузера или заголовок `X-Session-Token` (API-клиенты: Bruno, curl). Действующая
   сессия → ID identity Kratos становится `userId` и уходит в `journal` полем `user_id`; каждая

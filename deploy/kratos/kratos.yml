@@ -4,9 +4,9 @@ version: v26.2.0
 
 serve:
   public:
-    # Kratos доступен браузеру только через gateway (/.ory/* проксируется на :4433),
+    # Kratos доступен браузеру только через gateway (/auth/* проксируется на :4433),
     # поэтому cookie сессии живёт на том же origin, что и SPA.
-    base_url: http://localhost:8080/.ory/
+    base_url: http://localhost:8080/auth/
   admin:
     base_url: http://kratos:4434/
 

@@ -6,7 +6,7 @@ import (
 )
 
 // NewProxy проксирует публичный API Kratos (self-service flows, whoami, logout) для браузера.
-// Монтируется под префиксом (/.ory/), который снимает вызывающий через http.StripPrefix:
+// Монтируется под префиксом (/auth/), который снимает вызывающий через http.StripPrefix:
 // так cookie сессии Kratos живёт на том же origin, что и SPA, и CORS не нужен.
 func NewProxy(publicURL string) (http.Handler, error) {
 	target, err := parsePublicURL(publicURL)

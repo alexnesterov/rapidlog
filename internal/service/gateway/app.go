@@ -47,7 +47,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	router.HandleFunc("/health", httpapi.NewHealthHandler())
 	router.Handle("/", web.Handler())
 	// публичный API Kratos на том же origin, что и SPA: cookie сессии и CSRF без CORS
-	router.Handle("/.ory/", http.StripPrefix("/.ory", kratosProxy))
+	router.Handle("/auth/", http.StripPrefix("/auth", kratosProxy))
 
 	router.Handle("/api/", middleware.Auth(kratosClient, logger)(api))
 

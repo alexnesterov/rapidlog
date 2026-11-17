@@ -10,7 +10,7 @@ Backend на Go + Postgres, фронтенд на React встраивается
 для аккаунтов:
 
 - **gateway** — единственная точка входа для браузера: REST API, раздача SPA,
-  проверка сессии Kratos и прокси его публичного API на `/.ory/*`. Через gRPC
+  проверка сессии Kratos и прокси его публичного API на `/auth/*`. Через gRPC
   общается с `journal`.
 - **journal** — домен bullets, хранит и обрабатывает записи; владеет собственной БД.
 - **kratos** — регистрация и вход по email + паролю, сессии; своя БД `kratos`.
@@ -32,7 +32,7 @@ gRPC `journal` — на `:50052`, публичный API Kratos — на `:4433`
 `kratos-migrate` перед стартом `kratos`.
 
 Вход — по email и паролю через Kratos. Браузер работает с Kratos только через
-`gateway` (`/.ory/*`), поэтому cookie сессии живёт на том же origin, что и SPA.
+`gateway` (`/auth/*`), поэтому cookie сессии живёт на том же origin, что и SPA.
 `gateway` на каждый запрос к `/api/*` проверяет сессию вызовом Kratos
 `/sessions/whoami`: без сессии — `401`, с сессией ID identity Kratos становится
 `user_id` в `journal`. Новому пользователю при первом просмотре списка создаются
@@ -105,7 +105,7 @@ golangci-lint run                      # линтер (в CI не запуска
 Frontend (`web/`):
 
 ```sh
-npm run dev       # dev-сервер vite (проксирует /api и /.ory на localhost:8080)
+npm run dev       # dev-сервер vite (проксирует /api и /auth на localhost:8080)
 npm run build     # сборка в web/dist
 npm run lint      # oxlint
 ```
@@ -146,12 +146,12 @@ gRPC-контракт `api/proto/journal/v1/journal.proto` описан чере
 [`docs/api-design.md`](docs/api-design.md).
 
 Все `/api/*` требуют сессию Kratos — cookie браузера или заголовок
-`X-Session-Token` (API-клиенты); без неё — `401`. `/.ory/*` — публичный API Kratos
+`X-Session-Token` (API-клиенты); без неё — `401`. `/auth/*` — публичный API Kratos
 (self-service flows регистрации/входа/выхода, `sessions/whoami`), проксируется как есть.
 
 ```
 GET    /health
-ANY    /.ory/*
+ANY    /auth/*
 POST   /api/bullets
 GET    /api/bullets
 POST   /api/bullets/{id}/complete

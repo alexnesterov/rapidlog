@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/.ory/self-service/login?flow={{loginFlowId}}
+  url: {{baseUrl}}/auth/self-service/login?flow={{loginFlowId}}
   body: json
   auth: none
 }
@@ -25,7 +25,7 @@ body:json {
 script:pre-request {
   const flow = await bru.sendRequest({
     method: "GET",
-    url: `${bru.getEnvVar("baseUrl")}/.ory/self-service/login/api`,
+    url: `${bru.getEnvVar("baseUrl")}/auth/self-service/login/api`,
   });
   bru.setVar("loginFlowId", flow.data.id);
 }

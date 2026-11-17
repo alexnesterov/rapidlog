@@ -1,4 +1,4 @@
-// Ory Kratos через same-origin прокси gateway (/.ory/*). Browser-flow в JSON-режиме:
+// Ory Kratos через same-origin прокси gateway (/auth/*). Browser-flow в JSON-режиме:
 // Kratos не редиректит, а отвечает JSON, cookie сессии и CSRF ставит на наш origin.
 import {
   Configuration,
@@ -15,7 +15,7 @@ import type { AuthFlow, AuthFlowKind, FlowError, FlowField, FlowFieldType, FlowM
 
 const ory = new FrontendApi(
   new Configuration({
-    basePath: "/.ory",
+    basePath: "/auth",
     credentials: "include",
     // без Accept: application/json Kratos отвечает на browser-flow редиректом, а не JSON
     headers: { Accept: "application/json" },
