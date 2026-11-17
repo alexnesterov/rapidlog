@@ -14,6 +14,9 @@ export function createQueryClient(onUnauthorized: () => void) {
     mutationCache: new MutationCache({ onError: handleError }),
     defaultOptions: {
       queries: {
+        // данные из loader'а маршрута не перезапрашиваются сразу при монтировании страницы
+        // (с дефолтным 0 был второй GET /api/bullets); мутации обновляют кэш через setQueryData
+        staleTime: 60_000,
         // 401 повтором не лечится — сразу отдаём ошибку, чтобы увести на вход
         retry: (failureCount, err) => !isUnauthorized(err) && failureCount < 3,
       },
