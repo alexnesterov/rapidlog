@@ -1,5 +1,6 @@
 import type { AuthFlowKind } from "@/shared/api/auth";
 import { FlowForm } from "@/shared/ui/flow-form";
+import { Splash } from "@/shared/ui/splash";
 import { useAuthFlow } from "../model/useAuthFlow";
 
 interface AuthFlowFormProps {
@@ -10,14 +11,17 @@ interface AuthFlowFormProps {
 }
 
 export function AuthFlowForm({ kind, flowId, returnTo, submitLabel }: AuthFlowFormProps) {
-  const { flow, submit } = useAuthFlow(kind, { flowId, returnTo });
+  const { flow, submit, entering } = useAuthFlow(kind, { flowId, returnTo });
 
   return (
-    <FlowForm
-      flow={flow}
-      submitLabel={submitLabel}
-      pending={submit.isPending}
-      onSubmit={(values) => submit.mutate(values)}
-    />
+    <>
+      <FlowForm
+        flow={flow}
+        submitLabel={submitLabel}
+        pending={submit.isPending}
+        onSubmit={(values) => submit.mutate(values)}
+      />
+      {entering && <Splash />}
+    </>
   );
 }
