@@ -6,7 +6,7 @@ import { createFlow, type AuthFlowKind } from "@/shared/api/auth";
 export const authFlowQuery = (kind: AuthFlowKind, flowId?: string) =>
   queryOptions({
     queryKey: ["auth-flow", kind, flowId ?? "new"],
-    queryFn: () => createFlow(kind),
+    queryFn: () => createFlow(kind, flowId),
     staleTime: Infinity,
     gcTime: 30_000,
     retry: false,

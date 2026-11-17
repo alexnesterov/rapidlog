@@ -16,7 +16,7 @@ export function useAuthFlow(kind: AuthFlowKind, { flowId, returnTo }: Options) {
   const { data: flow } = useSuspenseQuery(query);
 
   const submit = useMutation({
-    mutationFn: (values: Record<string, string>) => submitFlow(kind, values),
+    mutationFn: (values: Record<string, string>) => submitFlow(kind, flow.id, values),
     onSuccess: async (result) => {
       if (!result.ok) {
         queryClient.setQueryData(query.queryKey, result.flow);

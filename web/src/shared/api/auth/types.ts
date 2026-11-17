@@ -1,5 +1,5 @@
 // Упрощённая модель self-service flow Kratos: UI не зависит от формата @ory/client-fetch,
-// реальные flow маппятся в неё на уровне api.
+// реальные flow маппятся в неё в kratos.ts.
 
 export type AuthFlowKind = "login" | "registration";
 
@@ -12,7 +12,7 @@ export interface FlowMessage {
   type: FlowMessageType;
 }
 
-export type FlowFieldType = "email" | "password" | "hidden" | "submit";
+export type FlowFieldType = "email" | "text" | "password" | "hidden" | "submit";
 
 export interface FlowField {
   name: string;
