@@ -18,14 +18,14 @@ Backend на Go + Postgres, фронтенд на React встраивается
 
 ## Запуск
 
-Полный стек в Docker (gateway + journal + kratos + Postgres + Adminer):
+Полный стек в Docker (gateway + journal + kratos + Postgres):
 
 ```sh
 cp .env.example .env
 docker compose up
 ```
 
-Приложение доступно на `http://localhost:8080`, Adminer — на `:8081`,
+Приложение доступно на `http://localhost:8080`,
 gRPC `journal` — на `:50052`, публичный API Kratos — на `:4433`, Postgres — на `:5432`.
 Дополнительные базы `journal` и `kratos` создаются в том же Postgres при первом
 старте на пустом volume; схему Kratos накатывает одноразовый контейнер
@@ -63,7 +63,7 @@ go run ./cmd/gateway      # HTTP на :8080
 ### Продакшн
 
 `docker-compose.yaml` (не путать с локальным `compose.yaml`) поднимает только
-`gateway`, `journal`, `kratos-migrate` и `kratos` — без Postgres и Adminer. Значения
+`gateway`, `journal`, `kratos-migrate` и `kratos` — без Postgres. Значения
 переменных подставляются из окружения хоста (`${VAR}`), DSN указывают на внешний
 Postgres. Kratos в продакшене запускается без `--dev`, поэтому публичный URL
 приложения (`KRATOS_APP_URL`) должен быть на HTTPS — иначе браузер не сохранит
