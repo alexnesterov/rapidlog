@@ -127,8 +127,8 @@ gRPC-контракт `api/proto/journal/v1/journal.proto` описан чере
 коммитится, в CI `buf` не запускается).
 
 Юнит-тестами покрыты usecase и gRPC-хендлеры `journal`, а в `gateway` — middleware
-проверки сессии, клиент Kratos (на `httptest`) и SPA-fallback. Postgres-репозитории,
-загрузка конфигурации и gRPC-клиенты проверяются вручную через `docker compose` +
+проверки сессии и клиент Kratos (на `httptest`). Postgres-репозитории, загрузка
+конфигурации, gRPC-клиенты и SPA-fallback проверяются вручную через `docker compose` +
 `curl`/`grpcurl`. REST-хендлеры `gateway` пока без тестов.
 
 Для ручных запросов есть [Bruno](https://www.usebruno.com/)-коллекция в

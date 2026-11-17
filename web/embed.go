@@ -13,14 +13,7 @@ import (
 var dist embed.FS
 
 func Handler() http.Handler {
-	sub, _ := fs.Sub(dist, "dist")
-	return spaHandler(sub)
-}
-
-// spaHandler раздаёт файлы сборки, а на неизвестные пути без расширения (/login,
-// /registration — маршруты клиентского роутера) отдаёт index.html. Отсутствующие файлы
-// с расширением (/assets/old.js, /favicon.ico) остаются 404, а не превращаются в HTML.
-func spaHandler(fsys fs.FS) http.Handler {
+	fsys, _ := fs.Sub(dist, "dist")
 	files := http.FileServerFS(fsys)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
