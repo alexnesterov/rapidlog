@@ -15,16 +15,6 @@ services:
       - journal
       - kratos
 
-  identity:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: identity
-    container_name: identity
-    restart: unless-stopped
-    environment:
-      - IDENTITY_DSN=${IDENTITY_DSN}
-
   journal:
     build:
       context: .

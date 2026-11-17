@@ -16,12 +16,6 @@ packages:
   github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi:
     config:
       all: true
-  github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/usecase:
-    config:
-      all: true
-  github.com/alexnesterov/rapidlog-api/internal/service/identity/internal/adapter/grpcapi:
-    config:
-      all: true
   github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase:
     config:
       all: true

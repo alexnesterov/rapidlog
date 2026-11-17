@@ -15,21 +15,6 @@ services:
       - journal
       - kratos
 
-  identity:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: identity
-    container_name: identity
-    image: rapidlog-identity
-    restart: unless-stopped
-    ports:
-      - '50051:50051'
-    env_file:
-      - .env
-    depends_on:
-      - db
-
   journal:
     build:
       context: .
@@ -90,8 +75,6 @@ services:
       POSTGRES_PASSWORD: rapidlog
       POSTGRES_DB: rapidlog
     configs:
-      - source: init-identity-db
-        target: /docker-entrypoint-initdb.d/init-identity-db.sql
       - source: init-journal-db
         target: /docker-entrypoint-initdb.d/init-journal-db.sql
       - source: init-kratos-db
@@ -119,9 +102,6 @@ volumes:
   postgres_data:
 
 configs:
-  init-identity-db:
-    content: |
-      CREATE DATABASE identity;
   init-journal-db:
     content: |
       CREATE DATABASE journal;
