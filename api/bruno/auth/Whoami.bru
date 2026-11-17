@@ -1,0 +1,19 @@
+meta {
+  name: Whoami
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/.ory/sessions/whoami
+  body: none
+  auth: none
+}
+
+headers {
+  X-Session-Token: {{sessionToken}}
+}
+
+docs {
+  Текущая сессия Kratos: identity.id — это user_id, которым gateway скоупит bullets.
+}

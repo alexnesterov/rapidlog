@@ -1,8 +1,8 @@
 # API — проектирование
 
 > Этот контракт обслуживает сервис `gateway` (`internal/service/gateway/`) — единственная
-> точка входа для браузера. Сессию он резолвит gRPC-вызовом к `identity`, операции с bullet'ами
-> проксирует gRPC-вызовами к `journal`. Тела ответов — это gRPC-ответы `journal`,
+> точка входа для браузера. Сессию он проверяет вызовом Ory Kratos (`/sessions/whoami`, см.
+> раздел «Аутентификация»), операции с bullet'ами проксирует gRPC-вызовами к `journal`. Тела ответов — это gRPC-ответы `journal`,
 > сериализованные `protojson` (`api/proto/journal/v1/journal.proto`), поэтому поля в
 > camelCase, а значения enum'ов — полные имена из proto (`KIND_TASK`, `SIGNIFIER_OPEN`).
 
@@ -13,7 +13,7 @@
 | Поле          | Тип       | Описание                                                          |
 | ------------- | --------- | ----------------------------------------------------------------- |
 | id            | UUID      |                                                                   |
-| userId        | UUID      | анонимный владелец (см. привязку к сессии)                       |
+| userId        | UUID      | владелец — ID identity в Ory Kratos                               |
 | kind          | string    | `KIND_TASK` \| `KIND_EVENT` \| `KIND_NOTE`, обязательное |
 | signifier     | string    | `SIGNIFIER_OPEN` \| `SIGNIFIER_COMPLETED` \| `SIGNIFIER_CANCELLED` |
 | content       | string    | обязательное, ≤200 символов                                       |
@@ -93,26 +93,58 @@
 | 201 | ресурс создан                                         |
 | 204 | успешное удаление, тело пустое                        |
 | 400 | некорректный запрос (невалидный JSON)                 |
-| 401 | в контексте запроса нет пользователя                  |
+| 401 | нет действующей сессии Kratos (`"unauthorized"`)      |
 | 404 | ресурс не найден                                      |
 | 500 | внутренняя ошибка                                     |
 
 > **Пока не реализовано:** `gateway` ещё не маппит gRPC-статусы `journal` в HTTP. Сейчас
 > любая ошибка `journal` (в том числе доменная: невалидный переход, bullet не найден)
-> возвращается как `500` с `"message": "Internal Server Error"`. Если недоступен `identity`,
-> middleware сессии отвечает `500` с `"message": "internal server error"` (в нижнем регистре).
+> возвращается как `500` с `"message": "Internal Server Error"`. Если недоступен Kratos,
+> middleware аутентификации отвечает `500` с `"message": "internal server error"` (в нижнем
+> регистре).
 > Коды `400`/`404` и сообщения в примерах ниже — целевое поведение. Уже сейчас работают `400`
 > на невалидный `id` в пути (`"Bad Request"`) и на тело запроса, которое не разбирается
 > `protojson` (`"invalid request body"`).
 
 ---
 
-## 3. Эндпоинты
+## 3. Аутентификация
+
+Аккаунты и сессии ведёт [Ory Kratos](https://www.ory.sh/docs/kratos/). Метод входа — email +
+пароль; регистрация одной формой и сразу выдаёт сессию. Своих эндпоинтов логина у `gateway` нет.
+
+- **`/.ory/*`** — публичный API Kratos, проксируется `gateway` без изменений (префикс `/.ory`
+  снимается). Браузер ходит в Kratos только так: cookie сессии `ory_kratos_session` и CSRF-cookie
+  живут на том же origin, что и SPA, CORS не нужен. Основные пути:
+  `/.ory/self-service/{login,registration}/browser` (SPA, `Accept: application/json`),
+  `/.ory/self-service/{login,registration}/api` (API-клиенты), `/.ory/sessions/whoami`,
+  `/.ory/self-service/logout/browser`.
+- **`/api/*`** — `gateway` на каждый запрос вызывает Kratos `/sessions/whoami`, передавая
+  `Cookie` браузера или заголовок `X-Session-Token` (API-клиенты: Bruno, curl). Действующая
+  сессия → ID identity Kratos становится `userId` и уходит в `journal` полем `user_id`; каждая
+  операция с bullet скоупится по нему. Нет сессии или она неактивна → `401`:
+
+```json
+// response 401
+{
+  "data": null,
+  "error": {
+    "code": 401,
+    "message": "unauthorized"
+  }
+}
+```
+
+SPA на `401` от `/api` сбрасывает сессию и уводит на `/login`.
+
+---
+
+## 4. Эндпоинты
 
 ### Health
 
 **GET /health** → `200 { "status": "ok" }` — для Docker/orchestrator healthcheck. Состояние
-`identity` и `journal` не проверяется, резолв сессии на этот путь не распространяется.
+Kratos и `journal` не проверяется, сессия на этом пути не требуется.
 
 ### Bullets
 

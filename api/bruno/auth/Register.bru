@@ -1,0 +1,45 @@
+meta {
+  name: Register
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/.ory/self-service/registration?flow={{registrationFlowId}}
+  body: json
+  auth: none
+}
+
+params:query {
+  flow: {{registrationFlowId}}
+}
+
+body:json {
+  {
+    "method": "password",
+    "traits": {
+      "email": "{{email}}"
+    },
+    "password": "{{password}}"
+  }
+}
+
+script:pre-request {
+  const flow = await bru.sendRequest({
+    method: "GET",
+    url: `${bru.getEnvVar("baseUrl")}/.ory/self-service/registration/api`,
+  });
+  bru.setVar("registrationFlowId", flow.data.id);
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("sessionToken", res.body.session_token);
+  }
+}
+
+docs {
+  Регистрирует пользователя с email / password из окружения и сразу выдаёт сессию
+  (hook session в kratos.yml). Повторный запуск с тем же email → 400
+  «An account with the same identifier exists already» — тогда используйте Login.
+}

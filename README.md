@@ -6,16 +6,19 @@
 
 Backend на Go + Postgres, фронтенд на React встраивается в бинарник `gateway`.
 
-Состоит из трёх сервисов в одном Go-модуле:
+Состоит из двух сервисов в одном Go-модуле и [Ory Kratos](https://www.ory.sh/kratos/)
+для аккаунтов:
 
-- **gateway** — единственная точка входа для браузера: REST API, раздача SPA.
-  Через gRPC общается с `identity` и `journal`.
-- **identity** — резолюция анонимной сессии в пользователя; владеет собственной БД.
+- **gateway** — единственная точка входа для браузера: REST API, раздача SPA,
+  проверка сессии Kratos и прокси его публичного API на `/.ory/*`. Через gRPC
+  общается с `journal`.
 - **journal** — домен bullets, хранит и обрабатывает записи; владеет собственной БД.
+- **kratos** — регистрация и вход по email + паролю, сессии; своя БД `kratos`.
+  Конфигурация — `deploy/kratos/`.
 
 ## Запуск
 
-Полный стек в Docker (gateway + identity + journal + Postgres + Adminer):
+Полный стек в Docker (gateway + journal + kratos + Postgres + Adminer):
 
 ```sh
 cp .env.example .env
@@ -23,67 +26,71 @@ docker compose up
 ```
 
 Приложение доступно на `http://localhost:8080`, Adminer — на `:8081`,
-gRPC `identity` — на `:50051`, gRPC `journal` — на `:50052`, Postgres — на `:5432`.
-Дополнительные базы `identity` и `journal` создаются в том же Postgres при первом
-старте на пустом volume.
+gRPC `journal` — на `:50052`, публичный API Kratos — на `:4433`, Postgres — на `:5432`.
+Дополнительные базы `journal` и `kratos` создаются в том же Postgres при первом
+старте на пустом volume; схему Kratos накатывает одноразовый контейнер
+`kratos-migrate` перед стартом `kratos`.
 
-Аутентификации нет: анонимная привязка к пользователю происходит через
-cookie `session_id`, которую `gateway` выставляет сам при первом запросе (сессия
-резолвится вызовом к `identity`). Новому пользователю при первом просмотре
-списка создаются три демонстрационных bullet'а в `journal`.
+Вход — по email и паролю через Kratos. Браузер работает с Kratos только через
+`gateway` (`/.ory/*`), поэтому cookie сессии живёт на том же origin, что и SPA.
+`gateway` на каждый запрос к `/api/*` проверяет сессию вызовом Kratos
+`/sessions/whoami`: без сессии — `401`, с сессией ID identity Kratos становится
+`user_id` в `journal`. Новому пользователю при первом просмотре списка создаются
+три демонстрационных bullet'а.
 
 ### Без Docker для самих сервисов
 
-Сервисам нужен Postgres и собранный фронтенд — `gateway` отдаёт его из `web/dist`,
-поэтому без сборки `go run`/`go build` для него падают. Проще всего поднять в
-Docker только БД, остальное запустить локально:
+Сервисам нужен Postgres, Kratos и собранный фронтенд — `gateway` отдаёт его из
+`web/dist`, поэтому без сборки `go run`/`go build` для него падают. Проще всего
+поднять в Docker БД и Kratos, остальное запустить локально:
 
 ```sh
 cp .env.example .env
-docker compose up -d db
+docker compose up -d db kratos
 cd web && npm ci && npm run build && cd ..
-go run ./cmd/identity     # gRPC на :50051
 go run ./cmd/journal      # gRPC на :50052
 go run ./cmd/gateway      # HTTP на :8080
 ```
 
-`identity` и `journal` нужно запустить до `gateway`: сессия резолвится gRPC-вызовом
-на каждый запрос (кроме `/health`), без `identity` и `journal` они отвечают 500.
-Если одновременно работают docker-контейнеры `identity` или `journal`, они занимают
-порты 50051/50052 — остановите их (`docker compose stop identity journal`) или
-задайте другие `IDENTITY_PORT`/`JOURNAL_PORT` и направьте на них `gateway` через
-`GATEWAY_IDENTITY`/`GATEWAY_JOURNAL`.
+`journal` нужно запустить до `gateway`, иначе операции с bullet'ами отвечают 500;
+без Kratos любой запрос к `/api/*` отвечает 500 (сессию проверить нечем). Если
+одновременно работает docker-контейнер `journal`, он занимает порт 50052 —
+остановите его (`docker compose stop journal`) или задайте другой `JOURNAL_PORT`
+и направьте на него `gateway` через `GATEWAY_JOURNAL`.
 
-Миграции применяются автоматически при старте `identity` и `journal`.
+Миграции `journal` применяются автоматически при его старте.
 
 ### Продакшн
 
 `docker-compose.yaml` (не путать с локальным `compose.yaml`) поднимает только
-`gateway`, `identity` и `journal` — без Postgres и Adminer. Значения переменных
-подставляются из окружения хоста (`${VAR}`), DSN указывают на внешний Postgres.
+`gateway`, `journal`, `kratos-migrate` и `kratos` — без Postgres и Adminer. Значения
+переменных подставляются из окружения хоста (`${VAR}`), DSN указывают на внешний
+Postgres. Kratos в продакшене запускается без `--dev`, поэтому публичный URL
+приложения (`KRATOS_APP_URL`) должен быть на HTTPS — иначе браузер не сохранит
+Secure-cookie сессии.
 
 ### Конфигурация
 
-Только переменные окружения, файлов конфигурации нет. Дефолты рассчитаны на
-запуск на хосте против портов, проброшенных из compose (`localhost:5432`,
-`localhost:50051`, `localhost:50052`); в compose их переопределяет `.env`
-(см. `.env.example`).
+Сервисы на Go — только переменные окружения, файлов конфигурации нет. Дефолты
+рассчитаны на запуск на хосте против портов, проброшенных из compose
+(`localhost:5432`, `localhost:50052`, `localhost:4433`); в compose их переопределяет
+`.env` (см. `.env.example`). Kratos читает `deploy/kratos/kratos.yml`, а URL, DSN и
+секреты в обоих compose-файлах переопределяются переменными `KRATOS_*`.
 
 | Сервис   | Переменная                       | Дефолт                                              |
 | -------- | -------------------------------- | --------------------------------------------------- |
 | gateway  | `GATEWAY_PORT`                   | `8080`                                              |
-|          | `GATEWAY_IDENTITY`               | `localhost:50051`                                   |
 |          | `GATEWAY_JOURNAL`                | `localhost:50052`                                   |
+|          | `GATEWAY_KRATOS_PUBLIC_URL`      | `http://localhost:4433`                             |
 |          | `GATEWAY_HTTP_READ_TIMEOUT`      | `5s`                                                |
 |          | `GATEWAY_HTTP_WRITE_TIMEOUT`     | `10s`                                               |
 |          | `GATEWAY_HTTP_IDLE_TIMEOUT`      | `15s`                                               |
-|          | `GATEWAY_SESSION_COOKIE_NAME`    | `session_id`                                        |
-|          | `GATEWAY_SESSION_COOKIE_TTL`     | `8760h` (год)                                       |
-|          | `GATEWAY_SESSION_COOKIE_SECURE`  | `true`                                              |
-| identity | `IDENTITY_DSN`                   | `postgres://rapidlog:rapidlog@localhost:5432/identity` |
-|          | `IDENTITY_PORT`                  | `50051`                                             |
 | journal  | `JOURNAL_DSN`                    | `postgres://rapidlog:rapidlog@localhost:5432/journal`  |
 |          | `JOURNAL_PORT`                   | `50052`                                             |
+| kratos   | `KRATOS_DSN`                     | `postgres://rapidlog:rapidlog@db:5432/kratos?sslmode=disable` (compose) |
+|          | `KRATOS_SECRETS_COOKIE`          | dev-значение из `kratos.yml`, ≥ 16 символов         |
+|          | `KRATOS_SECRETS_CIPHER`          | dev-значение из `kratos.yml`, ровно 32 символа      |
+|          | `KRATOS_APP_URL`                 | `http://localhost:8080`                             |
 
 ## Разработка
 
@@ -98,7 +105,7 @@ golangci-lint run                      # линтер (в CI не запуска
 Frontend (`web/`):
 
 ```sh
-npm run dev       # dev-сервер vite (проксирует /api на localhost:8080)
+npm run dev       # dev-сервер vite (проксирует /api и /.ory на localhost:8080)
 npm run build     # сборка в web/dist
 npm run lint      # oxlint
 ```
@@ -109,24 +116,26 @@ npm run lint      # oxlint
 `task up`/`task down` (`docker compose up -d --build` / `down`).
 
 Моки генерируются [mockery](https://vektra.github.io/mockery/) v3 по `.mockery.yml`
-(`internal/pkg/...`, `port`-пакеты `identity` и `journal`, `httpapi` в `gateway`;
+(`internal/pkg/...`, `port`-пакеты `journal`, `httpapi` в `gateway`;
 моки лежат в соседнем `mocks/`): после изменения интерфейса перегенерировать
 командой `mockery`. Устаревшие `mock_*.go` после переименования интерфейса
 mockery не удаляет — их нужно удалить вручную.
 
-gRPC-контракты (`api/proto/identity/v1/identity.proto`,
-`api/proto/journal/v1/journal.proto`) описаны через [buf](https://buf.build/);
+gRPC-контракт `api/proto/journal/v1/journal.proto` описан через [buf](https://buf.build/);
 после правки `.proto` — `task buf` (ставит buf и плагины `protoc-gen-go`/`protoc-gen-go-grpc`
 в `bin/` и запускает `buf generate`; сгенерированный код в `api/gen/`
 коммитится, в CI `buf` не запускается).
 
-Юнит-тестами покрыты usecase и gRPC-хендлеры `identity` и `journal`.
-Postgres-репозитории, загрузка конфигурации и gRPC-клиенты проверяются вручную
-через `docker compose` + `curl`/`grpcurl`. REST-хендлеры `gateway` пока без тестов.
+Юнит-тестами покрыты usecase и gRPC-хендлеры `journal`, а в `gateway` — middleware
+проверки сессии, клиент Kratos (на `httptest`) и SPA-fallback. Postgres-репозитории,
+загрузка конфигурации и gRPC-клиенты проверяются вручную через `docker compose` +
+`curl`/`grpcurl`. REST-хендлеры `gateway` пока без тестов.
 
 Для ручных запросов есть [Bruno](https://www.usebruno.com/)-коллекция в
-`api/bruno/`: `bullets/` — REST через `gateway`, `journal/` — gRPC напрямую к
-`journal`; окружения `Local` и `Docker`.
+`api/bruno/`: `auth/` — регистрация и вход через Kratos (сохраняют токен сессии в
+`sessionToken`), `bullets/` — REST через `gateway` с заголовком `X-Session-Token`,
+`journal/` — gRPC напрямую к `journal`; окружения `Local` и `Docker` (учётные
+данные — переменные `email`/`password`).
 
 ## API
 
@@ -136,8 +145,13 @@ Postgres-репозитории, загрузка конфигурации и gR
 пока не маппятся в HTTP-коды и возвращаются как 500. Подробные контракты — в
 [`docs/api-design.md`](docs/api-design.md).
 
+Все `/api/*` требуют сессию Kratos — cookie браузера или заголовок
+`X-Session-Token` (API-клиенты); без неё — `401`. `/.ory/*` — публичный API Kratos
+(self-service flows регистрации/входа/выхода, `sessions/whoami`), проксируется как есть.
+
 ```
 GET    /health
+ANY    /.ory/*
 POST   /api/bullets
 GET    /api/bullets
 POST   /api/bullets/{id}/complete
@@ -149,25 +163,20 @@ POST   /api/bullets/{id}/cancel
 
 ```text
 cmd/gateway                                  — точка входа gateway
-cmd/identity                                 — точка входа identity
 cmd/journal                                  — точка входа journal
 internal/pkg                                 — общий код: transactor (pgx-транзакции), protoenum
 internal/service/gateway                     — фасад gateway: Run(ctx, logger)
 internal/service/gateway/config              — конфигурация gateway
 internal/service/gateway/pkg/respond         — конверт ответа {"data", "error"}
-internal/service/gateway/internal            — HTTP-хендлеры, middleware
-internal/service/identity                    — фасад identity: Run(ctx, logger)
-internal/service/identity/config             — конфигурация identity
-internal/service/identity/pkg/identitygrpc   — gRPC-клиент identity (используется gateway)
-internal/service/identity/internal           — gRPC-хендлер, домен пользователя, репозиторий
-internal/service/identity/migrations         — SQL-миграции identity
+internal/service/gateway/internal            — HTTP-хендлеры, middleware, адаптер Kratos
 internal/service/journal                     — фасад journal: Run(ctx, logger)
 internal/service/journal/config              — конфигурация journal
 internal/service/journal/pkg/journalgrpc     — gRPC-клиент journal (используется gateway)
 internal/service/journal/internal            — gRPC-хендлеры, домен bullets, репозиторий
 internal/service/journal/migrations          — SQL-миграции journal
-api/proto, api/gen                           — gRPC-контракты (identity, journal) и сгенерированный код
+api/proto, api/gen                           — gRPC-контракт journal и сгенерированный код
 api/bruno                                    — Bruno-коллекция для ручных запросов
+deploy/kratos                                — конфиг Ory Kratos и схема identity
 docs/api-design.md                           — контракты API, форматы запросов/ответов
 web                                          — React-интерфейс (Vite + TypeScript)
 compose.yaml, docker-compose.yaml            — локальный полный стек / продакшн
@@ -176,5 +185,5 @@ compose.yaml, docker-compose.yaml            — локальный полный
 Реализация каждого сервиса лежит в `internal/service/<name>/internal/...`,
 поэтому импортировать её может только код внутри `internal/service/<name>/` —
 сервисы не могут обратиться к внутренностям друг друга. Наружу сервис открывает
-только `config/` и `pkg/`: `gateway` ходит в `identity` и `journal` через их
-gRPC-клиенты из `pkg/`.
+только `config/` и `pkg/`: `gateway` ходит в `journal` через gRPC-клиент из его
+`pkg/`, а в Kratos — по HTTP через свой адаптер `internal/adapter/kratos`.

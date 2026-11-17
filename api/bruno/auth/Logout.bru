@@ -1,0 +1,21 @@
+meta {
+  name: Logout
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/.ory/self-service/logout/api
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "session_token": "{{sessionToken}}"
+  }
+}
+
+docs {
+  Отзывает сессию по токену. Ответ 204; после этого bullets/ отвечают 401.
+}
