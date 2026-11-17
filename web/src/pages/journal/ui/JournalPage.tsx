@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Bullet, MigrateTarget } from '../model/bullet';
 import { useBulletsQuery, useCancelBulletMutation, useCompleteBulletMutation, useMigrateBulletMutation } from '../api/bulletsQueries';
-import { todayIsoDate, waitForFonts } from '@/shared/lib';
+import { useRouter } from '@tanstack/react-router';
+import { useLogout, useSession } from '@/entities/session';
+import { fontsLoaded as fontsAlreadyLoaded, todayIsoDate, waitForFonts } from '@/shared/lib';
+import { Logo } from '@/shared/ui/logo';
+import { Splash } from '@/shared/ui/splash';
 import { DaySection } from './DaySection';
 import './JournalPage.css';
 
@@ -10,9 +14,13 @@ export function JournalPage() {
   const completeMutation = useCompleteBulletMutation();
   const cancelMutation = useCancelBulletMutation();
   const migrateMutation = useMigrateBulletMutation();
+  const { data: session } = useSession();
+  const router = useRouter();
+  const logoutMutation = useLogout(() => router.navigate({ to: '/login', search: {} }));
 
   const [error, setError] = useState<string | null>(null);
-  const [fontsLoaded, setFontsLoaded] = useState(false);
+  // Обычно шрифты уже дождался loader маршрута — тогда сплэш не мелькает ни на кадр.
+  const [fontsLoaded, setFontsLoaded] = useState(fontsAlreadyLoaded);
   const fontsReady = useRef(waitForFonts()).current;
 
   useEffect(() => {
@@ -59,26 +67,28 @@ export function JournalPage() {
   const displayError = listError ? 'не удалось загрузить записи' : error;
 
   if (!initialized) {
-    return (
-      <div className="splash">
-        <div className="splash__mark" aria-hidden="true">
-          <span className="splash__dot" />
-        </div>
-        <div className="splash__spinner" aria-hidden="true" />
-      </div>
-    );
+    return <Splash />;
   }
 
   return (
     <div className="page">
-      <div className="page__stamp" aria-hidden="true">
-        preview
-      </div>
-
       <header className="page__header">
         <h1>
-          Rapid<span className="page__accent">Log</span>
+          <Logo />
         </h1>
+        {session && (
+          <div className="page__account">
+            <span className="page__email">{session.email}</span>
+            <button
+              type="button"
+              className="page__logout"
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
+            >
+              выйти
+            </button>
+          </div>
+        )}
       </header>
 
       {isFetching && <div className="sync-indicator" aria-hidden="true" />}

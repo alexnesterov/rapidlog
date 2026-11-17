@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { cancelBullet, createBullet, listBullets, markBulletDone, migrateBullet } from "./bulletsApi";
 import type { Bullet, BulletDayGroup, CreateBulletRequest, MigrateTarget } from "../model/bullet";
 import { todayIsoDate } from "@/shared/lib";
@@ -33,11 +33,13 @@ function moveToToday(days: BulletDayGroup[], bullet: Bullet): BulletDayGroup[] {
   return appendToToday(without, bullet);
 }
 
+export const bulletsQuery = queryOptions({
+  queryKey: bulletsQueryKey,
+  queryFn: async () => withToday(await listBullets()),
+});
+
 export function useBulletsQuery() {
-  return useQuery({
-    queryKey: bulletsQueryKey,
-    queryFn: async () => withToday(await listBullets()),
-  });
+  return useQuery(bulletsQuery);
 }
 
 export function useCreateBulletMutation() {
