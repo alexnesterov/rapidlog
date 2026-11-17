@@ -14,6 +14,7 @@ services:
     depends_on:
       - identity
       - journal
+      - kratos
 
   identity:
     build:
@@ -45,6 +46,42 @@ services:
     depends_on:
       - db
 
+  kratos-migrate:
+    image: oryd/kratos:v26.2.0
+    container_name: kratos-migrate
+    command: migrate sql -e --yes
+    environment:
+      DSN: ${KRATOS_DSN:-postgres://rapidlog:rapidlog@db:5432/kratos?sslmode=disable}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  kratos:
+    image: oryd/kratos:v26.2.0
+    container_name: kratos
+    restart: unless-stopped
+    # --dev разрешает cookie без Secure по http://localhost
+    command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
+    # те же переменные, что в продакшене (docker-compose.yaml); дефолты — для .env без KRATOS_*
+    environment:
+      DSN: ${KRATOS_DSN:-postgres://rapidlog:rapidlog@db:5432/kratos?sslmode=disable}
+      SECRETS_COOKIE_0: ${KRATOS_SECRETS_COOKIE:-local-dev-cookie-secret-change-me-32+}
+      SECRETS_CIPHER_0: ${KRATOS_SECRETS_CIPHER:-32-long-local-dev-cipher-secret!}
+      SERVE_PUBLIC_BASE_URL: ${KRATOS_APP_URL:-http://localhost:8080}/.ory/
+      SELFSERVICE_DEFAULT_BROWSER_RETURN_URL: ${KRATOS_APP_URL:-http://localhost:8080}/
+      SELFSERVICE_FLOWS_ERROR_UI_URL: ${KRATOS_APP_URL:-http://localhost:8080}/error
+      SELFSERVICE_FLOWS_LOGIN_UI_URL: ${KRATOS_APP_URL:-http://localhost:8080}/login
+      SELFSERVICE_FLOWS_REGISTRATION_UI_URL: ${KRATOS_APP_URL:-http://localhost:8080}/registration
+      SELFSERVICE_FLOWS_LOGOUT_AFTER_DEFAULT_BROWSER_RETURN_URL: ${KRATOS_APP_URL:-http://localhost:8080}/login
+    volumes:
+      - ./deploy/kratos:/etc/config/kratos:ro
+    ports:
+      # public API — для gateway, запущенного на хосте голым go run; admin (4434) наружу не пробрасываем
+      - '4433:4433'
+    depends_on:
+      kratos-migrate:
+        condition: service_completed_successfully
+
   db:
     container_name: postgres
     image: postgres
@@ -58,6 +95,8 @@ services:
         target: /docker-entrypoint-initdb.d/init-identity-db.sql
       - source: init-journal-db
         target: /docker-entrypoint-initdb.d/init-journal-db.sql
+      - source: init-kratos-db
+        target: /docker-entrypoint-initdb.d/init-kratos-db.sql
     ports:
       - '5432:5432'
     volumes:
@@ -87,3 +126,6 @@ configs:
   init-journal-db:
     content: |
       CREATE DATABASE journal;
+  init-kratos-db:
+    content: |
+      CREATE DATABASE kratos;
