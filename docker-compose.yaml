@@ -9,10 +9,9 @@ services:
     ports:
       - '${GATEWAY_PORT}:8080'
     environment:
-      - GATEWAY_IDENTITY=${GATEWAY_IDENTITY}
       - GATEWAY_JOURNAL=${GATEWAY_JOURNAL}
+      - GATEWAY_KRATOS_PUBLIC_URL=${GATEWAY_KRATOS_PUBLIC_URL}
     depends_on:
-      - identity
       - journal
       - kratos
 
