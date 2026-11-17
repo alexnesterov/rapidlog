@@ -5,12 +5,14 @@ vars:
   BUF_VERSION: v1.72.0
   PROTOC_GEN_GO_VERSION: v1.36.12
   PROTOC_GEN_GO_GRPC_VERSION: v1.6.2
+  MIGRATE_VERSION: v4.19.1
 
   BIN_DIR: '{{.ROOT_DIR}}/bin'
   MOCKERY: '{{.BIN_DIR}}/mockery'
   BUF: '{{.BIN_DIR}}/buf'
   PROTOC_GEN_GO: '{{.BIN_DIR}}/protoc-gen-go'
   PROTOC_GEN_GO_GRPC: '{{.BIN_DIR}}/protoc-gen-go-grpc'
+  MIGRATE: '{{.BIN_DIR}}/migrate'
 
   GREEN: echo "🟩 [GREEN] Отлично! Все тесты прошли."
   RED: echo "🟥 [RED] Тесты упали! Исправляй код." && exit 1
@@ -119,6 +121,65 @@ tasks:
       - echo "🔄 Генерация buf файлов..."
       - '{{.BUF}} generate'
       - echo "✅ Buf файлы сгенерированы!"
+    silent: true
+
+  install-migrate:
+    desc: Установка golang-migrate {{.MIGRATE_VERSION}}
+    cmds:
+      - echo "📦 Установка migrate {{.MIGRATE_VERSION}}..."
+      - GOBIN={{.BIN_DIR}} go install -tags 'postgres' -ldflags '-X main.Version={{.MIGRATE_VERSION}}' github.com/golang-migrate/migrate/v4/cmd/migrate@{{.MIGRATE_VERSION}}
+      - echo "✅ migrate установлен в {{.MIGRATE}}"
+    status:
+      - '{{.MIGRATE}} -version 2>&1 | grep -qx {{.MIGRATE_VERSION}}'
+    silent: true
+
+  migrate-create:
+    desc: 'Новая миграция: task migrate-create SVC=identity NAME=add_credentials'
+    requires:
+      vars: [NAME]
+    cmds:
+      - task: _migrate
+        vars: { SVC: '{{.SVC}}', ARGS: 'create -ext sql -dir internal/service/{{.SVC}}/migrations -seq {{.NAME}}', NO_DB: true }
+
+  migrate-up:
+    desc: 'Применить миграции: task migrate-up SVC=identity [N=1] [DSN=...]'
+    cmds:
+      - task: _migrate
+        vars: { SVC: '{{.SVC}}', DSN: '{{.DSN}}', ARGS: 'up {{.N}}' }
+
+  migrate-down:
+    desc: 'Откатить миграции (по умолчанию одну): task migrate-down SVC=identity [N=1] [DSN=...]'
+    cmds:
+      - task: _migrate
+        vars: { SVC: '{{.SVC}}', DSN: '{{.DSN}}', ARGS: 'down {{.N | default 1}}' }
+
+  migrate-version:
+    desc: 'Текущая версия схемы: task migrate-version SVC=identity [DSN=...]'
+    cmds:
+      - task: _migrate
+        vars: { SVC: '{{.SVC}}', DSN: '{{.DSN}}', ARGS: 'version' }
+
+  migrate-force:
+    desc: 'Снять dirty-флаг, выставив версию: task migrate-force SVC=identity V=1 [DSN=...]'
+    requires:
+      vars: [V]
+    cmds:
+      - task: _migrate
+        vars: { SVC: '{{.SVC}}', DSN: '{{.DSN}}', ARGS: 'force {{.V}}' }
+
+  _migrate:
+    internal: true
+    deps: [install-migrate]
+    requires:
+      vars:
+        - name: SVC
+          enum: [identity, journal]
+    vars:
+      DIR: '{{.ROOT_DIR}}/internal/service/{{.SVC}}/migrations'
+      # По умолчанию — Postgres из compose.yaml, проброшенный на хост
+      DSN: '{{.DSN | default (printf "postgres://rapidlog:rapidlog@localhost:5432/%s?sslmode=disable" .SVC)}}'
+    cmds:
+      - '{{.MIGRATE}} {{if not .NO_DB}}-path {{.DIR}} -database "{{.DSN}}" {{end}}{{.ARGS}}'
     silent: true
 
   web:
