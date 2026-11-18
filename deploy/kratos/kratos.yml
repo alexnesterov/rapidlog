@@ -1,0 +1,89 @@
+# Ory Kratos (v26.2.0). Локальные значения; в продакшене URL и секреты переопределяются
+# переменными окружения (см. docker-compose.yaml), DSN всегда приходит из env `DSN`.
+version: v26.2.0
+
+serve:
+  public:
+    # Kratos доступен браузеру только через gateway (/auth/* проксируется на :4433),
+    # поэтому cookie сессии живёт на том же origin, что и SPA.
+    base_url: http://localhost:8080/auth/
+  admin:
+    base_url: http://kratos:4434/
+
+selfservice:
+  default_browser_return_url: http://localhost:8080/
+
+  methods:
+    password:
+      enabled: true
+      config:
+        min_password_length: 8
+        identifier_similarity_check_enabled: true
+    code:
+      enabled: false
+    link:
+      enabled: false
+
+  flows:
+    error:
+      ui_url: http://localhost:8080/error
+
+    login:
+      ui_url: http://localhost:8080/login
+      lifespan: 1h
+      style: unified
+
+    registration:
+      ui_url: http://localhost:8080/registration
+      lifespan: 1h
+      # email и пароль одной формой (по умолчанию profile_first — сначала профиль, потом пароль)
+      style: unified
+      after:
+        password:
+          hooks:
+            # сразу выдаём сессию — после регистрации пользователь уже вошёл
+            - hook: session
+
+    logout:
+      after:
+        default_browser_return_url: http://localhost:8080/login
+
+    recovery:
+      enabled: false
+    verification:
+      enabled: false
+
+session:
+  lifespan: 720h # 30 дней
+  earliest_possible_extend: 24h
+
+secrets:
+  # только для локальной среды; в продакшене — SECRETS_COOKIE_0 / SECRETS_CIPHER_0
+  cookie:
+    - local-dev-cookie-secret-change-me-32+
+  cipher:
+    - 32-long-local-dev-cipher-secret!
+
+ciphers:
+  algorithm: xchacha20-poly1305
+
+hashers:
+  algorithm: bcrypt
+  bcrypt:
+    cost: 12
+
+identity:
+  default_schema_id: default
+  schemas:
+    - id: default
+      url: file:///etc/config/kratos/identity.schema.json
+
+courier:
+  # письма не отправляем (verification/recovery выключены), но поле обязательно для старта
+  smtp:
+    connection_uri: smtps://noop:noop@localhost:465/?skip_ssl_verify=true
+
+log:
+  level: info
+  format: text
+  leak_sensitive_values: false

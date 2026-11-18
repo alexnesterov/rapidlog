@@ -1,7 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { Bullet, MigrateTarget } from '../model/bullet';
 import { useBulletsQuery, useCancelBulletMutation, useCompleteBulletMutation, useMigrateBulletMutation } from '../api/bulletsQueries';
-import { todayIsoDate, waitForFonts } from '@/shared/lib';
+import { useRouter } from '@tanstack/react-router';
+import { useLogout, useSession } from '@/entities/session';
+import { todayIsoDate } from '@/shared/lib';
+import { Logo } from '@/shared/ui/logo';
+import { Splash } from '@/shared/ui/splash';
 import { DaySection } from './DaySection';
 import './JournalPage.css';
 
@@ -10,16 +14,11 @@ export function JournalPage() {
   const completeMutation = useCompleteBulletMutation();
   const cancelMutation = useCancelBulletMutation();
   const migrateMutation = useMigrateBulletMutation();
+  const { data: session } = useSession();
+  const router = useRouter();
+  const logoutMutation = useLogout(() => router.navigate({ to: '/login', search: {} }));
 
   const [error, setError] = useState<string | null>(null);
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-  const fontsReady = useRef(waitForFonts()).current;
-
-  useEffect(() => {
-    fontsReady.then(() => setFontsLoaded(true));
-  }, [fontsReady]);
-
-  const initialized = fontsLoaded && !isPending;
 
   const completeBullet = useCallback(
     (bullet: Bullet) => {
@@ -58,27 +57,31 @@ export function JournalPage() {
   const today = todayIsoDate();
   const displayError = listError ? 'не удалось загрузить записи' : error;
 
-  if (!initialized) {
-    return (
-      <div className="splash">
-        <div className="splash__mark" aria-hidden="true">
-          <span className="splash__dot" />
-        </div>
-        <div className="splash__spinner" aria-hidden="true" />
-      </div>
-    );
+  // шрифты ждёт корневой loader, записи — loader маршрута; сюда попадаем, только если
+  // записей в кэше всё же нет (например, prefetch ещё не успел)
+  if (isPending) {
+    return <Splash />;
   }
 
   return (
     <div className="page">
-      <div className="page__stamp" aria-hidden="true">
-        preview
-      </div>
-
       <header className="page__header">
         <h1>
-          Rapid<span className="page__accent">Log</span>
+          <Logo />
         </h1>
+        {session && (
+          <div className="page__account">
+            <span className="page__email">{session.email}</span>
+            <button
+              type="button"
+              className="page__logout"
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
+            >
+              выйти
+            </button>
+          </div>
+        )}
       </header>
 
       {isFetching && <div className="sync-indicator" aria-hidden="true" />}

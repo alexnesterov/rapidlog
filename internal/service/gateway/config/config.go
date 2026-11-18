@@ -15,18 +15,16 @@ type HTTPConfig struct {
 	IdleTimeout  time.Duration `mapstructure:"idle_timeout"`
 }
 
-type SessionConfig struct {
-	CookieName   string        `mapstructure:"cookie_name"`
-	CookieTTL    time.Duration `mapstructure:"cookie_ttl"`
-	CookieSecure bool          `mapstructure:"cookie_secure"`
+type KratosConfig struct {
+	// Публичный API Kratos: проверка сессии (whoami) и прокси /auth/* для браузера
+	PublicURL string `mapstructure:"public_url"`
 }
 
 type Config struct {
-	Port     string `mapstructure:"port"`
-	HTTP     HTTPConfig
-	Identity string `mapstructure:"identity"`
-	Journal  string `mapstructure:"journal"`
-	Session  SessionConfig
+	Port    string `mapstructure:"port"`
+	HTTP    HTTPConfig
+	Journal string `mapstructure:"journal"`
+	Kratos  KratosConfig
 }
 
 func Load() (*Config, error) {
@@ -37,16 +35,13 @@ func Load() (*Config, error) {
 	v.SetEnvPrefix("gateway")
 
 	v.SetDefault("port", 8080)
-	v.SetDefault("identity", "localhost:50051")
 	v.SetDefault("journal", "localhost:50052")
 
 	v.SetDefault("http.read_timeout", 5*time.Second)
 	v.SetDefault("http.write_timeout", 10*time.Second)
 	v.SetDefault("http.idle_timeout", 15*time.Second)
 
-	v.SetDefault("session.cookie_name", "session_id")
-	v.SetDefault("session.cookie_ttl", 365*24*time.Hour)
-	v.SetDefault("session.cookie_secure", true)
+	v.SetDefault("kratos.public_url", "http://localhost:4433")
 
 	var cfg Config
 	if err := v.Unmarshal(&cfg); err != nil {
@@ -56,11 +51,11 @@ func Load() (*Config, error) {
 	if cfg.Port == "" {
 		return nil, fmt.Errorf("config: empty port")
 	}
-	if cfg.Identity == "" {
-		return nil, fmt.Errorf("config: empty identity")
-	}
 	if cfg.Journal == "" {
 		return nil, fmt.Errorf("config: empty journal")
+	}
+	if cfg.Kratos.PublicURL == "" {
+		return nil, fmt.Errorf("config: empty kratos public url")
 	}
 
 	return &cfg, nil

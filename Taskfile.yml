@@ -134,7 +134,7 @@ tasks:
     silent: true
 
   migrate-create:
-    desc: 'Новая миграция: task migrate-create SVC=identity NAME=add_credentials'
+    desc: 'Новая миграция: task migrate-create SVC=journal NAME=add_collections'
     requires:
       vars: [NAME]
     cmds:
@@ -142,25 +142,25 @@ tasks:
         vars: { SVC: '{{.SVC}}', ARGS: 'create -ext sql -dir internal/service/{{.SVC}}/migrations -seq {{.NAME}}', NO_DB: true }
 
   migrate-up:
-    desc: 'Применить миграции: task migrate-up SVC=identity [N=1] [DSN=...]'
+    desc: 'Применить миграции: task migrate-up SVC=journal [N=1] [DSN=...]'
     cmds:
       - task: _migrate
         vars: { SVC: '{{.SVC}}', DSN: '{{.DSN}}', ARGS: 'up {{.N}}' }
 
   migrate-down:
-    desc: 'Откатить миграции (по умолчанию одну): task migrate-down SVC=identity [N=1] [DSN=...]'
+    desc: 'Откатить миграции (по умолчанию одну): task migrate-down SVC=journal [N=1] [DSN=...]'
     cmds:
       - task: _migrate
         vars: { SVC: '{{.SVC}}', DSN: '{{.DSN}}', ARGS: 'down {{.N | default 1}}' }
 
   migrate-version:
-    desc: 'Текущая версия схемы: task migrate-version SVC=identity [DSN=...]'
+    desc: 'Текущая версия схемы: task migrate-version SVC=journal [DSN=...]'
     cmds:
       - task: _migrate
         vars: { SVC: '{{.SVC}}', DSN: '{{.DSN}}', ARGS: 'version' }
 
   migrate-force:
-    desc: 'Снять dirty-флаг, выставив версию: task migrate-force SVC=identity V=1 [DSN=...]'
+    desc: 'Снять dirty-флаг, выставив версию: task migrate-force SVC=journal V=1 [DSN=...]'
     requires:
       vars: [V]
     cmds:
@@ -173,7 +173,7 @@ tasks:
     requires:
       vars:
         - name: SVC
-          enum: [identity, journal]
+          enum: [journal]
     vars:
       DIR: '{{.ROOT_DIR}}/internal/service/{{.SVC}}/migrations'
       # По умолчанию — Postgres из compose.yaml, проброшенный на хост

@@ -9,7 +9,7 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/config"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi/middleware"
-	"github.com/alexnesterov/rapidlog-api/internal/service/identity/pkg/identitygrpc"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/kratos"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/pkg/journalgrpc"
 	"github.com/alexnesterov/rapidlog-api/web"
 )
@@ -20,11 +20,15 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	identityClient, err := identitygrpc.NewClient(cfg.Identity)
+	kratosClient, err := kratos.NewClient(cfg.Kratos.PublicURL)
 	if err != nil {
-		return fmt.Errorf("identity new client: %w", err)
+		return fmt.Errorf("kratos new client: %w", err)
 	}
-	defer func() { _ = identityClient.Close() }()
+
+	kratosProxy, err := kratos.NewProxy(cfg.Kratos.PublicURL)
+	if err != nil {
+		return fmt.Errorf("kratos new proxy: %w", err)
+	}
 
 	journalClient, err := journalgrpc.NewClient(cfg.Journal)
 	if err != nil {
@@ -42,10 +46,10 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	router := http.NewServeMux()
 	router.HandleFunc("/health", httpapi.NewHealthHandler())
 	router.Handle("/", web.Handler())
+	// публичный API Kratos на том же origin, что и SPA: cookie сессии и CSRF без CORS
+	router.Handle("/auth/", http.StripPrefix("/auth", kratosProxy))
 
-	router.Handle("/api/",
-		middleware.Session(identityClient, cfg.Session.CookieName, cfg.Session.CookieTTL, cfg.Session.CookieSecure, logger)(api),
-	)
+	router.Handle("/api/", middleware.Auth(kratosClient, logger)(api))
 
 	var handler http.Handler = router
 	handler = middleware.Logging(logger)(handler)

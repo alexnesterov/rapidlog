@@ -1,0 +1,125 @@
+.flow-form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* «!» — сигнификатор Bullet Journal для важного */
+.flow-form__alert {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 10px;
+  align-items: baseline;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--danger);
+}
+
+.flow-form__alert::before {
+  content: "!";
+  grid-row: 1 / span 9;
+  font-family: var(--font-hand);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 0.8;
+}
+
+.flow-form__alert p {
+  margin: 0;
+  grid-column: 2;
+}
+
+.flow-form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.flow-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* строка для записи от руки — тонкая линия, как в линованной тетради */
+.flow-form__input {
+  width: 100%;
+  min-width: 0;
+  padding: 0 0 4px;
+  font-family: var(--font-hand);
+  font-size: 28px;
+  line-height: 1.25;
+  color: var(--ink-hand);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--paper-line);
+  border-radius: 0;
+  transition: border-color 0.15s;
+}
+
+.flow-form__input::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.55;
+}
+
+.flow-form__input:focus {
+  outline: none;
+  border-bottom-color: var(--ink);
+}
+
+.flow-form__input[aria-invalid] {
+  border-bottom-color: var(--danger);
+}
+
+.flow-form__input[type="password"] {
+  letter-spacing: 0.12em;
+}
+
+.flow-form__input[type="password"]:placeholder-shown {
+  letter-spacing: normal;
+}
+
+.flow-form__hint {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.flow-form__hint--error {
+  color: var(--danger);
+}
+
+.flow-form__submit {
+  align-self: flex-start;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--paper);
+  background: var(--ink);
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.flow-form__submit:hover:not(:disabled) {
+  background: var(--accent-strong);
+}
+
+.flow-form__submit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.flow-form__submit:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.flow-form__state {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.flow-form__state--error {
+  color: var(--danger);
+}
