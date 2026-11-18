@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/alexnesterov/rapidlog-api/internal/pkg/transactor"
@@ -16,6 +19,9 @@ import (
 )
 
 func Run(ctx context.Context, logger *slog.Logger) error {
+	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
 	cfg, err := config.Load()
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
@@ -45,15 +51,21 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
 
+	errCh := make(chan error, 1)
 	go func() {
 		logger.Info("gRPC server listening", "port", cfg.Port)
 		if err := grpcServer.Serve(ln); err != nil {
-			logger.Error("failed to serve gRPC server", "error", err)
+			errCh <- err
 		}
+		close(errCh)
 	}()
 
-	<-ctx.Done()
-	logger.Info("gRPC server shutting down")
+	select {
+	case err := <-errCh:
+		return fmt.Errorf("failed to serve gRPC server: %w", err)
+	case <-ctx.Done():
+		logger.Info("gRPC server shutting down")
+	}
 
 	stopped := make(chan struct{})
 	go func() {
@@ -64,7 +76,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	select {
 	case <-stopped:
 		logger.Info("gRPC server stopped")
-	case <-time.After(15 * time.Second):
+	case <-time.After(5 * time.Second):
 		logger.Info("gRPC server stop timed out, forcing stop")
 		grpcServer.Stop()
 	}

@@ -2,9 +2,14 @@ package gateway
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/config"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi"
@@ -15,6 +20,9 @@ import (
 )
 
 func Run(ctx context.Context, logger *slog.Logger) error {
+	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
 	cfg, err := config.Load()
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
@@ -63,9 +71,27 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		IdleTimeout:  cfg.HTTP.IdleTimeout,
 	}
 
-	logger.Info("starting server", "port", cfg.Port)
-	if err := server.ListenAndServe(); err != nil {
+	errCh := make(chan error, 1)
+	go func() {
+		logger.Info("starting server", "port", cfg.Port)
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			errCh <- err
+		}
+		close(errCh)
+	}()
+
+	select {
+	case err := <-errCh:
 		return fmt.Errorf("failed to start server: %w", err)
+	case <-ctx.Done():
+		logger.Info("server shutting down")
+	}
+
+	shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		return fmt.Errorf("server shutdown: %w", err)
 	}
 
 	return nil
