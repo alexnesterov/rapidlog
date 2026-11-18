@@ -9,12 +9,10 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil)).
+		With("service", "gateway")
 
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	gatewayLogger := logger.With("service", "gateway")
-
-	if err := gateway.Run(ctx, gatewayLogger); err != nil {
+	if err := gateway.Run(context.Background(), logger); err != nil {
 		logger.Error("failed to run service", "error", err)
 		os.Exit(1)
 	}
