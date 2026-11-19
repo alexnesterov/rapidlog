@@ -14,6 +14,13 @@
   stroke-linejoin: round;
 }
 
+/* в крупном знаке точка перетягивает внимание с росчерка — уменьшаем от её центра */
+.splash__mark .logo-mark__dot {
+  transform: scale(0.7);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
 .splash__mark {
   width: 120px;
   height: 48px;
