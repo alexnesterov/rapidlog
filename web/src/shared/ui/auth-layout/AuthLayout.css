@@ -25,7 +25,7 @@
 }
 
 .auth__footer a:hover {
-  color: var(--accent-strong);
+  color: var(--accent);
 }
 
 .auth__footer a:focus-visible {

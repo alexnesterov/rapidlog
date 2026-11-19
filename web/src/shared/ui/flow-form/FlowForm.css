@@ -101,7 +101,7 @@
 }
 
 .flow-form__submit:hover:not(:disabled) {
-  background: var(--accent-strong);
+  background: var(--accent);
 }
 
 .flow-form__submit:focus-visible {

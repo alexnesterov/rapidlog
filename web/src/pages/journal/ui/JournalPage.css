@@ -225,7 +225,7 @@
 }
 
 .scribble-trigger:hover {
-  color: var(--accent-strong);
+  color: var(--accent);
 }
 
 .scribble-trigger__mark {
@@ -308,7 +308,7 @@
 
 .scribble-card__type-trigger:hover:not(:disabled) {
   border-color: var(--accent);
-  color: var(--accent-strong);
+  color: var(--accent);
 }
 
 .scribble-card__type-trigger:disabled {
@@ -400,12 +400,12 @@
   color: var(--paper);
   cursor: pointer;
   transition:
-    filter 0.15s ease,
+    background 0.15s ease,
     opacity 0.15s ease;
 }
 
 .scribble-card__submit:hover:not(:disabled) {
-  filter: brightness(1.12);
+  background: var(--accent-strong);
 }
 
 .scribble-card__submit:disabled {
@@ -469,7 +469,7 @@
 }
 
 .scribble__type-option--selected .scribble__type-option-label {
-  color: var(--accent-strong);
+  color: var(--accent);
   font-weight: 500;
 }
 
