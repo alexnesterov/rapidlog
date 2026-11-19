@@ -51,7 +51,7 @@ export function FlowForm({ flow, submitLabel, pending, onSubmit }: FlowFormProps
       </div>
 
       <button className="flow-form__submit" type="submit" disabled={pending}>
-        {pending ? "…" : submitLabel}
+        {submitLabel}
       </button>
     </form>
   );

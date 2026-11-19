@@ -21,7 +21,7 @@ export function AuthFlowForm({ kind, flowId, returnTo, submitLabel }: AuthFlowFo
         pending={submit.isPending}
         onSubmit={(values) => submit.mutate(values)}
       />
-      {entering && <Splash />}
+      {(submit.isPending || entering) && <Splash />}
     </>
   );
 }
