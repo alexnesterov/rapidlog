@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Bullet, MigrateTarget } from "../model/bullet";
 import { dayMonth, weekday } from "@/shared/lib";
 import { BulletForm } from "./BulletForm";
@@ -10,7 +11,11 @@ interface DaySectionProps {
   onComplete: (bullet: Bullet) => void;
   onMigrate: (bullet: Bullet, target: MigrateTarget) => void;
   onCancel: (bullet: Bullet) => void;
+  onPocket: (bullet: Bullet) => void;
+  onAddToPocket: (bullet: Bullet) => void;
   animationDelay: number;
+  // у сегодняшнего дня — строка кармана, между задачами и формой
+  children?: ReactNode;
 }
 
 export function DaySection({
@@ -20,7 +25,10 @@ export function DaySection({
   onComplete,
   onMigrate,
   onCancel,
+  onPocket,
+  onAddToPocket,
   animationDelay,
+  children,
 }: DaySectionProps) {
   return (
     <section className="day" style={{ animationDelay: `${animationDelay}ms` }}>
@@ -34,8 +42,10 @@ export function DaySection({
         onComplete={onComplete}
         onMigrate={onMigrate}
         onCancel={onCancel}
+        onPocket={onPocket}
       />
-      {isToday && <BulletForm />}
+      {isToday && children}
+      {isToday && <BulletForm onAddToPocket={onAddToPocket} />}
     </section>
   );
 }

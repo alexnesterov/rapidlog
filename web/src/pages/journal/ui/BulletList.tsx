@@ -1,18 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactElement } from "react";
 import type { Bullet, MigrateTarget } from "../model/bullet";
 import { MIGRATE_TARGETS, SIGNIFIER_MARKS, KIND_MARKS } from "./bulletMarks";
-import { StrikeLine } from "./bulletIcons";
+import { MoreIcon, StrikeLine } from "./bulletIcons";
 import { linkifyText } from "@/shared/lib";
-
-function MoreIcon() {
-  return (
-    <svg className="log-line__menu-icon" viewBox="0 0 16 16" aria-hidden="true">
-      <circle cx="3" cy="8" r="1.3" />
-      <circle cx="8" cy="8" r="1.3" />
-      <circle cx="13" cy="8" r="1.3" />
-    </svg>
-  );
-}
 
 interface LineAction {
   key: string;
@@ -129,9 +119,10 @@ interface BulletListProps {
   onComplete: (bullet: Bullet) => void;
   onMigrate: (bullet: Bullet, target: MigrateTarget) => void;
   onCancel: (bullet: Bullet) => void;
+  onPocket: (bullet: Bullet) => void;
 }
 
-export function BulletList({ bullets, canMigrate, onComplete, onMigrate, onCancel }: BulletListProps) {
+export function BulletList({ bullets, canMigrate, onComplete, onMigrate, onCancel, onPocket }: BulletListProps) {
   const [openId, setOpenId] = useState<string | null>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
 
@@ -182,6 +173,9 @@ export function BulletList({ bullets, canMigrate, onComplete, onMigrate, onCance
               onSelect: () => onMigrate(bullet, target.id),
             });
           }
+        }
+        if (canComplete) {
+          actions.push({ key: "pocket", label: "В карман", onSelect: () => onPocket(bullet) });
         }
         if (canCancel) {
           actions.push({ key: "cancel", label: "Отменить", danger: true, onSelect: () => onCancel(bullet) });

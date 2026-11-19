@@ -1,16 +1,23 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useCreateBulletMutation } from "../api/bulletsQueries";
 import { ApiError } from "@/shared/api";
-import type { Kind } from "../model/bullet";
+import type { Bullet, Kind } from "../model/bullet";
 import { KIND_LABELS, KIND_MARKS } from "./bulletMarks";
 
 const KINDS: Kind[] = ["KIND_TASK", "KIND_EVENT", "KIND_NOTE"];
 
-export function BulletForm() {
+type Destination = "today" | "pocket";
+
+interface BulletFormProps {
+  onAddToPocket: (bullet: Bullet) => void;
+}
+
+export function BulletForm({ onAddToPocket }: BulletFormProps) {
   const createMutation = useCreateBulletMutation();
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState("");
   const [kind, setKind] = useState<Kind>("KIND_TASK");
+  const [destination, setDestination] = useState<Destination>("today");
   const [typeOpen, setTypeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitting = createMutation.isPending;
@@ -58,8 +65,14 @@ export function BulletForm() {
       return;
     }
 
+    // запись в карман — обычная задача сегодняшнего дня, которую карман прячет;
+    // в карман кладутся только задачи. Куда класть — запоминаем до закрытия формы,
+    // чтобы несколько мыслей подряд уходили туда же
+    const toPocket = destination === "pocket";
+
     try {
-      await createMutation.mutateAsync({ content: title.trim(), kind });
+      const created = await createMutation.mutateAsync({ content: title.trim(), kind: toPocket ? "KIND_TASK" : kind });
+      if (toPocket) onAddToPocket(created);
       setTitle("");
       setKind("KIND_TASK");
     } catch (err) {
@@ -70,6 +83,7 @@ export function BulletForm() {
   function handleCancel() {
     setExpanded(false);
     setTitle("");
+    setDestination("today");
     setError(null);
   }
 
@@ -82,7 +96,9 @@ export function BulletForm() {
     );
   }
 
-  const CurrentKindMark = KIND_MARKS[kind];
+  const toPocket = destination === "pocket";
+  const effectiveKind: Kind = toPocket ? "KIND_TASK" : kind;
+  const CurrentKindMark = KIND_MARKS[effectiveKind];
 
   return (
     <form
@@ -97,7 +113,7 @@ export function BulletForm() {
         ref={inputRef}
         className="scribble-card__input"
         type="text"
-        placeholder="записать новое…"
+        placeholder={toPocket ? "задача не на сегодня…" : "записать новое…"}
         value={title}
         onChange={(e) => {
           setTitle(e.target.value);
@@ -108,45 +124,66 @@ export function BulletForm() {
         aria-label="Название новой записи"
       />
       <div className="scribble-card__footer">
-        <div className="scribble-card__type" ref={typeRef}>
-          <button
-            type="button"
-            className="scribble-card__type-trigger"
-            onClick={() => setTypeOpen((v) => !v)}
-            disabled={submitting}
-            aria-haspopup="listbox"
-            aria-expanded={typeOpen}
-            aria-label={`Тип записи: ${KIND_LABELS[kind]}`}
-          >
-            <span className="scribble-card__type-mark">
-              <CurrentKindMark />
-            </span>
-            {KIND_LABELS[kind]}
-          </button>
-          {typeOpen && (
-            <ul className="scribble__type-menu" role="listbox" aria-label="Тип записи">
-              {KINDS.map((t) => {
-                const OptionMark = KIND_MARKS[t];
-                return (
-                  <li
-                    key={t}
-                    role="option"
-                    aria-selected={t === kind}
-                    className={`scribble__type-option ${t === kind ? "scribble__type-option--selected" : ""}`}
-                    onClick={() => {
-                      setKind(t);
-                      setTypeOpen(false);
-                    }}
-                  >
-                    <span className="scribble__type-option-mark">
-                      <OptionMark />
-                    </span>
-                    <span className="scribble__type-option-label">{KIND_LABELS[t]}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+        <div className="scribble-card__options">
+          <div className="scribble-card__type" ref={typeRef}>
+            <button
+              type="button"
+              className="scribble-card__type-trigger"
+              onClick={() => setTypeOpen((v) => !v)}
+              disabled={submitting || toPocket}
+              aria-haspopup="listbox"
+              aria-expanded={typeOpen}
+              aria-label={`Тип записи: ${KIND_LABELS[effectiveKind]}`}
+            >
+              <span className="scribble-card__type-mark">
+                <CurrentKindMark />
+              </span>
+              {KIND_LABELS[effectiveKind]}
+            </button>
+            {typeOpen && (
+              <ul className="scribble__type-menu" role="listbox" aria-label="Тип записи">
+                {KINDS.map((t) => {
+                  const OptionMark = KIND_MARKS[t];
+                  return (
+                    <li
+                      key={t}
+                      role="option"
+                      aria-selected={t === kind}
+                      className={`scribble__type-option ${t === kind ? "scribble__type-option--selected" : ""}`}
+                      onClick={() => {
+                        setKind(t);
+                        setTypeOpen(false);
+                      }}
+                    >
+                      <span className="scribble__type-option-mark">
+                        <OptionMark />
+                      </span>
+                      <span className="scribble__type-option-label">{KIND_LABELS[t]}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+          <div className="scribble-card__dest" role="radiogroup" aria-label="Куда записать">
+            {(["today", "pocket"] as const).map((d) => (
+              <button
+                key={d}
+                type="button"
+                role="radio"
+                aria-checked={destination === d}
+                className={`scribble-card__dest-option ${destination === d ? "is-selected" : ""}`}
+                onClick={() => {
+                  setDestination(d);
+                  setTypeOpen(false);
+                  inputRef.current?.focus();
+                }}
+                disabled={submitting}
+              >
+                {d === "today" ? "сегодня" : "в карман"}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="scribble-card__actions">
           <button
@@ -164,8 +201,8 @@ export function BulletForm() {
             className="scribble-card__submit"
             type="submit"
             disabled={submitting || title.trim().length === 0}
-            aria-label="Добавить запись"
-            data-tooltip="Добавить запись"
+            aria-label={toPocket ? "Положить в карман" : "Добавить запись"}
+            data-tooltip={toPocket ? "Положить в карман" : "Добавить запись"}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M8 13V3M8 3L3 8M8 3L13 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

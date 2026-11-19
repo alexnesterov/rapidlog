@@ -254,6 +254,52 @@
   color: var(--accent);
 }
 
+.scribble-card__options {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* куда записать: сегодняшний день или карман — две половинки одной пилюли */
+
+.scribble-card__dest {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--paper-line);
+  border-radius: 8px;
+}
+
+/* выбранная половинка — вложенная плашка; разделитель не нужен, границу даёт заливка */
+.scribble-card__dest-option {
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.scribble-card__dest-option:hover:not(:disabled):not(.is-selected) {
+  color: var(--accent-strong);
+}
+
+.scribble-card__dest-option.is-selected {
+  background: var(--paper-line);
+  color: var(--ink);
+}
+
+.scribble-card__dest-option:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: -2px;
+}
+
 .scribble-card__actions {
   display: flex;
   align-items: center;

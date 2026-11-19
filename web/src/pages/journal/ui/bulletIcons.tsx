@@ -24,11 +24,32 @@ export function NoteMark() {
   );
 }
 
+// задача в кармане: точка задачи, но полая — ещё не задача дня.
+// Размером с TaskMark, заметно мельче кружка события (EventMark), чтобы их не путать
+export function PocketMark() {
+  return (
+    <svg className="mark-icon mark-icon--pocket" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M8 5.5c1.5-.1 2.6 1 2.5 2.5-.1 1.4-1.2 2.4-2.6 2.4-1.3-.1-2.3-1.1-2.2-2.5.1-1.3 1-2.3 2.3-2.4z" />
+    </svg>
+  );
+}
+
 export function CompletedMark() {
   return (
     <svg className="mark-icon mark-icon--completed" viewBox="0 0 16 16" aria-hidden="true">
       <path d="M3.6 3.9c2.8 2.7 5.6 5.5 8.4 8.3" />
       <path d="M12.3 4.1c-2.9 2.7-5.7 5.5-8.5 8.2" />
+    </svg>
+  );
+}
+
+// «…» — меню действий у строки (дни и карман)
+export function MoreIcon() {
+  return (
+    <svg className="log-line__menu-icon" viewBox="0 0 16 16" aria-hidden="true">
+      <circle cx="3" cy="8" r="1.3" />
+      <circle cx="8" cy="8" r="1.3" />
+      <circle cx="13" cy="8" r="1.3" />
     </svg>
   );
 }

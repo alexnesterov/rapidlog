@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { Bullet, MigrateTarget } from '../model/bullet';
 import { useBulletsQuery, useCancelBulletMutation, useCompleteBulletMutation, useMigrateBulletMutation } from '../api/bulletsQueries';
 import { useRouter } from '@tanstack/react-router';
@@ -7,6 +7,8 @@ import { todayIsoDate } from '@/shared/lib';
 import { Logo } from '@/shared/ui/logo';
 import { Splash } from '@/shared/ui/splash';
 import { DaySection } from './DaySection';
+import { PocketSection } from './PocketSection';
+import { usePocket, type PocketItem } from '../model/pocket';
 import './JournalPage.css';
 
 export function JournalPage() {
@@ -17,6 +19,8 @@ export function JournalPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const logoutMutation = useLogout(() => router.navigate({ to: '/login', search: {} }));
+  const pocket = usePocket();
+  const { takeToday, cancel: cancelInPocket } = pocket;
 
   const [error, setError] = useState<string | null>(null);
 
@@ -54,7 +58,37 @@ export function JournalPage() {
     [cancelMutation],
   );
 
+  const takeFromPocket = useCallback(
+    (item: PocketItem) => {
+      takeToday(item).then(
+        () => setError(null),
+        () => setError('не удалось перенести задачу из кармана'),
+      );
+    },
+    [takeToday],
+  );
+
+  const cancelFromPocket = useCallback(
+    (item: PocketItem) => {
+      cancelInPocket(item).then(
+        () => setError(null),
+        () => setError('не удалось отменить задачу из кармана'),
+      );
+    },
+    [cancelInPocket],
+  );
+
   const today = todayIsoDate();
+
+  // server-задачи, убранные в карман, прячем из их дней; опустевший прошлый день не показываем
+  const visibleDays = useMemo(
+    () =>
+      days
+        .map((day) => ({ ...day, bullets: day.bullets.filter((b) => !pocket.hiddenIds.has(b.id)) }))
+        .filter((day) => day.day === today || day.bullets.length > 0),
+    [days, pocket.hiddenIds, today],
+  );
+
   const displayError = listError ? 'не удалось загрузить записи' : error;
 
   // шрифты ждёт корневой loader, записи — loader маршрута; сюда попадаем, только если
@@ -90,7 +124,7 @@ export function JournalPage() {
 
       {!displayError && (
         <div className="days">
-          {days.map((day, index) => (
+          {visibleDays.map((day, index) => (
             <DaySection
               key={day.day}
               date={day.day}
@@ -99,8 +133,12 @@ export function JournalPage() {
               onComplete={completeBullet}
               onMigrate={moveBullet}
               onCancel={cancelBulletEntry}
+              onPocket={pocket.pocketBullet}
+              onAddToPocket={pocket.pocketBullet}
               animationDelay={index * 70}
-            />
+            >
+              <PocketSection items={pocket.items} onTakeToday={takeFromPocket} onCancel={cancelFromPocket} />
+            </DaySection>
           ))}
         </div>
       )}
