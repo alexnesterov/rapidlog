@@ -4,7 +4,7 @@
 }
 
 .logo-mark__dot {
-  fill: var(--brand);
+  fill: var(--accent);
 }
 
 .logo-mark__stroke {

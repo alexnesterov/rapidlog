@@ -5,7 +5,7 @@
   padding: 24px 24px 40px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
   min-height: 100svh;
 }
 
@@ -15,7 +15,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: -12px; /* до первого дня 12px вместо общего gap 24px */
 }
 
 .account__toggle {
@@ -393,7 +392,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--danger);
+  background: var(--accent);
   border: none;
   border-radius: 8px;
   font-size: 16px;
