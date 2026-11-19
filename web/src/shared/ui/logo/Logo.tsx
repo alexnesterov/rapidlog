@@ -1,14 +1,19 @@
+import { LogoMark } from "./LogoMark";
 import "./Logo.css";
 
-// Рукописный логотип с маркерным выделением «Log» — один и тот же в журнале и на входе.
-// Бейдж «preview» — статус продукта: пока он сырой. Убрать, когда выйдет из превью.
-export function Logo() {
+interface LogoProps {
+  // compact — колонтитул журнала, full — страницы входа, где логотип главный.
+  size?: "compact" | "full";
+}
+
+// Знак стоит перед словом, как bullet перед записью.
+// Пометка «preview» — статус продукта: пока он сырой. Убрать, когда выйдет из превью.
+export function Logo({ size = "full" }: LogoProps) {
   return (
-    <span className="brand">
-      <span className="logo">
-        Rapid<span className="logo__accent">Log</span>
-      </span>
-      <span className="brand__badge">preview</span>
+    <span className={`logo logo--${size}`}>
+      <LogoMark className="logo__mark" />
+      <span className="logo__word">rapidlog</span>
+      <span className="logo__note">preview</span>
     </span>
   );
 }

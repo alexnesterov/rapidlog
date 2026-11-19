@@ -1,14 +1,12 @@
+import { LogoMark } from "@/shared/ui/logo";
 import "./Splash.css";
 
 // Пока нечего показать: вход в журнал после логина/регистрации и долгие переходы роутера (>1 с).
-// Первую загрузку закрывает копия в index.html.
+// Первую загрузку закрывает копия в index.html. Знак логотипа «дописывается» по кругу.
 export function Splash() {
   return (
     <div className="splash">
-      <div className="splash__mark" aria-hidden="true">
-        <span className="splash__dot" />
-      </div>
-      <div className="splash__spinner" aria-hidden="true" />
+      <LogoMark className="splash__mark" />
     </div>
   );
 }

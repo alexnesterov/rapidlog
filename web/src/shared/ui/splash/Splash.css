@@ -5,46 +5,51 @@
   inset: 0;
   z-index: 50;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 28px;
   background: var(--paper);
 }
 
+.splash__mark .logo-mark__stroke {
+  stroke-linejoin: round;
+}
+
+/* в крупном знаке точка перетягивает внимание с росчерка — уменьшаем от её центра */
+.splash__mark .logo-mark__dot {
+  transform: scale(0.7);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
 .splash__mark {
-  width: 72px;
-  height: 72px;
-  border-radius: 18px;
-  background: var(--ink);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.splash__dot {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-
-.splash__spinner {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 3px solid var(--paper-line);
-  border-top-color: var(--accent);
+  width: 120px;
+  height: 48px;
+  color: var(--ink-hand);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .splash__spinner {
-    animation: spin 0.8s linear infinite;
+  .splash__mark .logo-mark__stroke {
+    stroke-dasharray: 1;
+    animation: splash-write 1.4s ease-in-out infinite;
   }
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+/* росчерк дописывается, держится и тает — точка остаётся */
+@keyframes splash-write {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  55% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  85% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
   }
 }

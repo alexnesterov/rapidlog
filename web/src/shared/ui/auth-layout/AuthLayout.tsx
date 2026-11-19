@@ -13,7 +13,7 @@ export function AuthLayout({ title, children, footer }: AuthLayoutProps) {
   return (
     <main className="auth">
       <h1 className="auth__brand">
-        <Logo />
+        <Logo size="full" />
         <span className="visually-hidden">: {title}</span>
       </h1>
       {children}

@@ -6,8 +6,8 @@
   /* handwriting ink: black thinned into the paper, softer than print;
      resolves against whichever --ink/--paper the theme sets */
   --ink-hand: color-mix(in srgb, var(--ink) 78%, var(--paper));
-  --accent: #c97a2b;
-  --accent-strong: #a85f18;
+  --accent: #b3432f;
+  --accent-strong: #8f3322;
   --done: #7a8a6f;
   --danger: #b3432f;
 
@@ -27,8 +27,8 @@
     --paper-line: rgba(247, 243, 234, 0.08);
     --ink: #ece7de;
     --ink-soft: #a29c9a;
-    --accent: #e8a33d;
-    --accent-strong: #f0b45c;
+    --accent: #e07a5f;
+    --accent-strong: #ec9a83;
     --done: #8fae7d;
     --danger: #e07a5f;
   }

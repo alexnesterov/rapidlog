@@ -1,59 +1,53 @@
-/* бейдж стоит ровно (наклонён только сам логотип), у верхнего края строчных букв */
-.brand {
-  display: inline-flex;
-  align-items: flex-start;
-  gap: 8px;
+.logo-mark {
+  display: block;
+  overflow: visible;
 }
 
-.brand__badge {
-  margin-top: 14px;
-  font-family: var(--font-body);
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: 0.02em;
-  color: #b3261e;
-  border: 1px solid currentColor;
-  border-radius: 4px;
-  padding: 3px 6px;
-  opacity: 0.7;
+.logo-mark__dot {
+  fill: var(--accent);
 }
 
-@media (prefers-color-scheme: dark) {
-  .brand__badge {
-    color: #ff6b5b;
-  }
+.logo-mark__stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linejoin: round;
+  stroke-linecap: round;
 }
 
+/* всё в em — размер задаёт font-size модификатора */
 .logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.28em;
   font-family: var(--font-hand);
   font-style: normal;
-  font-size: 56px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-weight: 600;
+  line-height: 1;
   color: var(--ink);
-  transform: rotate(-2deg);
-  transform-origin: left bottom;
-  display: inline-block;
 }
 
-.logo__accent {
-  position: relative;
-  z-index: 0;
-  color: var(--ink);
-  display: inline-block;
+/* знак на базовой линии слова: svg без baseline, поэтому сдвигаем вручную */
+.logo__mark {
+  width: 1.6em;
+  height: 0.64em;
+  align-self: center;
 }
 
-.logo__accent::before {
-  content: '';
-  position: absolute;
-  left: -3px;
-  right: -3px;
-  top: 20%;
-  bottom: 8%;
-  z-index: -1;
-  background: var(--accent);
-  opacity: 0.4;
-  border-radius: 3px;
-  transform: rotate(-1.5deg);
+.logo__note {
+  align-self: flex-start;
+  margin-left: 0.1em;
+  font-size: 0.55em;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+/* между записью (24px) и заголовком дня (32px) */
+.logo--compact {
+  font-size: 28px;
+  color: var(--ink-soft);
+}
+
+.logo--full {
+  font-size: 44px;
 }
