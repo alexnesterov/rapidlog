@@ -10,6 +10,8 @@
   --accent-strong: #a85f18;
   --done: #7a8a6f;
   --danger: #b3432f;
+  /* цвет знака логотипа; совпадает с --danger, но меняется отдельно от ошибок */
+  --brand: #b3432f;
 
   --font-display: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   /* interface reads as print, entries as handwriting (--font-hand) */
@@ -31,6 +33,7 @@
     --accent-strong: #f0b45c;
     --done: #8fae7d;
     --danger: #e07a5f;
+    --brand: #e07a5f;
   }
 }
 

@@ -2,34 +2,106 @@
   position: relative;
   max-width: 640px;
   margin: 0 auto;
-  padding: 56px 24px 40px;
+  padding: 24px 24px 40px;
   display: flex;
   flex-direction: column;
   gap: 24px;
   min-height: 100svh;
 }
 
-/* логотип слева, аккаунт справа — оба на одной базовой линии;
-   на узком экране аккаунт переносится под логотип */
+/* колонтитул тетради: тихий бренд слева, аккаунт справа — первым на экране читается день */
 .page__header {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 8px 16px;
+  gap: 16px;
+  margin-bottom: -12px; /* до первого дня 12px вместо общего gap 24px */
 }
 
-.page__account {
-  display: flex;
-  align-items: baseline;
+.account__toggle {
+  position: relative;
+  anchor-name: --account;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.account__toggle:hover,
+.account__toggle:has(+ .account__menu:popover-open) {
+  color: var(--ink);
+}
+
+.account__toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.account__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+.account__initial {
+  font-family: var(--font-hand);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: lowercase;
+}
+
+/* popover живёт в top layer; absolute — от начала документа, поэтому едет вместе со страницей.
+   Фолбэк — правый край колонки .page; где есть anchor positioning — точно под кнопкой. */
+.account__menu {
+  position: absolute;
+  inset: auto;
+  top: 60px;
+  right: calc(max(0px, (100vw - 640px) / 2) + 24px);
+  margin: 0;
+  max-width: min(280px, calc(100vw - 32px));
+  padding: 14px 16px;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 10px;
-  min-width: 0;
-  margin-left: auto;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  border-radius: 6px;
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+/* display только у открытого: иначе он перебивает display: none, которым браузер прячет popover */
+.account__menu:popover-open {
+  display: flex;
+}
+
+@supports (position-anchor: --account) {
+  .account__menu {
+    position-anchor: --account;
+    top: calc(anchor(bottom) + 8px);
+    right: anchor(right);
+  }
+}
+
+.account__email {
+  margin: 0;
+  max-width: 100%;
   font-size: 14px;
   color: var(--ink-soft);
-}
-
-.page__email {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -650,7 +722,7 @@ button.log-line__mark:hover {
   color: var(--accent-strong);
 }
 
-.page__logout {
+.account__logout {
   flex-shrink: 0;
   font-size: 14px;
   color: var(--ink-soft);
@@ -658,7 +730,6 @@ button.log-line__mark:hover {
   border: none;
   padding: 4px 0;
   cursor: pointer;
-  /* бледное подчёркивание всегда — отличает действие от email рядом, в том числе на тач-экранах */
   text-decoration: underline;
   text-decoration-color: var(--paper-line);
   text-decoration-thickness: 1px;
@@ -668,18 +739,18 @@ button.log-line__mark:hover {
     text-decoration-color 0.15s;
 }
 
-.page__logout:hover:not(:disabled) {
+.account__logout:hover:not(:disabled) {
   color: var(--ink);
   text-decoration-color: currentColor;
 }
 
-.page__logout:focus-visible {
+.account__logout:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 2px;
 }
 
-.page__logout:disabled {
+.account__logout:disabled {
   opacity: 0.5;
   cursor: progress;
 }

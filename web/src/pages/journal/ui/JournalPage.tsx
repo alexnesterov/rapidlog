@@ -6,6 +6,7 @@ import { useLogout, useSession } from '@/entities/session';
 import { todayIsoDate } from '@/shared/lib';
 import { Logo } from '@/shared/ui/logo';
 import { Splash } from '@/shared/ui/splash';
+import { AccountMenu } from './AccountMenu';
 import { DaySection } from './DaySection';
 import './JournalPage.css';
 
@@ -67,20 +68,15 @@ export function JournalPage() {
     <div className="page">
       <header className="page__header">
         <h1>
-          <Logo />
+          <Logo size="compact" />
+          <span className="visually-hidden">: журнал</span>
         </h1>
         {session && (
-          <div className="page__account">
-            <span className="page__email">{session.email}</span>
-            <button
-              type="button"
-              className="page__logout"
-              onClick={() => logoutMutation.mutate()}
-              disabled={logoutMutation.isPending}
-            >
-              выйти
-            </button>
-          </div>
+          <AccountMenu
+            email={session.email}
+            onLogout={() => logoutMutation.mutate()}
+            pending={logoutMutation.isPending}
+          />
         )}
       </header>
 
