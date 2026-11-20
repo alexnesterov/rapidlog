@@ -2,6 +2,16 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
+    <!-- Тема до первой отрисовки, чтобы не мигала: значение пишет features/theme-switch.
+         Нет ключа или он битый — «Paper» (атрибута нет, светлая или тёмная по системе). -->
+    <script>
+      try {
+        var t = localStorage.getItem("rapidlog-theme");
+        if (["catppuccin", "latte", "frappe", "macchiato", "mocha"].indexOf(t) !== -1) {
+          document.documentElement.dataset.theme = t;
+        }
+      } catch (e) {}
+    </script>
     <link
       rel="icon"
       type="image/svg+xml"
@@ -19,6 +29,7 @@
          app/main.tsx, когда роутер завершил первый переход (страница уже нарисована нужными
          шрифтами). Копия shared/ui/splash: CSS-токены из index.css здесь ещё не загружены. -->
     <style>
+      /* «Paper» (по умолчанию), затем темы Catppuccin — те же значения, что в app/styles */
       #boot-splash {
         --bs-paper: #f7f3ea;
         --bs-ink: color-mix(in srgb, #151316 78%, #f7f3ea);
@@ -32,10 +43,38 @@
         background: var(--bs-paper);
       }
       @media (prefers-color-scheme: dark) {
-        #boot-splash {
+        html:not([data-theme]) #boot-splash {
           --bs-paper: #17151b;
           --bs-ink: color-mix(in srgb, #ece7de 78%, #17151b);
           --bs-accent: #e07a5f;
+        }
+      }
+      html[data-theme="latte"] #boot-splash,
+      html[data-theme="catppuccin"] #boot-splash {
+        --bs-paper: #eff1f5;
+        --bs-ink: color-mix(in srgb, #4c4f69 78%, #eff1f5);
+        --bs-accent: #d20f39;
+      }
+      html[data-theme="frappe"] #boot-splash {
+        --bs-paper: #303446;
+        --bs-ink: color-mix(in srgb, #c6d0f5 78%, #303446);
+        --bs-accent: #e78284;
+      }
+      html[data-theme="macchiato"] #boot-splash {
+        --bs-paper: #24273a;
+        --bs-ink: color-mix(in srgb, #cad3f5 78%, #24273a);
+        --bs-accent: #ed8796;
+      }
+      html[data-theme="mocha"] #boot-splash {
+        --bs-paper: #1e1e2e;
+        --bs-ink: color-mix(in srgb, #cdd6f4 78%, #1e1e2e);
+        --bs-accent: #f38ba8;
+      }
+      @media (prefers-color-scheme: dark) {
+        html[data-theme="catppuccin"] #boot-splash {
+          --bs-paper: #1e1e2e;
+          --bs-ink: color-mix(in srgb, #cdd6f4 78%, #1e1e2e);
+          --bs-accent: #f38ba8;
         }
       }
       #boot-splash .boot-splash__mark {

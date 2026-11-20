@@ -17,6 +17,12 @@
   gap: 16px;
 }
 
+.page__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .account__toggle {
   position: relative;
   anchor-name: --account;
@@ -80,7 +86,7 @@
   background: var(--paper);
   border: 1px solid var(--paper-line);
   border-radius: 6px;
-  box-shadow: 0 6px 20px color-mix(in srgb, var(--ink) 12%, transparent);
+  box-shadow: 0 6px 20px var(--shadow);
 }
 
 /* display только у открытого: иначе он перебивает display: none, которым браузер прячет popover */
@@ -253,7 +259,7 @@
   background: var(--paper);
   border: 1px solid var(--paper-line);
   border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--shadow) 60%, transparent);
 }
 
 .scribble-card--type-open {
@@ -434,7 +440,7 @@
   background: var(--paper);
   border: 1px solid var(--paper-line);
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px var(--shadow);
   min-width: 140px;
 }
 
@@ -678,7 +684,7 @@ button.log-line__mark:hover {
   background: var(--paper);
   border: 1px solid var(--paper-line);
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px var(--shadow);
 }
 
 .log-line__menu-option {
