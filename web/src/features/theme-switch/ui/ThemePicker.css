@@ -27,25 +27,25 @@
 .theme-picker__option--latte {
   --paper: var(--ctp-latte-base);
   --ink: var(--ctp-latte-text);
-  --accent: var(--ctp-latte-red);
+  --accent: var(--ctp-latte-flamingo);
 }
 
 .theme-picker__option--frappe {
   --paper: var(--ctp-frappe-base);
   --ink: var(--ctp-frappe-text);
-  --accent: var(--ctp-frappe-red);
+  --accent: var(--ctp-frappe-flamingo);
 }
 
 .theme-picker__option--macchiato {
   --paper: var(--ctp-macchiato-base);
   --ink: var(--ctp-macchiato-text);
-  --accent: var(--ctp-macchiato-red);
+  --accent: var(--ctp-macchiato-flamingo);
 }
 
 .theme-picker__option--mocha {
   --paper: var(--ctp-mocha-base);
   --ink: var(--ctp-mocha-text);
-  --accent: var(--ctp-mocha-red);
+  --accent: var(--ctp-mocha-flamingo);
 }
 
 .theme-picker__option {
@@ -88,7 +88,7 @@
 
 .theme-picker__option--catppuccin {
   --ink: var(--ctp-mocha-text);
-  --accent: var(--ctp-latte-red);
+  --accent: var(--ctp-latte-flamingo);
 }
 
 .theme-picker__option--catppuccin .theme-picker__swatch {

@@ -40,30 +40,34 @@
   }
 }
 
-/* Темы Catppuccin — токены из палитры активной темы (catppuccin.css), акцент — red. */
+/* Темы Catppuccin — токены из палитры активной темы (catppuccin.css), акцент — flamingo, ошибки — red. */
 :root[data-theme] {
   --paper: var(--ctp-base);
   --ink: var(--ctp-text);
   --ink-soft: var(--ctp-subtext0);
-  --accent: var(--ctp-red);
-  /* hover акцентных элементов: в светлой теме темнее, в тёмных — светлее */
-  --accent-strong: color-mix(in srgb, var(--accent) 80%, var(--ink));
+  --accent: var(--ctp-flamingo);
+  --danger: var(--ctp-red);
+  /* hover акцентных элементов — темнее, к фону: в тёмных темах акцент по яркости почти равен
+     тексту, и смесь с текстом (как в Latte ниже) hover не видно */
+  --accent-strong: color-mix(in srgb, var(--accent) 75%, var(--paper));
   --done: var(--ctp-green);
   --shadow: var(--ctp-crust);
   --line-strength: 10%;
 }
 
 /* Latte — единственная светлая: crust почти сливается с base, поэтому тень от text,
-   а точки сетки на бумаге — гуще */
+   точки сетки на бумаге — гуще, hover акцента — к тёмному тексту */
 :root[data-theme="latte"] {
   --shadow: color-mix(in srgb, var(--ctp-text) 16%, transparent);
   --line-strength: 14%;
+  --accent-strong: color-mix(in srgb, var(--accent) 80%, var(--ink));
 }
 
 @media not all and (prefers-color-scheme: dark) {
   :root[data-theme="catppuccin"] {
     --shadow: color-mix(in srgb, var(--ctp-text) 16%, transparent);
     --line-strength: 14%;
+    --accent-strong: color-mix(in srgb, var(--accent) 80%, var(--ink));
   }
 }
 
