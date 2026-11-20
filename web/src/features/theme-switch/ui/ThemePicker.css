@@ -1,0 +1,117 @@
+/* цвета страницы — до того, как образцы ниже переопределят --accent и --paper-line у себя */
+.theme-picker {
+  --page-accent: var(--accent);
+  --page-line: var(--paper-line);
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.theme-picker__legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.theme-picker__row {
+  display: flex;
+  gap: 8px;
+}
+
+/* Каждый образец задаёт свои токены, LogoMark внутри красится ими сам
+   (точка — --accent, росчерк — currentColor). Цвета — константы вкусов из app/styles/catppuccin.css, у «Paper» — из index.css. */
+.theme-picker__option--latte {
+  --paper: var(--ctp-latte-base);
+  --ink: var(--ctp-latte-text);
+  --accent: var(--ctp-latte-red);
+}
+
+.theme-picker__option--frappe {
+  --paper: var(--ctp-frappe-base);
+  --ink: var(--ctp-frappe-text);
+  --accent: var(--ctp-frappe-red);
+}
+
+.theme-picker__option--macchiato {
+  --paper: var(--ctp-macchiato-base);
+  --ink: var(--ctp-macchiato-text);
+  --accent: var(--ctp-macchiato-red);
+}
+
+.theme-picker__option--mocha {
+  --paper: var(--ctp-mocha-base);
+  --ink: var(--ctp-mocha-text);
+  --accent: var(--ctp-mocha-red);
+}
+
+.theme-picker__option {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.theme-picker__input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.theme-picker__swatch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--ink);
+  background: var(--paper);
+  /* граница — от токенов страницы (не образца), чтобы кружок читался на любом фоне меню */
+  box-shadow: inset 0 0 0 1px var(--page-line);
+}
+
+/* Темы по системе — светлая половина слева, тёмная справа:
+   точка ложится на светлую часть, росчерк — на тёмную */
+.theme-picker__option--paper {
+  --ink: #ece7de;
+  --accent: #b3432f;
+}
+
+.theme-picker__option--paper .theme-picker__swatch {
+  background: linear-gradient(90deg, #f7f3ea 36%, #17151b 36%);
+}
+
+.theme-picker__option--catppuccin {
+  --ink: var(--ctp-mocha-text);
+  --accent: var(--ctp-latte-red);
+}
+
+.theme-picker__option--catppuccin .theme-picker__swatch {
+  background: linear-gradient(90deg, var(--ctp-latte-base) 36%, var(--ctp-mocha-base) 36%);
+}
+
+.theme-picker__mark {
+  width: 22px;
+  height: 9px;
+}
+
+.theme-picker__input:checked + .theme-picker__swatch {
+  outline: 2px solid var(--page-accent);
+  outline-offset: 2px;
+}
+
+.theme-picker__input:focus-visible + .theme-picker__swatch {
+  outline: 2px solid var(--page-accent);
+  outline-offset: 4px;
+}
+
+.theme-picker__current {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--ink-soft);
+}

@@ -3,6 +3,7 @@ import type { Bullet, MigrateTarget } from '../model/bullet';
 import { useBulletsQuery, useCancelBulletMutation, useCompleteBulletMutation, useMigrateBulletMutation } from '../api/bulletsQueries';
 import { useRouter } from '@tanstack/react-router';
 import { useLogout, useSession } from '@/entities/session';
+import { ThemeMenu } from '@/features/theme-switch';
 import { todayIsoDate } from '@/shared/lib';
 import { Logo } from '@/shared/ui/logo';
 import { Splash } from '@/shared/ui/splash';
@@ -71,13 +72,16 @@ export function JournalPage() {
           <Logo size="compact" />
           <span className="visually-hidden">: журнал</span>
         </h1>
-        {session && (
-          <AccountMenu
-            email={session.email}
-            onLogout={() => logoutMutation.mutate()}
-            pending={logoutMutation.isPending}
-          />
-        )}
+        <div className="page__actions">
+          <ThemeMenu />
+          {session && (
+            <AccountMenu
+              email={session.email}
+              onLogout={() => logoutMutation.mutate()}
+              pending={logoutMutation.isPending}
+            />
+          )}
+        </div>
       </header>
 
       {isFetching && <div className="sync-indicator" aria-hidden="true" />}
