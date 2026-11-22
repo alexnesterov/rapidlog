@@ -25,6 +25,10 @@ cp .env.example .env
 docker compose up
 ```
 
+`docker compose` сам подхватывает `compose.override.yaml` поверх `compose.yaml`:
+он подключает Postgres из `infra.yaml`, пробрасывает порты `journal` и Kratos на
+хост и запускает Kratos с `--dev` (cookie без Secure по `http://localhost`).
+
 Приложение доступно на `http://localhost:8080`,
 gRPC `journal` — на `:50052`, публичный API Kratos — на `:4433`, Postgres — на `:5432`.
 Дополнительные базы `journal` и `kratos` создаются в том же Postgres при первом
@@ -46,7 +50,7 @@ gRPC `journal` — на `:50052`, публичный API Kratos — на `:4433`
 
 ```sh
 cp .env.example .env
-docker compose up -d db kratos
+docker compose up -d postgres kratos
 cd web && npm ci && npm run build && cd ..
 go run ./cmd/journal      # gRPC на :50052
 go run ./cmd/gateway      # HTTP на :8080
@@ -62,12 +66,13 @@ go run ./cmd/gateway      # HTTP на :8080
 
 ### Продакшн
 
-`docker-compose.yaml` (не путать с локальным `compose.yaml`) поднимает только
-`gateway`, `journal`, `kratos-migrate` и `kratos` — без Postgres. Значения
-переменных подставляются из окружения хоста (`${VAR}`), DSN указывают на внешний
-Postgres. Kratos в продакшене запускается без `--dev`, поэтому публичный URL
-приложения (`KRATOS_APP_URL`) должен быть на HTTPS — иначе браузер не сохранит
-Secure-cookie сессии.
+Продакшн — это `compose.yaml` без override: только `gateway`, `journal`,
+`kratos-migrate` и `kratos`, без Postgres. Значения переменных подставляются из
+окружения хоста или серверного `.env` (`${VAR}`), DSN указывают на внешний Postgres.
+
+Kratos в продакшене запускается без `--dev`, поэтому публичный URL приложения
+(`KRATOS_APP_URL`) должен быть на HTTPS — иначе браузер не сохранит Secure-cookie
+сессии.
 
 ### Конфигурация
 
@@ -75,7 +80,7 @@ Secure-cookie сессии.
 рассчитаны на запуск на хосте против портов, проброшенных из compose
 (`localhost:5432`, `localhost:50052`, `localhost:4433`); в compose их переопределяет
 `.env` (см. `.env.example`). Kratos читает `deploy/kratos/kratos.yml`, а URL, DSN и
-секреты в обоих compose-файлах переопределяются переменными `KRATOS_*`.
+секреты в `compose.yaml` переопределяются переменными `KRATOS_*`.
 
 | Сервис   | Переменная                       | Дефолт                                              |
 | -------- | -------------------------------- | --------------------------------------------------- |
@@ -87,7 +92,7 @@ Secure-cookie сессии.
 |          | `GATEWAY_HTTP_IDLE_TIMEOUT`      | `15s`                                               |
 | journal  | `JOURNAL_DSN`                    | `postgres://rapidlog:rapidlog@localhost:5432/journal`  |
 |          | `JOURNAL_PORT`                   | `50052`                                             |
-| kratos   | `KRATOS_DSN`                     | `postgres://rapidlog:rapidlog@db:5432/kratos?sslmode=disable` (compose) |
+| kratos   | `KRATOS_DSN`                     | `postgres://rapidlog:rapidlog@postgres:5432/kratos?sslmode=disable` (compose) |
 |          | `KRATOS_SECRETS_COOKIE`          | dev-значение из `kratos.yml`, ≥ 16 символов         |
 |          | `KRATOS_SECRETS_CIPHER`          | dev-значение из `kratos.yml`, ровно 32 символа      |
 |          | `KRATOS_APP_URL`                 | `http://localhost:8080`                             |
@@ -179,7 +184,8 @@ api/bruno                                    — Bruno-коллекция для
 deploy/kratos                                — конфиг Ory Kratos и схема identity
 docs/api-design.md                           — контракты API, форматы запросов/ответов
 web                                          — React-интерфейс (Vite + TypeScript)
-compose.yaml, docker-compose.yaml            — локальный полный стек / продакшн
+compose.yaml                                 — продакшн (без Postgres)
+compose.override.yaml, infra.yaml            — локальная надстройка и Postgres для неё
 ```
 
 Реализация каждого сервиса лежит в `internal/service/<name>/internal/...`,
