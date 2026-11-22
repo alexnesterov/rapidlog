@@ -2,9 +2,7 @@ services:
   gateway:
     build:
       context: .
-      dockerfile: Dockerfile
       target: gateway
-    container_name: gateway
     image: rapidlog-gateway
     restart: unless-stopped
     ports:
@@ -13,15 +11,15 @@ services:
       - GATEWAY_JOURNAL=${GATEWAY_JOURNAL}
       - GATEWAY_KRATOS_PUBLIC_URL=${GATEWAY_KRATOS_PUBLIC_URL}
     depends_on:
-      - journal
-      - kratos
+      journal:
+        condition: service_started
+      kratos:
+        condition: service_started
 
   journal:
     build:
       context: .
-      dockerfile: Dockerfile
       target: journal
-    container_name: journal
     image: rapidlog-journal
     restart: unless-stopped
     ports:
@@ -34,7 +32,6 @@ services:
 
   kratos-migrate:
     image: oryd/kratos:v26.2.0
-    container_name: kratos-migrate
     command: migrate sql -e --yes
     environment:
       DSN: ${KRATOS_DSN}
@@ -44,7 +41,6 @@ services:
 
   kratos:
     image: oryd/kratos:v26.2.0
-    container_name: kratos
     restart: unless-stopped
     # --dev разрешает cookie без Secure по http://localhost
     command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
@@ -63,7 +59,6 @@ services:
         condition: service_completed_successfully
 
   postgres:
-    container_name: postgres
     image: postgres
     restart: unless-stopped
     environment:
