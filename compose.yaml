@@ -8,9 +8,10 @@ services:
     image: rapidlog-gateway
     restart: unless-stopped
     ports:
-      - '8080:8080'
-    env_file:
-      - .env
+      - '${GATEWAY_PORT}:8080'
+    environment:
+      - GATEWAY_JOURNAL=${GATEWAY_JOURNAL}
+      - GATEWAY_KRATOS_PUBLIC_URL=${GATEWAY_KRATOS_PUBLIC_URL}
     depends_on:
       - journal
       - kratos
@@ -25,8 +26,8 @@ services:
     restart: unless-stopped
     ports:
       - '50052:50052'
-    env_file:
-      - .env
+    environment:
+      - JOURNAL_DSN=${JOURNAL_DSN}
     depends_on:
       - db
 
