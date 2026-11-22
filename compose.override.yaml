@@ -1,0 +1,20 @@
+include:
+  - path: ./infra.yaml
+
+services:
+  journal:
+    ports:
+      - '50052:50052'
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  kratos-migrate:
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  kratos:
+    command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
+    ports:
+      - '4433:4433'

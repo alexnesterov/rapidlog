@@ -176,7 +176,7 @@ tasks:
           enum: [journal]
     vars:
       DIR: '{{.ROOT_DIR}}/internal/service/{{.SVC}}/migrations'
-      # По умолчанию — Postgres из compose.yaml, проброшенный на хост
+      # По умолчанию — Postgres из infra.yaml (локальный compose), проброшенный на хост
       DSN: '{{.DSN | default (printf "postgres://rapidlog:rapidlog@localhost:5432/%s?sslmode=disable" .SVC)}}'
     cmds:
       - '{{.MIGRATE}} {{if not .NO_DB}}-path {{.DIR}} -database "{{.DSN}}" {{end}}{{.ARGS}}'
