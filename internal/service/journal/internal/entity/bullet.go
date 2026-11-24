@@ -11,6 +11,7 @@ import (
 var ErrBulletContentRequired = errors.New("bullet content is required")
 var ErrBulletContentTooLong = errors.New("bullet content is too long")
 var ErrBulletKindInvalid = errors.New("bullet kind must be task, event or note")
+var ErrBulletSignifierInvalid = errors.New("bullet signifier must be open, completed or cancelled")
 var ErrBulletCreatedToday = errors.New("bullet was created today")
 var ErrBulletUserIDRequired = errors.New("bullet user id is required")
 
@@ -31,6 +32,14 @@ const (
 	KindNote  Kind = "note"
 )
 
+func (k Kind) Valid() bool {
+	switch k {
+	case KindTask, KindEvent, KindNote:
+		return true
+	}
+	return false
+}
+
 type Signifier string
 
 const (
@@ -38,6 +47,14 @@ const (
 	SignifierCompleted Signifier = "completed"
 	SignifierCancelled Signifier = "cancelled"
 )
+
+func (s Signifier) Valid() bool {
+	switch s {
+	case SignifierOpen, SignifierCompleted, SignifierCancelled:
+		return true
+	}
+	return false
+}
 
 type Bullet struct {
 	ID        uuid.UUID `json:"id"`
@@ -70,10 +87,12 @@ func NewBullet(userID uuid.UUID, kind Kind, content string) (*Bullet, error) {
 }
 
 func (b *Bullet) Validate() error {
-	switch b.Kind {
-	case KindTask, KindEvent, KindNote:
-	default:
+	if !b.Kind.Valid() {
 		return &ValidationError{Err: ErrBulletKindInvalid}
+	}
+
+	if !b.Signifier.Valid() {
+		return &ValidationError{Err: ErrBulletSignifierInvalid}
 	}
 
 	if b.Content == "" {
