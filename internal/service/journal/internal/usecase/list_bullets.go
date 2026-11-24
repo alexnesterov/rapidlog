@@ -13,28 +13,5 @@ func (uc *Usecase) ListBullets(ctx context.Context, userID uuid.UUID) ([]*entity
 		return nil, err
 	}
 
-	if len(bullets) > 0 {
-		return bullets, nil
-	}
-
-	bullets, err = entity.NewDemoBullets(userID)
-	if err != nil {
-		return nil, err
-	}
-
-	err = uc.transactor.WithTx(ctx, func(ctx context.Context) error {
-		for _, b := range bullets {
-			err := uc.repo.Save(ctx, b)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
 	return bullets, nil
 }
