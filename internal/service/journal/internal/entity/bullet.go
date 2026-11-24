@@ -57,13 +57,13 @@ func (s Signifier) Valid() bool {
 }
 
 type Bullet struct {
-	ID        uuid.UUID `json:"id"`
-	UserID    uuid.UUID `json:"user_id"`
-	Kind      Kind      `json:"kind"`
-	Signifier Signifier `json:"signifier"`
-	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	Kind      Kind
+	Signifier Signifier
+	Content   string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func NewBullet(userID uuid.UUID, kind Kind, content string) (*Bullet, error) {
