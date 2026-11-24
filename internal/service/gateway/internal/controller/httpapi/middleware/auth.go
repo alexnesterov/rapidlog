@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/kratos"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/pkg/respond"
 	"github.com/google/uuid"
 )

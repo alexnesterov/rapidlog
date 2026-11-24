@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/config"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi/middleware"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/kratos"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi/middleware"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/pkg/journalgrpc"
 	"github.com/alexnesterov/rapidlog-api/web"
 )
