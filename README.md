@@ -121,9 +121,9 @@ npm run lint      # oxlint
 `task up`/`task down` (`docker compose up -d --build` / `down`).
 
 Моки генерируются [mockery](https://vektra.github.io/mockery/) v3 по `.mockery.yml`
-(`internal/pkg/...`, `port`-пакеты `journal`, `httpapi` в `gateway`;
+(`internal/pkg/...`, `usecase` и `controller/grpcapi` в `journal`, `httpapi` в `gateway`;
 моки лежат в соседнем `mocks/`): после изменения интерфейса перегенерировать
-командой `mockery`. Устаревшие `mock_*.go` после переименования интерфейса
+командой `task mock` (ставит mockery нужной версии в `bin/` и запускает его). Устаревшие `mock_*.go` после переименования интерфейса
 mockery не удаляет — их нужно удалить вручную.
 
 gRPC-контракт `api/proto/journal/v1/journal.proto` описан через [buf](https://buf.build/);
