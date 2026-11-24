@@ -9,8 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/httpapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/kratos"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
