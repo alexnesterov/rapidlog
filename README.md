@@ -39,8 +39,7 @@ gRPC `journal` — на `:50052`, публичный API Kratos — на `:4433`
 `gateway` (`/auth/*`), поэтому cookie сессии живёт на том же origin, что и SPA.
 `gateway` на каждый запрос к `/api/*` проверяет сессию вызовом Kratos
 `/sessions/whoami`: без сессии — `401`, с сессией ID identity Kratos становится
-`user_id` в `journal`. Новому пользователю при первом просмотре списка создаются
-три демонстрационных bullet'а.
+`user_id` в `journal`.
 
 ### Без Docker для самих сервисов
 

@@ -1,10 +1,8 @@
 package usecase_test
 
 import (
-	"context"
 	"errors"
 	"testing"
-	"time"
 
 	mocksTransactor "github.com/alexnesterov/rapidlog-api/internal/pkg/transactor/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
@@ -51,83 +49,11 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_Empty() {
 		Return(nil, nil).
 		Once()
 
-	s.mockBulletRepo.EXPECT().
-		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
-		Return(nil).
-		Times(3)
-
-	s.mockTxMgr.EXPECT().
-		WithTx(mock.Anything, mock.Anything).
-		RunAndReturn(func(ctx context.Context, fn func(ctx context.Context) error) error {
-			return fn(ctx)
-		}).
-		Once()
-
 	userID := uuid.New()
-	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 
 	got, gotErr := s.uc.ListBullets(s.T().Context(), userID)
 	s.NoError(gotErr)
-	s.Len(got, 3)
-
-	for _, b := range got {
-		s.Equal(userID, b.UserID)
-		s.Equal(yesterday, b.CreatedAt.Format("2006-01-02"))
-	}
-}
-
-func (s *ListBulletsUseCaseSuite) TestListBullets_NewDemoBulletsError() {
-	wantErr := entity.ErrBulletUserIDRequired
-
-	s.mockBulletRepo.EXPECT().
-		List(mock.Anything, mock.AnythingOfType("uuid.UUID")).
-		Return(nil, nil).
-		Once()
-
-	got, gotErr := s.uc.ListBullets(s.T().Context(), uuid.Nil)
-	s.Nil(got)
-	s.ErrorIs(gotErr, wantErr)
-}
-
-func (s *ListBulletsUseCaseSuite) TestListBullets_SaveError() {
-	wantErr := errors.New("create bullets error")
-
-	s.mockBulletRepo.EXPECT().
-		List(mock.Anything, mock.AnythingOfType("uuid.UUID")).
-		Return(nil, nil).
-		Once()
-
-	s.mockBulletRepo.EXPECT().
-		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
-		Return(wantErr).
-		Once()
-
-	s.mockTxMgr.EXPECT().
-		WithTx(mock.Anything, mock.Anything).
-		RunAndReturn(func(ctx context.Context, fn func(ctx context.Context) error) error {
-			return fn(ctx)
-		}).
-		Once()
-
-	got, gotErr := s.uc.ListBullets(s.T().Context(), uuid.New())
-	s.Nil(got)
-	s.ErrorIs(gotErr, wantErr)
-}
-
-func (s *ListBulletsUseCaseSuite) TestListBullets_TransactionError() {
-	wantErr := errors.New("transaction error")
-	s.mockBulletRepo.EXPECT().
-		List(mock.Anything, mock.AnythingOfType("uuid.UUID")).
-		Return(nil, nil).
-		Once()
-
-	s.mockTxMgr.EXPECT().WithTx(mock.Anything, mock.Anything).
-		Return(wantErr).
-		Once()
-
-	got, gotErr := s.uc.ListBullets(s.T().Context(), uuid.New())
-	s.Nil(got)
-	s.ErrorIs(gotErr, wantErr)
+	s.Len(got, 0)
 }
 
 func (s *ListBulletsUseCaseSuite) TestListBullets_Success() {
