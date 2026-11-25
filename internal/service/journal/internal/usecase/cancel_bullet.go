@@ -8,8 +8,21 @@ import (
 	"github.com/google/uuid"
 )
 
-func (uc *Usecase) CancelBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
-	bullet, err := uc.repo.Get(ctx, id, userID)
+type CancelBullet struct {
+	repo BulletRepository
+}
+
+func NewCancelBullet(repo BulletRepository) *CancelBullet {
+	return &CancelBullet{repo: repo}
+}
+
+type CancelBulletInput struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (uc *CancelBullet) Execute(ctx context.Context, in CancelBulletInput) (*entity.Bullet, error) {
+	bullet, err := uc.repo.Get(ctx, in.ID, in.UserID)
 	if err != nil {
 		return nil, err
 	}

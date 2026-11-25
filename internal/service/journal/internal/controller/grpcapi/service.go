@@ -15,15 +15,19 @@ type CreateBulletUsecase interface {
 	Execute(ctx context.Context, in usecase.CreateBulletInput) (*entity.Bullet, error)
 }
 
+type CancelBulletUsecase interface {
+	Execute(ctx context.Context, in usecase.CancelBulletInput) (*entity.Bullet, error)
+}
+
 type LegacyUsecase interface {
 	ListBullets(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error)
 	CompleteBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error)
 	MigrateBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error)
-	CancelBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error)
 }
 
 type Usecases struct {
 	CreateBullet CreateBulletUsecase
+	CancelBullet CancelBulletUsecase
 	Legacy       LegacyUsecase
 }
 
