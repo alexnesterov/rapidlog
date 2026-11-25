@@ -27,7 +27,7 @@ func (s *JournalService) CompleteBullet(
 		return nil, status.Error(codes.InvalidArgument, "invalid bullet id")
 	}
 
-	bullet, err := s.usecase.CompleteBullet(ctx, bulletID, userID)
+	bullet, err := s.uc.Legacy.CompleteBullet(ctx, bulletID, userID)
 	if err != nil {
 		var validationErr *entity.ValidationError
 		if errors.As(err, &validationErr) {

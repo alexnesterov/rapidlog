@@ -16,7 +16,7 @@ func (s *JournalService) ListBullets(ctx context.Context, req *journalv1.ListBul
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	bullets, err := s.usecase.ListBullets(ctx, userID)
+	bullets, err := s.uc.Legacy.ListBullets(ctx, userID)
 	if err != nil {
 		s.logger.Error("failed to list bullets", "error", err)
 		return nil, status.Error(codes.Internal, "internal error")

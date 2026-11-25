@@ -28,7 +28,7 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 		req       *journalv1.CreateBulletRequest
 		want      *journalv1.CreateBulletResponse
 		wantErr   error
-		setupMock func(*mocks.MockUsecase)
+		setupMock func(*mocks.MockCreateBulletUsecase)
 	}{
 		{
 			name: "parse user id error",
@@ -39,7 +39,18 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 			},
 			want:      nil,
 			wantErr:   status.Error(codes.InvalidArgument, "invalid user id"),
-			setupMock: func(_ *mocks.MockUsecase) {},
+			setupMock: func(_ *mocks.MockCreateBulletUsecase) {},
+		},
+		{
+			name: "parse kind error",
+			req: &journalv1.CreateBulletRequest{
+				UserId:  protoBullet.UserId,
+				Kind:    journalv1.Kind_KIND_UNSPECIFIED,
+				Content: "test",
+			},
+			want:      nil,
+			wantErr:   status.Error(codes.InvalidArgument, "invalid kind"),
+			setupMock: func(_ *mocks.MockCreateBulletUsecase) {},
 		},
 		{
 			name: "usecase create bullet error",
@@ -50,9 +61,9 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockUsecase) {
+			setupMock: func(m *mocks.MockCreateBulletUsecase) {
 				m.EXPECT().
-					CreateBullet(
+					Execute(
 						mock.Anything,
 						mock.Anything,
 					).
@@ -69,9 +80,9 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.InvalidArgument, assert.AnError.Error()),
-			setupMock: func(m *mocks.MockUsecase) {
+			setupMock: func(m *mocks.MockCreateBulletUsecase) {
 				m.EXPECT().
-					CreateBullet(
+					Execute(
 						mock.Anything,
 						mock.Anything,
 					).
@@ -88,9 +99,9 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockUsecase) {
+			setupMock: func(m *mocks.MockCreateBulletUsecase) {
 				m.EXPECT().
-					CreateBullet(
+					Execute(
 						mock.Anything,
 						mock.Anything,
 					).
@@ -109,9 +120,9 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 				Data: protoBullet,
 			},
 			wantErr: nil,
-			setupMock: func(m *mocks.MockUsecase) {
+			setupMock: func(m *mocks.MockCreateBulletUsecase) {
 				m.EXPECT().
-					CreateBullet(
+					Execute(
 						mock.Anything,
 						mock.Anything,
 					).
@@ -122,10 +133,12 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			usecaseMock := mocks.NewMockUsecase(t)
-			tt.setupMock(usecaseMock)
+			createBulletUsecaseMock := mocks.NewMockCreateBulletUsecase(t)
+			tt.setupMock(createBulletUsecaseMock)
 
-			s := grpcapi.NewJournalService(usecaseMock, slog.Default())
+			s := grpcapi.NewJournalService(grpcapi.Usecases{
+				CreateBullet: createBulletUsecaseMock,
+			}, slog.Default())
 
 			got, gotErr := s.CreateBullet(t.Context(), tt.req)
 			if tt.wantErr != nil {

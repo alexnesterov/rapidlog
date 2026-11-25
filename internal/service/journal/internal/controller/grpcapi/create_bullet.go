@@ -24,13 +24,19 @@ func (s *JournalService) CreateBullet(
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
+	kind, err := entity.ParseKind(protoenum.ToCleanString(req.GetKind()))
+	if err != nil {
+		s.logger.Warn("invalid kind", "kind", req.GetKind(), "error", err)
+		return nil, status.Error(codes.InvalidArgument, "invalid kind")
+	}
+
 	input := usecase.CreateBulletInput{
 		UserID:  userID,
-		Kind:    entity.Kind(protoenum.ToCleanString(req.GetKind())),
+		Kind:    kind,
 		Content: req.GetContent(),
 	}
 
-	bullet, err := s.usecase.CreateBullet(ctx, input)
+	bullet, err := s.uc.CreateBullet.Execute(ctx, input)
 	if err != nil {
 		var validationErr *entity.ValidationError
 		if errors.As(err, &validationErr) {

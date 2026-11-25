@@ -2,6 +2,7 @@ package entity
 
 import (
 	"errors"
+	"fmt"
 	"time"
 	"unicode/utf8"
 
@@ -38,6 +39,14 @@ func (k Kind) Valid() bool {
 		return true
 	}
 	return false
+}
+
+func ParseKind(s string) (Kind, error) {
+	k := Kind(s)
+	if !k.Valid() {
+		return "", fmt.Errorf("invalid kind: %q", s)
+	}
+	return k, nil
 }
 
 type Signifier string

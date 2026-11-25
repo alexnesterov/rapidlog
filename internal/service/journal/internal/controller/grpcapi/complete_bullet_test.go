@@ -31,7 +31,7 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 		req       *journalv1.CompleteBulletRequest
 		want      *journalv1.CompleteBulletResponse
 		wantErr   error
-		setupMock func(*mocks.MockUsecase)
+		setupMock func(*mocks.MockLegacyUsecase)
 	}{
 		{
 			name: "parse user id error",
@@ -41,7 +41,7 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 			},
 			want:      nil,
 			wantErr:   status.Error(codes.InvalidArgument, "invalid user id"),
-			setupMock: func(_ *mocks.MockUsecase) {},
+			setupMock: func(_ *mocks.MockLegacyUsecase) {},
 		},
 		{
 			name: "parse bullet id error",
@@ -51,7 +51,7 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 			},
 			want:      nil,
 			wantErr:   status.Error(codes.InvalidArgument, "invalid bullet id"),
-			setupMock: func(_ *mocks.MockUsecase) {},
+			setupMock: func(_ *mocks.MockLegacyUsecase) {},
 		},
 		{
 			name: "usecase complete bullet error",
@@ -61,7 +61,7 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockUsecase) {
+			setupMock: func(m *mocks.MockLegacyUsecase) {
 				m.EXPECT().
 					CompleteBullet(
 						mock.Anything,
@@ -80,7 +80,7 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.InvalidArgument, assert.AnError.Error()),
-			setupMock: func(m *mocks.MockUsecase) {
+			setupMock: func(m *mocks.MockLegacyUsecase) {
 				m.EXPECT().
 					CompleteBullet(
 						mock.Anything,
@@ -99,7 +99,7 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockUsecase) {
+			setupMock: func(m *mocks.MockLegacyUsecase) {
 				m.EXPECT().
 					CompleteBullet(
 						mock.Anything,
@@ -120,7 +120,7 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 				Data: protoBullet,
 			},
 			wantErr: nil,
-			setupMock: func(m *mocks.MockUsecase) {
+			setupMock: func(m *mocks.MockLegacyUsecase) {
 				m.EXPECT().
 					CompleteBullet(
 						mock.Anything,
@@ -134,10 +134,12 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			usecaseMock := mocks.NewMockUsecase(t)
-			tt.setupMock(usecaseMock)
+			legacyUsecaseMock := mocks.NewMockLegacyUsecase(t)
+			tt.setupMock(legacyUsecaseMock)
 
-			s := grpcapi.NewJournalService(usecaseMock, slog.Default())
+			s := grpcapi.NewJournalService(grpcapi.Usecases{
+				Legacy: legacyUsecaseMock,
+			}, slog.Default())
 
 			got, gotErr := s.CompleteBullet(t.Context(), tt.req)
 			if tt.wantErr != nil {
