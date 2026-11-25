@@ -8,6 +8,7 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -31,7 +32,7 @@ func TestJournalServer_MigrateBullet(t *testing.T) {
 		req       *journalv1.MigrateBulletRequest
 		want      *journalv1.MigrateBulletResponse
 		wantErr   error
-		setupMock func(*mocks.MockLegacyUsecase)
+		setupMock func(*mocks.MockMigrateBulletUsecase)
 	}{
 		{
 			name: "parse user id error",
@@ -41,7 +42,7 @@ func TestJournalServer_MigrateBullet(t *testing.T) {
 			},
 			want:      nil,
 			wantErr:   status.Error(codes.InvalidArgument, "invalid user id"),
-			setupMock: func(_ *mocks.MockLegacyUsecase) {},
+			setupMock: func(_ *mocks.MockMigrateBulletUsecase) {},
 		},
 		{
 			name: "parse bullet id error",
@@ -51,7 +52,7 @@ func TestJournalServer_MigrateBullet(t *testing.T) {
 			},
 			want:      nil,
 			wantErr:   status.Error(codes.InvalidArgument, "invalid bullet id"),
-			setupMock: func(_ *mocks.MockLegacyUsecase) {},
+			setupMock: func(_ *mocks.MockMigrateBulletUsecase) {},
 		},
 		{
 			name: "usecase migrate bullet error",
@@ -61,12 +62,14 @@ func TestJournalServer_MigrateBullet(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockMigrateBulletUsecase) {
 				m.EXPECT().
-					MigrateBullet(
+					Execute(
 						mock.Anything,
-						bulletID,
-						migrated.UserID,
+						usecase.MigrateBulletInput{
+							ID:     bulletID,
+							UserID: migrated.UserID,
+						},
 					).
 					Return(nil, assert.AnError).
 					Once()
@@ -80,12 +83,14 @@ func TestJournalServer_MigrateBullet(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.InvalidArgument, assert.AnError.Error()),
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockMigrateBulletUsecase) {
 				m.EXPECT().
-					MigrateBullet(
+					Execute(
 						mock.Anything,
-						bulletID,
-						migrated.UserID,
+						usecase.MigrateBulletInput{
+							ID:     bulletID,
+							UserID: migrated.UserID,
+						},
 					).
 					Return(nil, &entity.ValidationError{Err: assert.AnError}).
 					Once()
@@ -99,12 +104,14 @@ func TestJournalServer_MigrateBullet(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockMigrateBulletUsecase) {
 				m.EXPECT().
-					MigrateBullet(
+					Execute(
 						mock.Anything,
-						bulletID,
-						migrated.UserID,
+						usecase.MigrateBulletInput{
+							ID:     bulletID,
+							UserID: migrated.UserID,
+						},
 					).
 					Return(&entity.Bullet{}, nil).
 					Once()
@@ -120,12 +127,14 @@ func TestJournalServer_MigrateBullet(t *testing.T) {
 				Data: protoBullet,
 			},
 			wantErr: nil,
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockMigrateBulletUsecase) {
 				m.EXPECT().
-					MigrateBullet(
+					Execute(
 						mock.Anything,
-						bulletID,
-						migrated.UserID,
+						usecase.MigrateBulletInput{
+							ID:     bulletID,
+							UserID: migrated.UserID,
+						},
 					).
 					Return(migrated, nil).
 					Once()
@@ -134,11 +143,11 @@ func TestJournalServer_MigrateBullet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			legacyUsecaseMock := mocks.NewMockLegacyUsecase(t)
-			tt.setupMock(legacyUsecaseMock)
+			migrateBulletUsecaseMock := mocks.NewMockMigrateBulletUsecase(t)
+			tt.setupMock(migrateBulletUsecaseMock)
 
 			s := grpcapi.NewJournalService(grpcapi.Usecases{
-				Legacy: legacyUsecaseMock,
+				MigrateBullet: migrateBulletUsecaseMock,
 			}, slog.Default())
 
 			got, gotErr := s.MigrateBullet(t.Context(), tt.req)

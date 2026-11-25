@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	mocksTransactor "github.com/alexnesterov/rapidlog-api/internal/pkg/transactor/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase/mocks"
@@ -16,9 +15,8 @@ import (
 
 type MigrateBulletUseCaseSuite struct {
 	suite.Suite
-	mockBulletRepo *mocks.MockBulletRepository
-	mockTxMgr      *mocksTransactor.MockTransactor
-	uc             *usecase.Usecase
+	bulletRepoMock *mocks.MockBulletRepository
+	uc             *usecase.MigrateBullet
 }
 
 func TestMigrateBulletUseCaseSuite(t *testing.T) {
@@ -26,21 +24,23 @@ func TestMigrateBulletUseCaseSuite(t *testing.T) {
 }
 
 func (s *MigrateBulletUseCaseSuite) SetupTest() {
-	s.mockBulletRepo = mocks.NewMockBulletRepository(s.T())
-	s.mockTxMgr = mocksTransactor.NewMockTransactor(s.T())
-	s.uc = usecase.New(s.mockBulletRepo, s.mockTxMgr)
+	s.bulletRepoMock = mocks.NewMockBulletRepository(s.T())
+	s.uc = usecase.NewMigrateBullet(s.bulletRepoMock)
 }
 
 func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotFound() {
 	id := uuid.New()
 	userID := uuid.New()
 
-	s.mockBulletRepo.EXPECT().
+	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, id, userID).
 		Return(nil, entity.ErrNotFound).
 		Once()
 
-	got, gotErr := s.uc.MigrateBullet(s.T().Context(), id, userID)
+	got, gotErr := s.uc.Execute(s.T().Context(), usecase.MigrateBulletInput{
+		ID:     id,
+		UserID: userID,
+	})
 	s.Nil(got)
 	s.ErrorIs(gotErr, entity.ErrNotFound)
 }
@@ -59,17 +59,20 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_SaveError() {
 		UpdatedAt: dayAgo,
 	}
 
-	s.mockBulletRepo.EXPECT().
+	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, id, userID).
 		Return(bullet, nil).
 		Once()
 
-	s.mockBulletRepo.EXPECT().
+	s.bulletRepoMock.EXPECT().
 		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(wantErr).
 		Once()
 
-	got, gotErr := s.uc.MigrateBullet(s.T().Context(), id, userID)
+	got, gotErr := s.uc.Execute(s.T().Context(), usecase.MigrateBulletInput{
+		ID:     id,
+		UserID: userID,
+	})
 	s.Nil(got)
 	s.ErrorIs(gotErr, wantErr)
 }
@@ -84,12 +87,15 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotOpenTask() {
 		Signifier: entity.SignifierCompleted,
 	}
 
-	s.mockBulletRepo.EXPECT().
+	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, id, userID).
 		Return(bullet, nil).
 		Once()
 
-	got, gotErr := s.uc.MigrateBullet(s.T().Context(), id, userID)
+	got, gotErr := s.uc.Execute(s.T().Context(), usecase.MigrateBulletInput{
+		ID:     id,
+		UserID: userID,
+	})
 	s.Nil(got)
 	s.ErrorIs(gotErr, entity.ErrBulletNotOpenTask)
 }
@@ -108,17 +114,20 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
 		UpdatedAt: dayAgo,
 	}
 
-	s.mockBulletRepo.EXPECT().
+	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, id, userID).
 		Return(bullet, nil).
 		Once()
 
-	s.mockBulletRepo.EXPECT().
+	s.bulletRepoMock.EXPECT().
 		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(nil).
 		Once()
 
-	got, gotErr := s.uc.MigrateBullet(s.T().Context(), id, userID)
+	got, gotErr := s.uc.Execute(s.T().Context(), usecase.MigrateBulletInput{
+		ID:     id,
+		UserID: userID,
+	})
 
 	s.NoError(gotErr)
 	s.Same(bullet, got)

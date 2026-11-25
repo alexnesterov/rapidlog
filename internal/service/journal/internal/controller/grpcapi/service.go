@@ -7,7 +7,6 @@ import (
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
-	"github.com/google/uuid"
 	"google.golang.org/grpc"
 )
 
@@ -27,8 +26,8 @@ type ListBulletsUsecase interface {
 	Execute(ctx context.Context, in usecase.ListBulletsInput) ([]*entity.Bullet, error)
 }
 
-type LegacyUsecase interface {
-	MigrateBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error)
+type MigrateBulletUsecase interface {
+	Execute(ctx context.Context, in usecase.MigrateBulletInput) (*entity.Bullet, error)
 }
 
 type Usecases struct {
@@ -36,7 +35,7 @@ type Usecases struct {
 	CancelBullet   CancelBulletUsecase
 	CompleteBullet CompleteBulletUsecase
 	ListBullets    ListBulletsUsecase
-	Legacy         LegacyUsecase
+	MigrateBullet  MigrateBulletUsecase
 }
 
 type JournalService struct {

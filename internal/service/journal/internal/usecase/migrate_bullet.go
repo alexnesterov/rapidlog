@@ -7,8 +7,21 @@ import (
 	"github.com/google/uuid"
 )
 
-func (uc *Usecase) MigrateBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
-	bullet, err := uc.repo.Get(ctx, id, userID)
+type MigrateBullet struct {
+	repo BulletRepository
+}
+
+func NewMigrateBullet(repo BulletRepository) *MigrateBullet {
+	return &MigrateBullet{repo: repo}
+}
+
+type MigrateBulletInput struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (uc *MigrateBullet) Execute(ctx context.Context, in MigrateBulletInput) (*entity.Bullet, error) {
+	bullet, err := uc.repo.Get(ctx, in.ID, in.UserID)
 	if err != nil {
 		return nil, err
 	}
