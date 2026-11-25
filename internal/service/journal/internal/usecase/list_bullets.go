@@ -7,8 +7,20 @@ import (
 	"github.com/google/uuid"
 )
 
-func (uc *Usecase) ListBullets(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error) {
-	bullets, err := uc.repo.List(ctx, userID)
+type ListBullets struct {
+	repo BulletRepository
+}
+
+func NewListBullets(repo BulletRepository) *ListBullets {
+	return &ListBullets{repo: repo}
+}
+
+type ListBulletsInput struct {
+	UserID uuid.UUID
+}
+
+func (uc *ListBullets) Execute(ctx context.Context, in ListBulletsInput) ([]*entity.Bullet, error) {
+	bullets, err := uc.repo.List(ctx, in.UserID)
 	if err != nil {
 		return nil, err
 	}

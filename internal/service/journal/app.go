@@ -48,6 +48,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		CreateBullet:   usecase.NewCreateBullet(repository),
 		CancelBullet:   usecase.NewCancelBullet(repository),
 		CompleteBullet: usecase.NewCompleteBullet(repository),
+		ListBullets:    usecase.NewListBullets(repository),
 		Legacy:         uc,
 	}, logger)
 

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	mocksTransactor "github.com/alexnesterov/rapidlog-api/internal/pkg/transactor/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase/mocks"
@@ -15,9 +14,8 @@ import (
 
 type ListBulletsUseCaseSuite struct {
 	suite.Suite
-	mockBulletRepo *mocks.MockBulletRepository
-	mockTxMgr      *mocksTransactor.MockTransactor
-	uc             *usecase.Usecase
+	bulletRepoMock *mocks.MockBulletRepository
+	uc             *usecase.ListBullets
 }
 
 func TestListBulletsUseCaseSuite(t *testing.T) {
@@ -25,33 +23,32 @@ func TestListBulletsUseCaseSuite(t *testing.T) {
 }
 
 func (s *ListBulletsUseCaseSuite) SetupTest() {
-	s.mockBulletRepo = mocks.NewMockBulletRepository(s.T())
-	s.mockTxMgr = mocksTransactor.NewMockTransactor(s.T())
-	s.uc = usecase.New(s.mockBulletRepo, s.mockTxMgr)
+	s.bulletRepoMock = mocks.NewMockBulletRepository(s.T())
+	s.uc = usecase.NewListBullets(s.bulletRepoMock)
 }
 
 func (s *ListBulletsUseCaseSuite) TestListBullets_ListError() {
 	wantErr := errors.New("list error")
 
-	s.mockBulletRepo.EXPECT().
+	s.bulletRepoMock.EXPECT().
 		List(mock.Anything, mock.AnythingOfType("uuid.UUID")).
 		Return(nil, wantErr).
 		Once()
 
-	got, gotErr := s.uc.ListBullets(s.T().Context(), uuid.New())
+	got, gotErr := s.uc.Execute(s.T().Context(), usecase.ListBulletsInput{UserID: uuid.New()})
 	s.Nil(got)
 	s.ErrorIs(gotErr, wantErr)
 }
 
 func (s *ListBulletsUseCaseSuite) TestListBullets_Empty() {
-	s.mockBulletRepo.EXPECT().
+	s.bulletRepoMock.EXPECT().
 		List(mock.Anything, mock.AnythingOfType("uuid.UUID")).
 		Return(nil, nil).
 		Once()
 
 	userID := uuid.New()
 
-	got, gotErr := s.uc.ListBullets(s.T().Context(), userID)
+	got, gotErr := s.uc.Execute(s.T().Context(), usecase.ListBulletsInput{UserID: userID})
 	s.NoError(gotErr)
 	s.Len(got, 0)
 }
@@ -60,12 +57,12 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_Success() {
 	userID := uuid.New()
 	want := []*entity.Bullet{{Content: "Заголовок", UserID: userID}}
 
-	s.mockBulletRepo.EXPECT().
-		List(mock.Anything, mock.AnythingOfType("uuid.UUID")).
+	s.bulletRepoMock.EXPECT().
+		List(mock.Anything, userID).
 		Return(want, nil).
 		Once()
 
-	got, gotErr := s.uc.ListBullets(s.T().Context(), userID)
+	got, gotErr := s.uc.Execute(s.T().Context(), usecase.ListBulletsInput{UserID: userID})
 	s.NoError(gotErr)
 	s.Equal(want, got)
 }
