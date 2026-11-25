@@ -8,6 +8,7 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -31,7 +32,7 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 		req       *journalv1.CancelBulletRequest
 		want      *journalv1.CancelBulletResponse
 		wantErr   error
-		setupMock func(*mocks.MockLegacyUsecase)
+		setupMock func(*mocks.MockCancelBulletUsecase)
 	}{
 		{
 			name: "parse user id error",
@@ -41,7 +42,7 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 			},
 			want:      nil,
 			wantErr:   status.Error(codes.InvalidArgument, "invalid user id"),
-			setupMock: func(_ *mocks.MockLegacyUsecase) {},
+			setupMock: func(_ *mocks.MockCancelBulletUsecase) {},
 		},
 		{
 			name: "parse bullet id error",
@@ -51,22 +52,24 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 			},
 			want:      nil,
 			wantErr:   status.Error(codes.InvalidArgument, "invalid bullet id"),
-			setupMock: func(_ *mocks.MockLegacyUsecase) {},
+			setupMock: func(_ *mocks.MockCancelBulletUsecase) {},
 		},
 		{
-			name: "usecase complete bullet error",
+			name: "usecase cancel bullet error",
 			req: &journalv1.CancelBulletRequest{
 				Id:     bullet.ID.String(),
 				UserId: bullet.UserID.String(),
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockCancelBulletUsecase) {
 				m.EXPECT().
-					CancelBullet(
+					Execute(
 						mock.Anything,
-						bullet.ID,
-						bullet.UserID,
+						usecase.CancelBulletInput{
+							ID:     bullet.ID,
+							UserID: bullet.UserID,
+						},
 					).
 					Return(nil, assert.AnError).
 					Once()
@@ -80,12 +83,14 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.InvalidArgument, assert.AnError.Error()),
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockCancelBulletUsecase) {
 				m.EXPECT().
-					CancelBullet(
+					Execute(
 						mock.Anything,
-						bullet.ID,
-						bullet.UserID,
+						usecase.CancelBulletInput{
+							ID:     bullet.ID,
+							UserID: bullet.UserID,
+						},
 					).
 					Return(nil, &entity.ValidationError{Err: assert.AnError}).
 					Once()
@@ -99,12 +104,14 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockCancelBulletUsecase) {
 				m.EXPECT().
-					CancelBullet(
+					Execute(
 						mock.Anything,
-						bullet.ID,
-						bullet.UserID,
+						usecase.CancelBulletInput{
+							ID:     bullet.ID,
+							UserID: bullet.UserID,
+						},
 					).
 					Return(&entity.Bullet{}, nil).
 					Once()
@@ -120,12 +127,14 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 				Data: protoBullet,
 			},
 			wantErr: nil,
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockCancelBulletUsecase) {
 				m.EXPECT().
-					CancelBullet(
+					Execute(
 						mock.Anything,
-						bullet.ID,
-						bullet.UserID,
+						usecase.CancelBulletInput{
+							ID:     bullet.ID,
+							UserID: bullet.UserID,
+						},
 					).
 					Return(bullet, nil).
 					Once()
@@ -134,11 +143,11 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			legacyUsecaseMock := mocks.NewMockLegacyUsecase(t)
-			tt.setupMock(legacyUsecaseMock)
+			cancelBulletUsecaseMock := mocks.NewMockCancelBulletUsecase(t)
+			tt.setupMock(cancelBulletUsecaseMock)
 
 			s := grpcapi.NewJournalService(grpcapi.Usecases{
-				Legacy: legacyUsecaseMock,
+				CancelBullet: cancelBulletUsecaseMock,
 			}, slog.Default())
 
 			got, gotErr := s.CancelBullet(t.Context(), tt.req)

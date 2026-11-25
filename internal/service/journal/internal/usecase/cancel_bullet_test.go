@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	mocksTransactor "github.com/alexnesterov/rapidlog-api/internal/pkg/transactor/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase/mocks"
@@ -15,9 +14,8 @@ import (
 
 type CancelBulletUseCaseSuite struct {
 	suite.Suite
-	mockBulletRepo *mocks.MockBulletRepository
-	mockTxMgr      *mocksTransactor.MockTransactor
-	uc             *usecase.Usecase
+	bulletRepoMock *mocks.MockBulletRepository
+	uc             *usecase.CancelBullet
 }
 
 func TestCancelBulletUseCaseSuite(t *testing.T) {
@@ -25,44 +23,52 @@ func TestCancelBulletUseCaseSuite(t *testing.T) {
 }
 
 func (s *CancelBulletUseCaseSuite) SetupTest() {
-	s.mockBulletRepo = mocks.NewMockBulletRepository(s.T())
-	s.mockTxMgr = mocksTransactor.NewMockTransactor(s.T())
-	s.uc = usecase.New(s.mockBulletRepo, s.mockTxMgr)
+	s.bulletRepoMock = mocks.NewMockBulletRepository(s.T())
+	s.uc = usecase.NewCancelBullet(s.bulletRepoMock)
 }
 
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_NotFound() {
-	s.mockBulletRepo.EXPECT().
+	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
 		Return(nil, entity.ErrNotFound).
 		Once()
 
-	got, gotErr := s.uc.CancelBullet(s.T().Context(), uuid.New(), uuid.New())
+	got, gotErr := s.uc.Execute(s.T().Context(), usecase.CancelBulletInput{
+		ID:     uuid.New(),
+		UserID: uuid.New(),
+	})
 	s.Nil(got)
 	s.ErrorIs(gotErr, entity.ErrNotFound)
 }
 
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_AlreadyCanceled() {
-	s.mockBulletRepo.EXPECT().
+	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
 		Return(&entity.Bullet{
 			Signifier: entity.SignifierCancelled,
 		}, nil).
 		Once()
 
-	got, gotErr := s.uc.CancelBullet(s.T().Context(), uuid.New(), uuid.New())
+	got, gotErr := s.uc.Execute(s.T().Context(), usecase.CancelBulletInput{
+		ID:     uuid.New(),
+		UserID: uuid.New(),
+	})
 	s.NoError(gotErr)
 	s.Equal(entity.SignifierCancelled, got.Signifier)
 }
 
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_NotOpen() {
-	s.mockBulletRepo.EXPECT().
+	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
 		Return(&entity.Bullet{
 			Signifier: entity.SignifierCompleted,
 		}, nil).
 		Once()
 
-	got, gotErr := s.uc.CancelBullet(s.T().Context(), uuid.New(), uuid.New())
+	got, gotErr := s.uc.Execute(s.T().Context(), usecase.CancelBulletInput{
+		ID:     uuid.New(),
+		UserID: uuid.New(),
+	})
 	s.Nil(got)
 	s.ErrorIs(gotErr, entity.ErrBulletNotOpen)
 }
@@ -70,37 +76,45 @@ func (s *CancelBulletUseCaseSuite) TestCancelBullet_NotOpen() {
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_SaveError() {
 	wantErr := fmt.Errorf("update failed")
 
-	s.mockBulletRepo.EXPECT().
+	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
 		Return(&entity.Bullet{
 			Signifier: entity.SignifierOpen,
 		}, nil).
 		Once()
 
-	s.mockBulletRepo.EXPECT().
+	s.bulletRepoMock.EXPECT().
 		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(wantErr).
 		Once()
 
-	got, gotErr := s.uc.CancelBullet(s.T().Context(), uuid.New(), uuid.New())
+	got, gotErr := s.uc.Execute(s.T().Context(), usecase.CancelBulletInput{
+		ID:     uuid.New(),
+		UserID: uuid.New(),
+	})
 	s.Nil(got)
 	s.ErrorIs(gotErr, wantErr)
 }
 
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_Success() {
-	s.mockBulletRepo.EXPECT().
-		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
+	input := usecase.CancelBulletInput{
+		ID:     uuid.New(),
+		UserID: uuid.New(),
+	}
+
+	s.bulletRepoMock.EXPECT().
+		Get(mock.Anything, input.ID, input.UserID).
 		Return(&entity.Bullet{
 			Signifier: entity.SignifierOpen,
 		}, nil).
 		Once()
 
-	s.mockBulletRepo.EXPECT().
+	s.bulletRepoMock.EXPECT().
 		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
 		Return(nil).
 		Once()
 
-	got, gotErr := s.uc.CancelBullet(s.T().Context(), uuid.New(), uuid.New())
+	got, gotErr := s.uc.Execute(s.T().Context(), input)
 	s.NoError(gotErr)
 	s.Equal(entity.SignifierCancelled, got.Signifier)
 }
