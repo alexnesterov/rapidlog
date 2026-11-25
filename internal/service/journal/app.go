@@ -44,7 +44,10 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	uc := usecase.New(repository, txMgr)
 
 	grpcServer := grpc.NewServer()
-	grpcapi.RegisterJournalService(grpcServer, uc, logger)
+	grpcapi.RegisterJournalService(grpcServer, grpcapi.Usecases{
+		CreateBullet: usecase.NewCreateBullet(repository),
+		Legacy:       uc,
+	}, logger)
 
 	ln, err := net.Listen("tcp", ":"+cfg.Port)
 	if err != nil {

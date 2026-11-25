@@ -27,7 +27,7 @@ func (s *JournalService) MigrateBullet(
 		return nil, status.Error(codes.InvalidArgument, "invalid bullet id")
 	}
 
-	bullet, err := s.usecase.MigrateBullet(ctx, bulletID, userID)
+	bullet, err := s.uc.Legacy.MigrateBullet(ctx, bulletID, userID)
 	if err != nil {
 		var validationErr *entity.ValidationError
 		if errors.As(err, &validationErr) {

@@ -11,28 +11,36 @@ import (
 	"google.golang.org/grpc"
 )
 
-type Usecase interface {
-	CreateBullet(ctx context.Context, input usecase.CreateBulletInput) (*entity.Bullet, error)
+type CreateBulletUsecase interface {
+	Execute(ctx context.Context, in usecase.CreateBulletInput) (*entity.Bullet, error)
+}
+
+type LegacyUsecase interface {
 	ListBullets(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error)
 	CompleteBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error)
 	MigrateBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error)
 	CancelBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error)
 }
 
-type JournalService struct {
-	journalv1.UnimplementedJournalServiceServer
-	usecase Usecase
-	logger  *slog.Logger
+type Usecases struct {
+	CreateBullet CreateBulletUsecase
+	Legacy       LegacyUsecase
 }
 
-func NewJournalService(usecase Usecase, logger *slog.Logger) *JournalService {
+type JournalService struct {
+	journalv1.UnimplementedJournalServiceServer
+	uc     Usecases
+	logger *slog.Logger
+}
+
+func NewJournalService(uc Usecases, logger *slog.Logger) *JournalService {
 	return &JournalService{
-		usecase: usecase,
-		logger:  logger,
+		uc:     uc,
+		logger: logger,
 	}
 }
 
-func RegisterJournalService(srv *grpc.Server, uc Usecase, logger *slog.Logger) {
+func RegisterJournalService(srv *grpc.Server, uc Usecases, logger *slog.Logger) {
 	journalService := NewJournalService(uc, logger)
 	journalv1.RegisterJournalServiceServer(srv, journalService)
 }

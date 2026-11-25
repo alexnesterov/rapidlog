@@ -7,14 +7,22 @@ import (
 	"github.com/google/uuid"
 )
 
+type CreateBullet struct {
+	repo BulletRepository
+}
+
+func NewCreateBullet(repo BulletRepository) *CreateBullet {
+	return &CreateBullet{repo: repo}
+}
+
 type CreateBulletInput struct {
 	UserID  uuid.UUID
 	Kind    entity.Kind
 	Content string
 }
 
-func (uc *Usecase) CreateBullet(ctx context.Context, input CreateBulletInput) (*entity.Bullet, error) {
-	bullet, err := entity.NewBullet(input.UserID, input.Kind, input.Content)
+func (uc *CreateBullet) Execute(ctx context.Context, in CreateBulletInput) (*entity.Bullet, error) {
+	bullet, err := entity.NewBullet(in.UserID, in.Kind, in.Content)
 	if err != nil {
 		return nil, err
 	}

@@ -42,7 +42,7 @@ func TestJournalServer_ListBullets(t *testing.T) {
 		req       *journalv1.ListBulletsRequest
 		want      []*journalv1.Bullet
 		wantErr   error
-		setupMock func(m *mocks.MockUsecase)
+		setupMock func(m *mocks.MockLegacyUsecase)
 	}{
 		{
 			name: "parse user id error",
@@ -51,7 +51,7 @@ func TestJournalServer_ListBullets(t *testing.T) {
 			},
 			want:      nil,
 			wantErr:   status.Error(codes.InvalidArgument, "invalid user id"),
-			setupMock: func(m *mocks.MockUsecase) {},
+			setupMock: func(m *mocks.MockLegacyUsecase) {},
 		},
 		{
 			name: "usecase list bullets error",
@@ -60,7 +60,7 @@ func TestJournalServer_ListBullets(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockUsecase) {
+			setupMock: func(m *mocks.MockLegacyUsecase) {
 				m.EXPECT().
 					ListBullets(
 						mock.Anything,
@@ -77,7 +77,7 @@ func TestJournalServer_ListBullets(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockUsecase) {
+			setupMock: func(m *mocks.MockLegacyUsecase) {
 				m.EXPECT().
 					ListBullets(
 						mock.Anything,
@@ -94,7 +94,7 @@ func TestJournalServer_ListBullets(t *testing.T) {
 			},
 			want:    []*journalv1.Bullet{protoTask},
 			wantErr: nil,
-			setupMock: func(m *mocks.MockUsecase) {
+			setupMock: func(m *mocks.MockLegacyUsecase) {
 				m.EXPECT().
 					ListBullets(
 						mock.Anything,
@@ -115,7 +115,7 @@ func TestJournalServer_ListBullets(t *testing.T) {
 				protoNote,
 			},
 			wantErr: nil,
-			setupMock: func(m *mocks.MockUsecase) {
+			setupMock: func(m *mocks.MockLegacyUsecase) {
 				m.EXPECT().
 					ListBullets(
 						mock.Anything,
@@ -128,10 +128,12 @@ func TestJournalServer_ListBullets(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			usecaseMock := mocks.NewMockUsecase(t)
-			tt.setupMock(usecaseMock)
+			legacyUsecaseMock := mocks.NewMockLegacyUsecase(t)
+			tt.setupMock(legacyUsecaseMock)
 
-			s := grpcapi.NewJournalService(usecaseMock, slog.Default())
+			s := grpcapi.NewJournalService(grpcapi.Usecases{
+				Legacy: legacyUsecaseMock,
+			}, slog.Default())
 
 			got, gotErr := s.ListBullets(t.Context(), tt.req)
 			if tt.wantErr != nil {
