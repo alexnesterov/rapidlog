@@ -23,8 +23,11 @@ type CompleteBulletUsecase interface {
 	Execute(ctx context.Context, in usecase.CompleteBulletInput) (*entity.Bullet, error)
 }
 
+type ListBulletsUsecase interface {
+	Execute(ctx context.Context, in usecase.ListBulletsInput) ([]*entity.Bullet, error)
+}
+
 type LegacyUsecase interface {
-	ListBullets(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error)
 	MigrateBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error)
 }
 
@@ -32,6 +35,7 @@ type Usecases struct {
 	CreateBullet   CreateBulletUsecase
 	CancelBullet   CancelBulletUsecase
 	CompleteBullet CompleteBulletUsecase
+	ListBullets    ListBulletsUsecase
 	Legacy         LegacyUsecase
 }
 

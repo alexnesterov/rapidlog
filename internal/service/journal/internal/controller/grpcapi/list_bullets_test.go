@@ -8,6 +8,7 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -42,7 +43,7 @@ func TestJournalServer_ListBullets(t *testing.T) {
 		req       *journalv1.ListBulletsRequest
 		want      []*journalv1.Bullet
 		wantErr   error
-		setupMock func(m *mocks.MockLegacyUsecase)
+		setupMock func(m *mocks.MockListBulletsUsecase)
 	}{
 		{
 			name: "parse user id error",
@@ -51,7 +52,7 @@ func TestJournalServer_ListBullets(t *testing.T) {
 			},
 			want:      nil,
 			wantErr:   status.Error(codes.InvalidArgument, "invalid user id"),
-			setupMock: func(m *mocks.MockLegacyUsecase) {},
+			setupMock: func(m *mocks.MockListBulletsUsecase) {},
 		},
 		{
 			name: "usecase list bullets error",
@@ -60,11 +61,11 @@ func TestJournalServer_ListBullets(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockListBulletsUsecase) {
 				m.EXPECT().
-					ListBullets(
+					Execute(
 						mock.Anything,
-						userID,
+						usecase.ListBulletsInput{UserID: userID},
 					).
 					Return(nil, assert.AnError).
 					Once()
@@ -77,11 +78,11 @@ func TestJournalServer_ListBullets(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockListBulletsUsecase) {
 				m.EXPECT().
-					ListBullets(
+					Execute(
 						mock.Anything,
-						userID,
+						usecase.ListBulletsInput{UserID: userID},
 					).
 					Return([]*entity.Bullet{{}}, nil).
 					Once()
@@ -94,11 +95,11 @@ func TestJournalServer_ListBullets(t *testing.T) {
 			},
 			want:    []*journalv1.Bullet{protoTask},
 			wantErr: nil,
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockListBulletsUsecase) {
 				m.EXPECT().
-					ListBullets(
+					Execute(
 						mock.Anything,
-						userID,
+						usecase.ListBulletsInput{UserID: userID},
 					).
 					Return([]*entity.Bullet{task}, nil).
 					Once()
@@ -115,11 +116,11 @@ func TestJournalServer_ListBullets(t *testing.T) {
 				protoNote,
 			},
 			wantErr: nil,
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockListBulletsUsecase) {
 				m.EXPECT().
-					ListBullets(
+					Execute(
 						mock.Anything,
-						userID,
+						usecase.ListBulletsInput{UserID: userID},
 					).
 					Return([]*entity.Bullet{task, event, note}, nil).
 					Once()
@@ -128,11 +129,11 @@ func TestJournalServer_ListBullets(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			legacyUsecaseMock := mocks.NewMockLegacyUsecase(t)
-			tt.setupMock(legacyUsecaseMock)
+			listBulletsUsecaseMock := mocks.NewMockListBulletsUsecase(t)
+			tt.setupMock(listBulletsUsecaseMock)
 
 			s := grpcapi.NewJournalService(grpcapi.Usecases{
-				Legacy: legacyUsecaseMock,
+				ListBullets: listBulletsUsecaseMock,
 			}, slog.Default())
 
 			got, gotErr := s.ListBullets(t.Context(), tt.req)
