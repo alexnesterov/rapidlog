@@ -8,6 +8,7 @@ import (
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -31,7 +32,7 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 		req       *journalv1.CompleteBulletRequest
 		want      *journalv1.CompleteBulletResponse
 		wantErr   error
-		setupMock func(*mocks.MockLegacyUsecase)
+		setupMock func(*mocks.MockCompleteBulletUsecase)
 	}{
 		{
 			name: "parse user id error",
@@ -41,7 +42,7 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 			},
 			want:      nil,
 			wantErr:   status.Error(codes.InvalidArgument, "invalid user id"),
-			setupMock: func(_ *mocks.MockLegacyUsecase) {},
+			setupMock: func(_ *mocks.MockCompleteBulletUsecase) {},
 		},
 		{
 			name: "parse bullet id error",
@@ -51,7 +52,7 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 			},
 			want:      nil,
 			wantErr:   status.Error(codes.InvalidArgument, "invalid bullet id"),
-			setupMock: func(_ *mocks.MockLegacyUsecase) {},
+			setupMock: func(_ *mocks.MockCompleteBulletUsecase) {},
 		},
 		{
 			name: "usecase complete bullet error",
@@ -61,12 +62,14 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockCompleteBulletUsecase) {
 				m.EXPECT().
-					CompleteBullet(
+					Execute(
 						mock.Anything,
-						bullet.ID,
-						bullet.UserID,
+						usecase.CompleteBulletInput{
+							ID:     bullet.ID,
+							UserID: bullet.UserID,
+						},
 					).
 					Return(nil, assert.AnError).
 					Once()
@@ -80,12 +83,14 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.InvalidArgument, assert.AnError.Error()),
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockCompleteBulletUsecase) {
 				m.EXPECT().
-					CompleteBullet(
+					Execute(
 						mock.Anything,
-						bullet.ID,
-						bullet.UserID,
+						usecase.CompleteBulletInput{
+							ID:     bullet.ID,
+							UserID: bullet.UserID,
+						},
 					).
 					Return(nil, &entity.ValidationError{Err: assert.AnError}).
 					Once()
@@ -99,12 +104,14 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: status.Error(codes.Internal, "internal error"),
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockCompleteBulletUsecase) {
 				m.EXPECT().
-					CompleteBullet(
+					Execute(
 						mock.Anything,
-						bullet.ID,
-						bullet.UserID,
+						usecase.CompleteBulletInput{
+							ID:     bullet.ID,
+							UserID: bullet.UserID,
+						},
 					).
 					Return(&entity.Bullet{}, nil).
 					Once()
@@ -120,12 +127,14 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 				Data: protoBullet,
 			},
 			wantErr: nil,
-			setupMock: func(m *mocks.MockLegacyUsecase) {
+			setupMock: func(m *mocks.MockCompleteBulletUsecase) {
 				m.EXPECT().
-					CompleteBullet(
+					Execute(
 						mock.Anything,
-						bullet.ID,
-						bullet.UserID,
+						usecase.CompleteBulletInput{
+							ID:     bullet.ID,
+							UserID: bullet.UserID,
+						},
 					).
 					Return(bullet, nil).
 					Once()
@@ -134,11 +143,11 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			legacyUsecaseMock := mocks.NewMockLegacyUsecase(t)
-			tt.setupMock(legacyUsecaseMock)
+			completeBulletUsecaseMock := mocks.NewMockCompleteBulletUsecase(t)
+			tt.setupMock(completeBulletUsecaseMock)
 
 			s := grpcapi.NewJournalService(grpcapi.Usecases{
-				Legacy: legacyUsecaseMock,
+				CompleteBullet: completeBulletUsecaseMock,
 			}, slog.Default())
 
 			got, gotErr := s.CompleteBullet(t.Context(), tt.req)
