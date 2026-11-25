@@ -10,7 +10,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/alexnesterov/rapidlog-api/internal/pkg/transactor"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/config"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/adapter/postgres"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
@@ -39,9 +38,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	txMgr := transactor.NewTxManager(pool)
 	repository := postgres.NewBulletRepository(pool)
-	uc := usecase.New(repository, txMgr)
 
 	grpcServer := grpc.NewServer()
 	grpcapi.RegisterJournalService(grpcServer, grpcapi.Usecases{
@@ -49,7 +46,7 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		CancelBullet:   usecase.NewCancelBullet(repository),
 		CompleteBullet: usecase.NewCompleteBullet(repository),
 		ListBullets:    usecase.NewListBullets(repository),
-		Legacy:         uc,
+		MigrateBullet:  usecase.NewMigrateBullet(repository),
 	}, logger)
 
 	ln, err := net.Listen("tcp", ":"+cfg.Port)
