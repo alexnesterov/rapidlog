@@ -8,8 +8,21 @@ import (
 	"github.com/google/uuid"
 )
 
-func (uc *Usecase) CompleteBullet(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
-	bullet, err := uc.repo.Get(ctx, id, userID)
+type CompleteBullet struct {
+	repo BulletRepository
+}
+
+func NewCompleteBullet(repo BulletRepository) *CompleteBullet {
+	return &CompleteBullet{repo: repo}
+}
+
+type CompleteBulletInput struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (uc *CompleteBullet) Execute(ctx context.Context, in CompleteBulletInput) (*entity.Bullet, error) {
+	bullet, err := uc.repo.Get(ctx, in.ID, in.UserID)
 	if err != nil {
 		return nil, err
 	}

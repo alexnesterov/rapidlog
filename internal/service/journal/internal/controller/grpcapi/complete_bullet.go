@@ -6,6 +6,7 @@ import (
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -27,7 +28,10 @@ func (s *JournalService) CompleteBullet(
 		return nil, status.Error(codes.InvalidArgument, "invalid bullet id")
 	}
 
-	bullet, err := s.uc.Legacy.CompleteBullet(ctx, bulletID, userID)
+	bullet, err := s.uc.CompleteBullet.Execute(ctx, usecase.CompleteBulletInput{
+		ID:     bulletID,
+		UserID: userID,
+	})
 	if err != nil {
 		var validationErr *entity.ValidationError
 		if errors.As(err, &validationErr) {
