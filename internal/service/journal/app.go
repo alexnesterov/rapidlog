@@ -11,9 +11,13 @@ import (
 	"time"
 
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/config"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/adapter/postgres"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/features/cancelbullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/features/completebullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/features/createbullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/features/listbullets"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/features/migratebullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/postgres"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/server"
 	"google.golang.org/grpc"
 )
 
@@ -38,16 +42,14 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	repository := postgres.NewBulletRepository(pool)
-
 	grpcServer := grpc.NewServer()
-	grpcapi.RegisterJournalService(grpcServer, grpcapi.Usecases{
-		CreateBullet:   usecase.NewCreateBullet(repository),
-		CancelBullet:   usecase.NewCancelBullet(repository),
-		CompleteBullet: usecase.NewCompleteBullet(repository),
-		ListBullets:    usecase.NewListBullets(repository),
-		MigrateBullet:  usecase.NewMigrateBullet(repository),
-	}, logger)
+	server.Register(grpcServer, server.Handlers{
+		CreateBullet:   createbullet.NewHandler(createbullet.New(createbullet.NewPostgresStore(pool)), logger),
+		ListBullets:    listbullets.NewHandler(listbullets.New(listbullets.NewPostgresStore(pool)), logger),
+		CompleteBullet: completebullet.NewHandler(completebullet.New(completebullet.NewPostgresStore(pool)), logger),
+		MigrateBullet:  migratebullet.NewHandler(migratebullet.New(migratebullet.NewPostgresStore(pool)), logger),
+		CancelBullet:   cancelbullet.NewHandler(cancelbullet.New(cancelbullet.NewPostgresStore(pool)), logger),
+	})
 
 	ln, err := net.Listen("tcp", ":"+cfg.Port)
 	if err != nil {

@@ -16,9 +16,7 @@ packages:
   github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi:
     config:
       all: true
-  github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase:
+  github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/features:
     config:
       all: true
-  github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi:
-    config:
-      all: true
+      recursive: true

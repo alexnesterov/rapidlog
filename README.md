@@ -120,7 +120,7 @@ npm run lint      # oxlint
 `task up`/`task down` (`docker compose up -d --build` / `down`).
 
 Моки генерируются [mockery](https://vektra.github.io/mockery/) v3 по `.mockery.yml`
-(`internal/pkg/...`, `usecase` и `controller/grpcapi` в `journal`, `httpapi` в `gateway`;
+(`internal/pkg/...`, слайсы `features/...` в `journal`, `httpapi` в `gateway`;
 моки лежат в соседнем `mocks/`): после изменения интерфейса перегенерировать
 командой `task mock` (ставит mockery нужной версии в `bin/` и запускает его). Устаревшие `mock_*.go` после переименования интерфейса
 mockery не удаляет — их нужно удалить вручную.
@@ -130,7 +130,7 @@ gRPC-контракт `api/proto/journal/v1/journal.proto` описан чере
 в `bin/` и запускает `buf generate`; сгенерированный код в `api/gen/`
 коммитится, в CI `buf` не запускается).
 
-Юнит-тестами покрыты usecase и gRPC-хендлеры `journal`, а в `gateway` — middleware
+Юнит-тестами покрыты логика и gRPC-хендлеры каждого слайса `journal`, а в `gateway` — middleware
 проверки сессии и клиент Kratos (на `httptest`). Postgres-репозитории, загрузка
 конфигурации, gRPC-клиенты и SPA-fallback проверяются вручную через `docker compose` +
 `curl`/`grpcurl`. REST-хендлеры `gateway` пока без тестов.
@@ -176,7 +176,8 @@ internal/service/gateway/internal            — HTTP-хендлеры, middlewa
 internal/service/journal                     — фасад journal: Run(ctx, logger)
 internal/service/journal/config              — конфигурация journal
 internal/service/journal/pkg/journalgrpc     — gRPC-клиент journal (используется gateway)
-internal/service/journal/internal            — gRPC-хендлеры, домен bullets, репозиторий
+internal/service/journal/internal/features   — вертикальные слайсы: по пакету на RPC (хендлер, логика, SQL)
+internal/service/journal/internal            — домен bullets, gRPC-сервер, маппер в proto, подключение к Postgres
 internal/service/journal/migrations          — SQL-миграции journal
 api/proto, api/gen                           — gRPC-контракт journal и сгенерированный код
 api/bruno                                    — Bruno-коллекция для ручных запросов
