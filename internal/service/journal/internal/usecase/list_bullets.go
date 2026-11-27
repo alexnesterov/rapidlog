@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/google/uuid"
 )
 
@@ -19,7 +19,7 @@ type ListBulletsInput struct {
 	UserID uuid.UUID
 }
 
-func (uc *ListBullets) Execute(ctx context.Context, in ListBulletsInput) ([]*entity.Bullet, error) {
+func (uc *ListBullets) Execute(ctx context.Context, in ListBulletsInput) ([]*domain.Bullet, error) {
 	bullets, err := uc.repo.List(ctx, in.UserID)
 	if err != nil {
 		return nil, err

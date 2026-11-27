@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase/mocks"
 	"github.com/google/uuid"
@@ -55,7 +55,7 @@ func (s *ListBulletsUseCaseSuite) TestListBullets_Empty() {
 
 func (s *ListBulletsUseCaseSuite) TestListBullets_Success() {
 	userID := uuid.New()
-	want := []*entity.Bullet{{Content: "Заголовок", UserID: userID}}
+	want := []*domain.Bullet{{Content: "Заголовок", UserID: userID}}
 
 	s.bulletRepoMock.EXPECT().
 		List(mock.Anything, userID).

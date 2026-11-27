@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/google/uuid"
 )
 
@@ -21,14 +21,14 @@ type CancelBulletInput struct {
 	UserID uuid.UUID
 }
 
-func (uc *CancelBullet) Execute(ctx context.Context, in CancelBulletInput) (*entity.Bullet, error) {
+func (uc *CancelBullet) Execute(ctx context.Context, in CancelBulletInput) (*domain.Bullet, error) {
 	bullet, err := uc.repo.Get(ctx, in.ID, in.UserID)
 	if err != nil {
 		return nil, err
 	}
 
 	err = bullet.Cancel()
-	if errors.Is(err, entity.ErrBulletAlreadyCancelled) {
+	if errors.Is(err, domain.ErrBulletAlreadyCancelled) {
 		return bullet, nil
 	}
 	if err != nil {

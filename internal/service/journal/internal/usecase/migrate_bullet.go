@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/google/uuid"
 )
 
@@ -20,7 +20,7 @@ type MigrateBulletInput struct {
 	UserID uuid.UUID
 }
 
-func (uc *MigrateBullet) Execute(ctx context.Context, in MigrateBulletInput) (*entity.Bullet, error) {
+func (uc *MigrateBullet) Execute(ctx context.Context, in MigrateBulletInput) (*domain.Bullet, error) {
 	bullet, err := uc.repo.Get(ctx, in.ID, in.UserID)
 	if err != nil {
 		return nil, err

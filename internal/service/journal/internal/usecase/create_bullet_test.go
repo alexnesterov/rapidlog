@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase/mocks"
 	"github.com/google/uuid"
@@ -20,7 +20,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 		name      string
 		input     usecase.CreateBulletInput
 		setupMock func(m *mocks.MockBulletRepository)
-		want      *entity.Bullet
+		want      *domain.Bullet
 		wantErr   error
 	}{
 		{
@@ -31,18 +31,18 @@ func TestCreateBulletUseCase(t *testing.T) {
 			},
 			setupMock: func(m *mocks.MockBulletRepository) {},
 			want:      nil,
-			wantErr:   entity.ErrBulletKindInvalid,
+			wantErr:   domain.ErrBulletKindInvalid,
 		},
 		{
 			name: "repo error",
 			input: usecase.CreateBulletInput{
-				Kind:    entity.KindTask,
+				Kind:    domain.KindTask,
 				Content: "Заголовок",
 				UserID:  uuid.New(),
 			},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().
-					Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+					Save(mock.Anything, mock.AnythingOfType("*domain.Bullet")).
 					Return(errRepo).
 					Once()
 			},
@@ -52,27 +52,27 @@ func TestCreateBulletUseCase(t *testing.T) {
 		{
 			name: "empty content",
 			input: usecase.CreateBulletInput{
-				Kind:    entity.KindTask,
+				Kind:    domain.KindTask,
 				Content: "",
 			},
 			setupMock: func(m *mocks.MockBulletRepository) {},
 			want:      nil,
-			wantErr:   entity.ErrBulletContentRequired,
+			wantErr:   domain.ErrBulletContentRequired,
 		},
 		{
 			name: "success",
 			input: usecase.CreateBulletInput{
 				Content: "Заголовок",
-				Kind:    entity.KindTask,
+				Kind:    domain.KindTask,
 				UserID:  uuid.New(),
 			},
 			setupMock: func(m *mocks.MockBulletRepository) {
 				m.EXPECT().
-					Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+					Save(mock.Anything, mock.AnythingOfType("*domain.Bullet")).
 					Return(nil).
 					Once()
 			},
-			want:    &entity.Bullet{Content: "Заголовок", Kind: entity.KindTask},
+			want:    &domain.Bullet{Content: "Заголовок", Kind: domain.KindTask},
 			wantErr: nil,
 		},
 	}
@@ -97,7 +97,7 @@ func TestCreateBulletUseCase(t *testing.T) {
 			assert.Equal(t, tc.want.Content, got.Content)
 			assert.NotEqual(t, uuid.Nil, got.ID)
 			assert.Equal(t, tc.want.Kind, got.Kind)
-			assert.Equal(t, entity.SignifierOpen, got.Signifier)
+			assert.Equal(t, domain.SignifierOpen, got.Signifier)
 			assert.False(t, got.CreatedAt.IsZero())
 			assert.False(t, got.UpdatedAt.IsZero())
 		})

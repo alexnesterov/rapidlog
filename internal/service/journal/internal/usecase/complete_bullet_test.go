@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase/mocks"
 	"github.com/google/uuid"
@@ -30,7 +30,7 @@ func (s *CompleteBulletUseCaseSuite) SetupTest() {
 func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_NotFound() {
 	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
-		Return(nil, entity.ErrNotFound).
+		Return(nil, domain.ErrNotFound).
 		Once()
 
 	got, gotErr := s.uc.Execute(s.T().Context(), usecase.CompleteBulletInput{
@@ -38,15 +38,15 @@ func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_NotFound() {
 		UserID: uuid.New(),
 	})
 	s.Nil(got)
-	s.ErrorIs(gotErr, entity.ErrNotFound)
+	s.ErrorIs(gotErr, domain.ErrNotFound)
 }
 
 func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_AlreadyCompleted() {
 	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
-		Return(&entity.Bullet{
-			Kind:      entity.KindTask,
-			Signifier: entity.SignifierCompleted,
+		Return(&domain.Bullet{
+			Kind:      domain.KindTask,
+			Signifier: domain.SignifierCompleted,
 		}, nil).
 		Once()
 
@@ -55,15 +55,15 @@ func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_AlreadyCompleted() {
 		UserID: uuid.New(),
 	})
 	s.NoError(gotErr)
-	s.Equal(entity.SignifierCompleted, got.Signifier)
+	s.Equal(domain.SignifierCompleted, got.Signifier)
 }
 
 func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_ValidationError() {
 	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
-		Return(&entity.Bullet{
-			Kind:      entity.KindNote,
-			Signifier: entity.SignifierCancelled,
+		Return(&domain.Bullet{
+			Kind:      domain.KindNote,
+			Signifier: domain.SignifierCancelled,
 		}, nil).
 		Once()
 
@@ -72,7 +72,7 @@ func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_ValidationError() {
 		UserID: uuid.New(),
 	})
 	s.Nil(got)
-	var validationErr *entity.ValidationError
+	var validationErr *domain.ValidationError
 	s.ErrorAs(gotErr, &validationErr)
 }
 
@@ -81,14 +81,14 @@ func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_SaveError() {
 
 	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
-		Return(&entity.Bullet{
-			Kind:      entity.KindTask,
-			Signifier: entity.SignifierOpen,
+		Return(&domain.Bullet{
+			Kind:      domain.KindTask,
+			Signifier: domain.SignifierOpen,
 		}, nil).
 		Once()
 
 	s.bulletRepoMock.EXPECT().
-		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Save(mock.Anything, mock.AnythingOfType("*domain.Bullet")).
 		Return(wantErr).
 		Once()
 
@@ -108,18 +108,18 @@ func (s *CompleteBulletUseCaseSuite) TestCompleteBullet_Success() {
 
 	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, input.ID, input.UserID).
-		Return(&entity.Bullet{
-			Kind:      entity.KindTask,
-			Signifier: entity.SignifierOpen,
+		Return(&domain.Bullet{
+			Kind:      domain.KindTask,
+			Signifier: domain.SignifierOpen,
 		}, nil).
 		Once()
 
 	s.bulletRepoMock.EXPECT().
-		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Save(mock.Anything, mock.AnythingOfType("*domain.Bullet")).
 		Return(nil).
 		Once()
 
 	got, gotErr := s.uc.Execute(s.T().Context(), input)
 	s.NoError(gotErr)
-	s.Equal(entity.SignifierCompleted, got.Signifier)
+	s.Equal(domain.SignifierCompleted, got.Signifier)
 }

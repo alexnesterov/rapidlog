@@ -7,7 +7,7 @@ package mocks
 import (
 	"context"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -49,23 +49,23 @@ func (_m *MockCreateBulletUsecase) EXPECT() *MockCreateBulletUsecase_Expecter {
 }
 
 // Execute provides a mock function for the type MockCreateBulletUsecase
-func (_mock *MockCreateBulletUsecase) Execute(ctx context.Context, in usecase.CreateBulletInput) (*entity.Bullet, error) {
+func (_mock *MockCreateBulletUsecase) Execute(ctx context.Context, in usecase.CreateBulletInput) (*domain.Bullet, error) {
 	ret := _mock.Called(ctx, in)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Execute")
 	}
 
-	var r0 *entity.Bullet
+	var r0 *domain.Bullet
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CreateBulletInput) (*entity.Bullet, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CreateBulletInput) (*domain.Bullet, error)); ok {
 		return returnFunc(ctx, in)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CreateBulletInput) *entity.Bullet); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CreateBulletInput) *domain.Bullet); ok {
 		r0 = returnFunc(ctx, in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entity.Bullet)
+			r0 = ret.Get(0).(*domain.Bullet)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, usecase.CreateBulletInput) error); ok {
@@ -106,12 +106,12 @@ func (_c *MockCreateBulletUsecase_Execute_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *MockCreateBulletUsecase_Execute_Call) Return(bullet *entity.Bullet, err error) *MockCreateBulletUsecase_Execute_Call {
+func (_c *MockCreateBulletUsecase_Execute_Call) Return(bullet *domain.Bullet, err error) *MockCreateBulletUsecase_Execute_Call {
 	_c.Call.Return(bullet, err)
 	return _c
 }
 
-func (_c *MockCreateBulletUsecase_Execute_Call) RunAndReturn(run func(ctx context.Context, in usecase.CreateBulletInput) (*entity.Bullet, error)) *MockCreateBulletUsecase_Execute_Call {
+func (_c *MockCreateBulletUsecase_Execute_Call) RunAndReturn(run func(ctx context.Context, in usecase.CreateBulletInput) (*domain.Bullet, error)) *MockCreateBulletUsecase_Execute_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -153,23 +153,23 @@ func (_m *MockCancelBulletUsecase) EXPECT() *MockCancelBulletUsecase_Expecter {
 }
 
 // Execute provides a mock function for the type MockCancelBulletUsecase
-func (_mock *MockCancelBulletUsecase) Execute(ctx context.Context, in usecase.CancelBulletInput) (*entity.Bullet, error) {
+func (_mock *MockCancelBulletUsecase) Execute(ctx context.Context, in usecase.CancelBulletInput) (*domain.Bullet, error) {
 	ret := _mock.Called(ctx, in)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Execute")
 	}
 
-	var r0 *entity.Bullet
+	var r0 *domain.Bullet
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CancelBulletInput) (*entity.Bullet, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CancelBulletInput) (*domain.Bullet, error)); ok {
 		return returnFunc(ctx, in)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CancelBulletInput) *entity.Bullet); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CancelBulletInput) *domain.Bullet); ok {
 		r0 = returnFunc(ctx, in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entity.Bullet)
+			r0 = ret.Get(0).(*domain.Bullet)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, usecase.CancelBulletInput) error); ok {
@@ -210,12 +210,12 @@ func (_c *MockCancelBulletUsecase_Execute_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *MockCancelBulletUsecase_Execute_Call) Return(bullet *entity.Bullet, err error) *MockCancelBulletUsecase_Execute_Call {
+func (_c *MockCancelBulletUsecase_Execute_Call) Return(bullet *domain.Bullet, err error) *MockCancelBulletUsecase_Execute_Call {
 	_c.Call.Return(bullet, err)
 	return _c
 }
 
-func (_c *MockCancelBulletUsecase_Execute_Call) RunAndReturn(run func(ctx context.Context, in usecase.CancelBulletInput) (*entity.Bullet, error)) *MockCancelBulletUsecase_Execute_Call {
+func (_c *MockCancelBulletUsecase_Execute_Call) RunAndReturn(run func(ctx context.Context, in usecase.CancelBulletInput) (*domain.Bullet, error)) *MockCancelBulletUsecase_Execute_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -257,23 +257,23 @@ func (_m *MockCompleteBulletUsecase) EXPECT() *MockCompleteBulletUsecase_Expecte
 }
 
 // Execute provides a mock function for the type MockCompleteBulletUsecase
-func (_mock *MockCompleteBulletUsecase) Execute(ctx context.Context, in usecase.CompleteBulletInput) (*entity.Bullet, error) {
+func (_mock *MockCompleteBulletUsecase) Execute(ctx context.Context, in usecase.CompleteBulletInput) (*domain.Bullet, error) {
 	ret := _mock.Called(ctx, in)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Execute")
 	}
 
-	var r0 *entity.Bullet
+	var r0 *domain.Bullet
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CompleteBulletInput) (*entity.Bullet, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CompleteBulletInput) (*domain.Bullet, error)); ok {
 		return returnFunc(ctx, in)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CompleteBulletInput) *entity.Bullet); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CompleteBulletInput) *domain.Bullet); ok {
 		r0 = returnFunc(ctx, in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entity.Bullet)
+			r0 = ret.Get(0).(*domain.Bullet)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, usecase.CompleteBulletInput) error); ok {
@@ -314,12 +314,12 @@ func (_c *MockCompleteBulletUsecase_Execute_Call) Run(run func(ctx context.Conte
 	return _c
 }
 
-func (_c *MockCompleteBulletUsecase_Execute_Call) Return(bullet *entity.Bullet, err error) *MockCompleteBulletUsecase_Execute_Call {
+func (_c *MockCompleteBulletUsecase_Execute_Call) Return(bullet *domain.Bullet, err error) *MockCompleteBulletUsecase_Execute_Call {
 	_c.Call.Return(bullet, err)
 	return _c
 }
 
-func (_c *MockCompleteBulletUsecase_Execute_Call) RunAndReturn(run func(ctx context.Context, in usecase.CompleteBulletInput) (*entity.Bullet, error)) *MockCompleteBulletUsecase_Execute_Call {
+func (_c *MockCompleteBulletUsecase_Execute_Call) RunAndReturn(run func(ctx context.Context, in usecase.CompleteBulletInput) (*domain.Bullet, error)) *MockCompleteBulletUsecase_Execute_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -361,23 +361,23 @@ func (_m *MockListBulletsUsecase) EXPECT() *MockListBulletsUsecase_Expecter {
 }
 
 // Execute provides a mock function for the type MockListBulletsUsecase
-func (_mock *MockListBulletsUsecase) Execute(ctx context.Context, in usecase.ListBulletsInput) ([]*entity.Bullet, error) {
+func (_mock *MockListBulletsUsecase) Execute(ctx context.Context, in usecase.ListBulletsInput) ([]*domain.Bullet, error) {
 	ret := _mock.Called(ctx, in)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Execute")
 	}
 
-	var r0 []*entity.Bullet
+	var r0 []*domain.Bullet
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.ListBulletsInput) ([]*entity.Bullet, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.ListBulletsInput) ([]*domain.Bullet, error)); ok {
 		return returnFunc(ctx, in)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.ListBulletsInput) []*entity.Bullet); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.ListBulletsInput) []*domain.Bullet); ok {
 		r0 = returnFunc(ctx, in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*entity.Bullet)
+			r0 = ret.Get(0).([]*domain.Bullet)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, usecase.ListBulletsInput) error); ok {
@@ -418,12 +418,12 @@ func (_c *MockListBulletsUsecase_Execute_Call) Run(run func(ctx context.Context,
 	return _c
 }
 
-func (_c *MockListBulletsUsecase_Execute_Call) Return(bullets []*entity.Bullet, err error) *MockListBulletsUsecase_Execute_Call {
+func (_c *MockListBulletsUsecase_Execute_Call) Return(bullets []*domain.Bullet, err error) *MockListBulletsUsecase_Execute_Call {
 	_c.Call.Return(bullets, err)
 	return _c
 }
 
-func (_c *MockListBulletsUsecase_Execute_Call) RunAndReturn(run func(ctx context.Context, in usecase.ListBulletsInput) ([]*entity.Bullet, error)) *MockListBulletsUsecase_Execute_Call {
+func (_c *MockListBulletsUsecase_Execute_Call) RunAndReturn(run func(ctx context.Context, in usecase.ListBulletsInput) ([]*domain.Bullet, error)) *MockListBulletsUsecase_Execute_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -465,23 +465,23 @@ func (_m *MockMigrateBulletUsecase) EXPECT() *MockMigrateBulletUsecase_Expecter 
 }
 
 // Execute provides a mock function for the type MockMigrateBulletUsecase
-func (_mock *MockMigrateBulletUsecase) Execute(ctx context.Context, in usecase.MigrateBulletInput) (*entity.Bullet, error) {
+func (_mock *MockMigrateBulletUsecase) Execute(ctx context.Context, in usecase.MigrateBulletInput) (*domain.Bullet, error) {
 	ret := _mock.Called(ctx, in)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Execute")
 	}
 
-	var r0 *entity.Bullet
+	var r0 *domain.Bullet
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.MigrateBulletInput) (*entity.Bullet, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.MigrateBulletInput) (*domain.Bullet, error)); ok {
 		return returnFunc(ctx, in)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.MigrateBulletInput) *entity.Bullet); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.MigrateBulletInput) *domain.Bullet); ok {
 		r0 = returnFunc(ctx, in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entity.Bullet)
+			r0 = ret.Get(0).(*domain.Bullet)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, usecase.MigrateBulletInput) error); ok {
@@ -522,12 +522,12 @@ func (_c *MockMigrateBulletUsecase_Execute_Call) Run(run func(ctx context.Contex
 	return _c
 }
 
-func (_c *MockMigrateBulletUsecase_Execute_Call) Return(bullet *entity.Bullet, err error) *MockMigrateBulletUsecase_Execute_Call {
+func (_c *MockMigrateBulletUsecase_Execute_Call) Return(bullet *domain.Bullet, err error) *MockMigrateBulletUsecase_Execute_Call {
 	_c.Call.Return(bullet, err)
 	return _c
 }
 
-func (_c *MockMigrateBulletUsecase_Execute_Call) RunAndReturn(run func(ctx context.Context, in usecase.MigrateBulletInput) (*entity.Bullet, error)) *MockMigrateBulletUsecase_Execute_Call {
+func (_c *MockMigrateBulletUsecase_Execute_Call) RunAndReturn(run func(ctx context.Context, in usecase.MigrateBulletInput) (*domain.Bullet, error)) *MockMigrateBulletUsecase_Execute_Call {
 	_c.Call.Return(run)
 	return _c
 }

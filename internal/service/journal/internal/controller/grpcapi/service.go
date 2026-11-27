@@ -5,29 +5,29 @@ import (
 	"log/slog"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"google.golang.org/grpc"
 )
 
 type CreateBulletUsecase interface {
-	Execute(ctx context.Context, in usecase.CreateBulletInput) (*entity.Bullet, error)
+	Execute(ctx context.Context, in usecase.CreateBulletInput) (*domain.Bullet, error)
 }
 
 type CancelBulletUsecase interface {
-	Execute(ctx context.Context, in usecase.CancelBulletInput) (*entity.Bullet, error)
+	Execute(ctx context.Context, in usecase.CancelBulletInput) (*domain.Bullet, error)
 }
 
 type CompleteBulletUsecase interface {
-	Execute(ctx context.Context, in usecase.CompleteBulletInput) (*entity.Bullet, error)
+	Execute(ctx context.Context, in usecase.CompleteBulletInput) (*domain.Bullet, error)
 }
 
 type ListBulletsUsecase interface {
-	Execute(ctx context.Context, in usecase.ListBulletsInput) ([]*entity.Bullet, error)
+	Execute(ctx context.Context, in usecase.ListBulletsInput) ([]*domain.Bullet, error)
 }
 
 type MigrateBulletUsecase interface {
-	Execute(ctx context.Context, in usecase.MigrateBulletInput) (*entity.Bullet, error)
+	Execute(ctx context.Context, in usecase.MigrateBulletInput) (*domain.Bullet, error)
 }
 
 type Usecases struct {

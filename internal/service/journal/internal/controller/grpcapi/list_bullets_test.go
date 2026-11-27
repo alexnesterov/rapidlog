@@ -7,7 +7,7 @@ import (
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi/mocks"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -20,13 +20,13 @@ import (
 
 func TestJournalServer_ListBullets(t *testing.T) {
 	userID := uuid.New()
-	task, err := entity.NewBullet(userID, entity.KindTask, "Test bullet")
+	task, err := domain.NewBullet(userID, domain.KindTask, "Test bullet")
 	require.NoError(t, err)
 
-	event, err := entity.NewBullet(userID, entity.KindEvent, "Test event")
+	event, err := domain.NewBullet(userID, domain.KindEvent, "Test event")
 	require.NoError(t, err)
 
-	note, err := entity.NewBullet(userID, entity.KindNote, "Test note")
+	note, err := domain.NewBullet(userID, domain.KindNote, "Test note")
 	require.NoError(t, err)
 
 	protoTask, err := grpcapi.ToProtoBullet(task)
@@ -84,7 +84,7 @@ func TestJournalServer_ListBullets(t *testing.T) {
 						mock.Anything,
 						usecase.ListBulletsInput{UserID: userID},
 					).
-					Return([]*entity.Bullet{{}}, nil).
+					Return([]*domain.Bullet{{}}, nil).
 					Once()
 			},
 		},
@@ -101,7 +101,7 @@ func TestJournalServer_ListBullets(t *testing.T) {
 						mock.Anything,
 						usecase.ListBulletsInput{UserID: userID},
 					).
-					Return([]*entity.Bullet{task}, nil).
+					Return([]*domain.Bullet{task}, nil).
 					Once()
 			},
 		},
@@ -122,7 +122,7 @@ func TestJournalServer_ListBullets(t *testing.T) {
 						mock.Anything,
 						usecase.ListBulletsInput{UserID: userID},
 					).
-					Return([]*entity.Bullet{task, event, note}, nil).
+					Return([]*domain.Bullet{task, event, note}, nil).
 					Once()
 			},
 		},

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase/mocks"
 	"github.com/google/uuid"
@@ -34,7 +34,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotFound() {
 
 	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, id, userID).
-		Return(nil, entity.ErrNotFound).
+		Return(nil, domain.ErrNotFound).
 		Once()
 
 	got, gotErr := s.uc.Execute(s.T().Context(), usecase.MigrateBulletInput{
@@ -42,7 +42,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotFound() {
 		UserID: userID,
 	})
 	s.Nil(got)
-	s.ErrorIs(gotErr, entity.ErrNotFound)
+	s.ErrorIs(gotErr, domain.ErrNotFound)
 }
 
 func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_SaveError() {
@@ -51,10 +51,10 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_SaveError() {
 	wantErr := errors.New("update failed")
 	dayAgo := time.Now().Add(-24 * time.Hour)
 
-	bullet := &entity.Bullet{
+	bullet := &domain.Bullet{
 		ID:        id,
-		Kind:      entity.KindTask,
-		Signifier: entity.SignifierOpen,
+		Kind:      domain.KindTask,
+		Signifier: domain.SignifierOpen,
 		CreatedAt: dayAgo,
 		UpdatedAt: dayAgo,
 	}
@@ -65,7 +65,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_SaveError() {
 		Once()
 
 	s.bulletRepoMock.EXPECT().
-		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Save(mock.Anything, mock.AnythingOfType("*domain.Bullet")).
 		Return(wantErr).
 		Once()
 
@@ -81,10 +81,10 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotOpenTask() {
 	id := uuid.New()
 	userID := uuid.New()
 
-	bullet := &entity.Bullet{
+	bullet := &domain.Bullet{
 		ID:        id,
-		Kind:      entity.KindTask,
-		Signifier: entity.SignifierCompleted,
+		Kind:      domain.KindTask,
+		Signifier: domain.SignifierCompleted,
 	}
 
 	s.bulletRepoMock.EXPECT().
@@ -97,7 +97,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_NotOpenTask() {
 		UserID: userID,
 	})
 	s.Nil(got)
-	s.ErrorIs(gotErr, entity.ErrBulletNotOpenTask)
+	s.ErrorIs(gotErr, domain.ErrBulletNotOpenTask)
 }
 
 func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
@@ -105,10 +105,10 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
 	userID := uuid.New()
 	dayAgo := time.Now().Add(-24 * time.Hour)
 
-	bullet := &entity.Bullet{
+	bullet := &domain.Bullet{
 		ID:        id,
-		Kind:      entity.KindTask,
-		Signifier: entity.SignifierOpen,
+		Kind:      domain.KindTask,
+		Signifier: domain.SignifierOpen,
 		Content:   "Test task",
 		CreatedAt: dayAgo,
 		UpdatedAt: dayAgo,
@@ -120,7 +120,7 @@ func (s *MigrateBulletUseCaseSuite) TestMigrateBullet_Success() {
 		Once()
 
 	s.bulletRepoMock.EXPECT().
-		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Save(mock.Anything, mock.AnythingOfType("*domain.Bullet")).
 		Return(nil).
 		Once()
 

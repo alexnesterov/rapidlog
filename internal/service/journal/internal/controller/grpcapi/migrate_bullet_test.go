@@ -7,7 +7,7 @@ import (
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi/mocks"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -21,7 +21,7 @@ func TestJournalServer_MigrateBullet(t *testing.T) {
 	bulletID := uuid.New()
 
 	// Usecase возвращает новый open-bullet, созданный при миграции.
-	migrated, err := entity.NewBullet(uuid.New(), entity.KindTask, "test")
+	migrated, err := domain.NewBullet(uuid.New(), domain.KindTask, "test")
 	require.NoError(t, err)
 
 	protoBullet, err := grpcapi.ToProtoBullet(migrated)
@@ -92,7 +92,7 @@ func TestJournalServer_MigrateBullet(t *testing.T) {
 							UserID: migrated.UserID,
 						},
 					).
-					Return(nil, &entity.ValidationError{Err: assert.AnError}).
+					Return(nil, &domain.ValidationError{Err: assert.AnError}).
 					Once()
 			},
 		},
@@ -113,7 +113,7 @@ func TestJournalServer_MigrateBullet(t *testing.T) {
 							UserID: migrated.UserID,
 						},
 					).
-					Return(&entity.Bullet{}, nil).
+					Return(&domain.Bullet{}, nil).
 					Once()
 			},
 		},
