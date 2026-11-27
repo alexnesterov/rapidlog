@@ -1,23 +1,24 @@
-package httpapi
+package server_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/platform/server"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestUserIDContext(t *testing.T) {
 	id := uuid.New()
-	ctx := WithUserID(context.Background(), id)
+	ctx := server.WithUserID(context.Background(), id)
 
-	got, ok := UserIDFromContext(ctx)
+	got, ok := server.UserIDFromContext(ctx)
 	assert.True(t, ok)
 	assert.Equal(t, id, got)
 }
 
 func TestUserIDFromContext_Missing(t *testing.T) {
-	_, ok := UserIDFromContext(context.Background())
+	_, ok := server.UserIDFromContext(context.Background())
 	assert.False(t, ok)
 }

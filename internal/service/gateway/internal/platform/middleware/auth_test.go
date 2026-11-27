@@ -9,8 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/kratos"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/platform/kratos"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/platform/server"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -43,13 +43,13 @@ func TestAuth(t *testing.T) {
 			name:       "no session",
 			resolveErr: kratos.ErrUnauthenticated,
 			wantStatus: http.StatusUnauthorized,
-			wantBody:   `{"data":null,"error":{"code":401,"message":"unauthorized"}}`,
+			wantBody:   `{"data":null,"error":{"code":401,"message":"Unauthorized"}}`,
 		},
 		{
 			name:       "kratos unavailable",
 			resolveErr: errors.New("connection refused"),
 			wantStatus: http.StatusInternalServerError,
-			wantBody:   `{"data":null,"error":{"code":500,"message":"internal server error"}}`,
+			wantBody:   `{"data":null,"error":{"code":500,"message":"Internal Server Error"}}`,
 		},
 	}
 
@@ -64,7 +64,7 @@ func TestAuth(t *testing.T) {
 			nextCalled := false
 			next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				nextCalled = true
-				id, ok := httpapi.UserIDFromContext(r.Context())
+				id, ok := server.UserIDFromContext(r.Context())
 				assert.True(t, ok)
 				assert.Equal(t, userID, id)
 				w.WriteHeader(http.StatusOK)

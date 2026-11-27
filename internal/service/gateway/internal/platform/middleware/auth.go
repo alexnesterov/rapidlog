@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/kratos"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/platform/kratos"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/platform/server"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/pkg/respond"
 	"github.com/google/uuid"
 )
@@ -24,16 +24,16 @@ func Auth(resolver SessionResolver, logger *slog.Logger) func(http.Handler) http
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			userID, err := resolver.Whoami(r.Context(), r.Header.Get("Cookie"), r.Header.Get("X-Session-Token"))
 			if errors.Is(err, kratos.ErrUnauthenticated) {
-				respond.Error(w, http.StatusUnauthorized, httpapi.ErrUnauthorized.Error())
+				respond.Error(w, http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))
 				return
 			}
 			if err != nil {
 				logger.Error("failed to resolve kratos session", "error", err)
-				respond.Error(w, http.StatusInternalServerError, httpapi.ErrInternal.Error())
+				respond.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 				return
 			}
 
-			next.ServeHTTP(w, r.WithContext(httpapi.WithUserID(r.Context(), userID)))
+			next.ServeHTTP(w, r.WithContext(server.WithUserID(r.Context(), userID)))
 		})
 	}
 }
