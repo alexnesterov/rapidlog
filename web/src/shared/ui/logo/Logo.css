@@ -45,7 +45,7 @@
 /* между записью (24px) и заголовком дня (32px) */
 .logo--compact {
   font-size: 28px;
-  color: var(--ink-soft);
+  color: var(--ink-hand);
 }
 
 .logo--full {

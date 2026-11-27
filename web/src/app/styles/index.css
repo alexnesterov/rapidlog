@@ -1,4 +1,4 @@
-@import "./catppuccin.css";
+@import './catppuccin.css';
 
 /* «Paper» — тема по умолчанию (без data-theme на <html>): светлая или тёмная по системе. */
 :root {
@@ -14,14 +14,17 @@
 
   /* производные — одинаково для всех тем */
   --danger: var(--accent);
-  --paper-line: color-mix(in srgb, var(--ink) var(--line-strength), transparent);
-  /* handwriting ink: text thinned into the paper, softer than print */
-  --ink-hand: color-mix(in srgb, var(--ink) 78%, var(--paper));
+  --paper-line: color-mix(
+    in srgb,
+    var(--ink) var(--line-strength),
+    transparent
+  );
+  --ink-hand: var(--ink);
 
-  --font-display: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-display: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
   /* interface reads as print, entries as handwriting (--font-hand) */
-  --font-body: "Golos Text", system-ui, sans-serif;
-  --font-hand: "Caveat", "Segoe Script", cursive;
+  --font-body: 'Golos Text', system-ui, sans-serif;
+  --font-hand: 'Caveat', 'Segoe Script', cursive;
 
   color: var(--ink);
   background: var(--paper);
@@ -57,14 +60,14 @@
 
 /* Latte — единственная светлая: crust почти сливается с base, поэтому тень от text,
    точки сетки на бумаге — гуще, hover акцента — к тёмному тексту */
-:root[data-theme="latte"] {
+:root[data-theme='latte'] {
   --shadow: color-mix(in srgb, var(--ctp-text) 16%, transparent);
   --line-strength: 14%;
   --accent-strong: color-mix(in srgb, var(--accent) 80%, var(--ink));
 }
 
 @media not all and (prefers-color-scheme: dark) {
-  :root[data-theme="catppuccin"] {
+  :root[data-theme='catppuccin'] {
     --shadow: color-mix(in srgb, var(--ctp-text) 16%, transparent);
     --line-strength: 14%;
     --accent-strong: color-mix(in srgb, var(--accent) 80%, var(--ink));

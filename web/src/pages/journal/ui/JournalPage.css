@@ -209,7 +209,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--ink-soft);
+  color: var(--ink-hand);
 }
 
 /* collapsed capture line — a plain "+" prompt until clicked */
@@ -708,23 +708,6 @@ button.log-line__mark:hover {
 
 .log-line.is-picking {
   z-index: 2;
-}
-
-.log-line.is-cancelled .log-line__mark {
-  color: var(--ink-soft);
-}
-
-.log-line.is-cancelled .log-line__title {
-  color: var(--ink-soft);
-}
-
-.log-line.is-cancelled .log-line__title a {
-  color: var(--accent);
-}
-
-.log-line.is-cancelled .log-line__title a:hover,
-.log-line.is-cancelled .log-line__title a:focus-visible {
-  color: var(--accent-strong);
 }
 
 .account__logout {
