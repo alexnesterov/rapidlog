@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/google/uuid"
 )
 
@@ -17,12 +17,12 @@ func NewCreateBullet(repo BulletRepository) *CreateBullet {
 
 type CreateBulletInput struct {
 	UserID  uuid.UUID
-	Kind    entity.Kind
+	Kind    domain.Kind
 	Content string
 }
 
-func (uc *CreateBullet) Execute(ctx context.Context, in CreateBulletInput) (*entity.Bullet, error) {
-	bullet, err := entity.NewBullet(in.UserID, in.Kind, in.Content)
+func (uc *CreateBullet) Execute(ctx context.Context, in CreateBulletInput) (*domain.Bullet, error) {
+	bullet, err := domain.NewBullet(in.UserID, in.Kind, in.Content)
 	if err != nil {
 		return nil, err
 	}

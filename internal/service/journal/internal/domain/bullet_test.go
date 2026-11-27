@@ -1,10 +1,11 @@
-package entity
+package domain_test
 
 import (
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,68 +17,68 @@ func TestNewBullet(t *testing.T) {
 	cases := []struct {
 		name    string
 		userID  uuid.UUID
-		kind    Kind
+		kind    domain.Kind
 		content string
 		wantErr error
 	}{
 		{
 			name:    "valid task",
 			userID:  userID,
-			kind:    KindTask,
+			kind:    domain.KindTask,
 			content: "Заголовок",
 			wantErr: nil,
 		},
 		{
 			name:    "valid event",
 			userID:  userID,
-			kind:    KindEvent,
+			kind:    domain.KindEvent,
 			content: "Заголовок",
 			wantErr: nil,
 		},
 		{
 			name:    "valid note",
 			userID:  userID,
-			kind:    KindNote,
+			kind:    domain.KindNote,
 			content: "Заголовок",
 			wantErr: nil,
 		},
 		{
 			name:    "invalid type",
 			userID:  userID,
-			kind:    Kind("invalid"),
+			kind:    domain.Kind("invalid"),
 			content: "Заголовок",
-			wantErr: ErrBulletKindInvalid,
+			wantErr: domain.ErrBulletKindInvalid,
 		},
 		{
 			name:    "required content",
 			userID:  userID,
-			kind:    KindTask,
+			kind:    domain.KindTask,
 			content: "",
-			wantErr: ErrBulletContentRequired,
+			wantErr: domain.ErrBulletContentRequired,
 		},
 		{
 			name:    "content too long",
 			userID:  userID,
-			kind:    KindTask,
+			kind:    domain.KindTask,
 			content: strings.Repeat("a", 201),
-			wantErr: ErrBulletContentTooLong,
+			wantErr: domain.ErrBulletContentTooLong,
 		},
 		{
 			name:    "user id required",
 			userID:  uuid.Nil,
-			kind:    KindTask,
+			kind:    domain.KindTask,
 			content: "Заголовок",
-			wantErr: ErrBulletUserIDRequired,
+			wantErr: domain.ErrBulletUserIDRequired,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := NewBullet(tc.userID, tc.kind, tc.content)
+			got, err := domain.NewBullet(tc.userID, tc.kind, tc.content)
 
 			if tc.wantErr != nil {
 				require.Error(t, err)
-				var validationErr *ValidationError
+				var validationErr *domain.ValidationError
 				assert.ErrorAs(t, err, &validationErr)
 				assert.ErrorIs(t, validationErr.Err, tc.wantErr)
 				assert.Equal(t, validationErr.Error(), tc.wantErr.Error())
@@ -91,7 +92,7 @@ func TestNewBullet(t *testing.T) {
 			assert.Equal(t, tc.userID, got.UserID)
 			assert.Equal(t, tc.kind, got.Kind)
 			assert.Equal(t, tc.content, got.Content)
-			assert.Equal(t, SignifierOpen, got.Signifier)
+			assert.Equal(t, domain.SignifierOpen, got.Signifier)
 			assert.NotEqual(t, uuid.Nil, got.ID)
 			assert.WithinDuration(t, time.Now(), got.CreatedAt, 1*time.Second)
 			assert.WithinDuration(t, time.Now(), got.UpdatedAt, 1*time.Second)
@@ -102,98 +103,98 @@ func TestNewBullet(t *testing.T) {
 func TestBullet_Validate(t *testing.T) {
 	cases := []struct {
 		name    string
-		bullet  Bullet
+		bullet  domain.Bullet
 		wantErr error
 	}{
 		{
 			name: "kind invalid",
-			bullet: Bullet{
+			bullet: domain.Bullet{
 				UserID:    uuid.New(),
 				Content:   "Заголовок",
 				Kind:      "invalid",
-				Signifier: SignifierOpen,
+				Signifier: domain.SignifierOpen,
 			},
-			wantErr: ErrBulletKindInvalid,
+			wantErr: domain.ErrBulletKindInvalid,
 		},
 		{
 			name: "kind empty",
-			bullet: Bullet{
+			bullet: domain.Bullet{
 				UserID:    uuid.New(),
 				Content:   "Заголовок",
 				Kind:      "",
-				Signifier: SignifierOpen,
+				Signifier: domain.SignifierOpen,
 			},
-			wantErr: ErrBulletKindInvalid,
+			wantErr: domain.ErrBulletKindInvalid,
 		},
 		{
 			name: "signifier invalid",
-			bullet: Bullet{
+			bullet: domain.Bullet{
 				UserID:    uuid.New(),
 				Content:   "Заголовок",
-				Kind:      KindTask,
+				Kind:      domain.KindTask,
 				Signifier: "close",
 			},
-			wantErr: ErrBulletSignifierInvalid,
+			wantErr: domain.ErrBulletSignifierInvalid,
 		},
 		{
 			name: "signifier empty",
-			bullet: Bullet{
+			bullet: domain.Bullet{
 				UserID:    uuid.New(),
 				Content:   "Заголовок",
-				Kind:      KindTask,
+				Kind:      domain.KindTask,
 				Signifier: "",
 			},
-			wantErr: ErrBulletSignifierInvalid,
+			wantErr: domain.ErrBulletSignifierInvalid,
 		},
 		{
 			name: "valid content",
-			bullet: Bullet{
+			bullet: domain.Bullet{
 				UserID:    uuid.New(),
 				Content:   "Заголовок",
-				Kind:      KindTask,
-				Signifier: SignifierOpen,
+				Kind:      domain.KindTask,
+				Signifier: domain.SignifierOpen,
 			},
 			wantErr: nil,
 		},
 		{
 			name: "empty content",
-			bullet: Bullet{
+			bullet: domain.Bullet{
 				UserID:    uuid.New(),
 				Content:   "",
-				Kind:      KindTask,
-				Signifier: SignifierOpen,
+				Kind:      domain.KindTask,
+				Signifier: domain.SignifierOpen,
 			},
-			wantErr: ErrBulletContentRequired,
+			wantErr: domain.ErrBulletContentRequired,
 		},
 		{
 			name: "content too long",
-			bullet: Bullet{
+			bullet: domain.Bullet{
 				UserID:    uuid.New(),
 				Content:   strings.Repeat("а", 201),
-				Kind:      KindTask,
-				Signifier: SignifierOpen,
+				Kind:      domain.KindTask,
+				Signifier: domain.SignifierOpen,
 			},
-			wantErr: ErrBulletContentTooLong,
+			wantErr: domain.ErrBulletContentTooLong,
 		},
 		{
 			name: "200 cyrillic chars is valid",
-			bullet: Bullet{
+			bullet: domain.Bullet{
 				UserID:    uuid.New(),
 				Content:   strings.Repeat("ф", 200),
-				Kind:      KindTask,
-				Signifier: SignifierOpen,
+				Kind:      domain.KindTask,
+				Signifier: domain.SignifierOpen,
 			},
 			wantErr: nil,
 		},
 		{
 			name: "user id required",
-			bullet: Bullet{
+			bullet: domain.Bullet{
 				UserID:    uuid.Nil,
 				Content:   "Заголовок",
-				Kind:      KindTask,
-				Signifier: SignifierOpen,
+				Kind:      domain.KindTask,
+				Signifier: domain.SignifierOpen,
 			},
-			wantErr: ErrBulletUserIDRequired,
+			wantErr: domain.ErrBulletUserIDRequired,
 		},
 	}
 
@@ -203,7 +204,7 @@ func TestBullet_Validate(t *testing.T) {
 
 			if tc.wantErr != nil {
 				require.Error(t, err)
-				var validationErr *ValidationError
+				var validationErr *domain.ValidationError
 				assert.ErrorAs(t, err, &validationErr)
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
@@ -217,48 +218,48 @@ func TestBullet_Validate(t *testing.T) {
 func TestBullet_Complete(t *testing.T) {
 	cases := []struct {
 		name    string
-		bullet  Bullet
+		bullet  domain.Bullet
 		wantErr error
 	}{
 		{
 			name: "task open",
-			bullet: Bullet{
-				Kind:      KindTask,
-				Signifier: SignifierOpen,
+			bullet: domain.Bullet{
+				Kind:      domain.KindTask,
+				Signifier: domain.SignifierOpen,
 			},
 			wantErr: nil,
 		},
 		{
 			name: "task completed",
-			bullet: Bullet{
-				Kind:      KindTask,
-				Signifier: SignifierCompleted,
+			bullet: domain.Bullet{
+				Kind:      domain.KindTask,
+				Signifier: domain.SignifierCompleted,
 			},
-			wantErr: ErrBulletAlreadyCompleted,
+			wantErr: domain.ErrBulletAlreadyCompleted,
 		},
 		{
 			name: "task canceled",
-			bullet: Bullet{
-				Kind:      KindTask,
-				Signifier: SignifierCancelled,
+			bullet: domain.Bullet{
+				Kind:      domain.KindTask,
+				Signifier: domain.SignifierCancelled,
 			},
-			wantErr: ErrBulletNotOpen,
+			wantErr: domain.ErrBulletNotOpen,
 		},
 		{
 			name: "event open",
-			bullet: Bullet{
-				Kind:      KindEvent,
-				Signifier: SignifierOpen,
+			bullet: domain.Bullet{
+				Kind:      domain.KindEvent,
+				Signifier: domain.SignifierOpen,
 			},
-			wantErr: ErrBulletNotTask,
+			wantErr: domain.ErrBulletNotTask,
 		},
 		{
 			name: "note open",
-			bullet: Bullet{
-				Kind:      KindNote,
-				Signifier: SignifierOpen,
+			bullet: domain.Bullet{
+				Kind:      domain.KindNote,
+				Signifier: domain.SignifierOpen,
 			},
-			wantErr: ErrBulletNotTask,
+			wantErr: domain.ErrBulletNotTask,
 		},
 	}
 
@@ -269,14 +270,14 @@ func TestBullet_Complete(t *testing.T) {
 			err := tc.bullet.Complete()
 			if tc.wantErr != nil {
 				require.Error(t, err)
-				var validationErr *ValidationError
+				var validationErr *domain.ValidationError
 				assert.ErrorAs(t, err, &validationErr)
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
 
 			assert.NoError(t, err)
-			assert.Equal(t, SignifierCompleted, tc.bullet.Signifier)
+			assert.Equal(t, domain.SignifierCompleted, tc.bullet.Signifier)
 			assert.True(t, tc.bullet.UpdatedAt.After(initialUpdatedAt))
 		})
 	}
@@ -285,72 +286,72 @@ func TestBullet_Complete(t *testing.T) {
 func TestBullet_Migrate(t *testing.T) {
 	cases := []struct {
 		name      string
-		kind      Kind
-		signifier Signifier
+		kind      domain.Kind
+		signifier domain.Signifier
 		createdAt time.Time
 		wantErr   error
 	}{
 		{
 			name:      "task open",
-			kind:      KindTask,
-			signifier: SignifierOpen,
+			kind:      domain.KindTask,
+			signifier: domain.SignifierOpen,
 			createdAt: time.Now().Add(-24 * time.Hour),
 			wantErr:   nil,
 		},
 		{
 			name:      "task completed",
-			kind:      KindTask,
-			signifier: SignifierCompleted,
+			kind:      domain.KindTask,
+			signifier: domain.SignifierCompleted,
 			createdAt: time.Now().Add(-24 * time.Hour),
-			wantErr:   ErrBulletNotOpenTask,
+			wantErr:   domain.ErrBulletNotOpenTask,
 		},
 		{
 			name:      "task cancelled",
-			kind:      KindTask,
-			signifier: SignifierCancelled,
+			kind:      domain.KindTask,
+			signifier: domain.SignifierCancelled,
 			createdAt: time.Now().Add(-24 * time.Hour),
-			wantErr:   ErrBulletNotOpenTask,
+			wantErr:   domain.ErrBulletNotOpenTask,
 		},
 		{
 			name:      "event open",
-			kind:      KindEvent,
-			signifier: SignifierOpen,
+			kind:      domain.KindEvent,
+			signifier: domain.SignifierOpen,
 			createdAt: time.Now().Add(-24 * time.Hour),
-			wantErr:   ErrBulletNotOpenTask,
+			wantErr:   domain.ErrBulletNotOpenTask,
 		},
 		{
 			name:      "event canceled",
-			kind:      KindEvent,
-			signifier: SignifierCancelled,
+			kind:      domain.KindEvent,
+			signifier: domain.SignifierCancelled,
 			createdAt: time.Now().Add(-24 * time.Hour),
-			wantErr:   ErrBulletNotOpenTask,
+			wantErr:   domain.ErrBulletNotOpenTask,
 		},
 		{
 			name:      "note open",
-			kind:      KindNote,
-			signifier: SignifierOpen,
+			kind:      domain.KindNote,
+			signifier: domain.SignifierOpen,
 			createdAt: time.Now().Add(-24 * time.Hour),
-			wantErr:   ErrBulletNotOpenTask,
+			wantErr:   domain.ErrBulletNotOpenTask,
 		},
 		{
 			name:      "note canceled",
-			kind:      KindNote,
-			signifier: SignifierCancelled,
+			kind:      domain.KindNote,
+			signifier: domain.SignifierCancelled,
 			createdAt: time.Now().Add(-24 * time.Hour),
-			wantErr:   ErrBulletNotOpenTask,
+			wantErr:   domain.ErrBulletNotOpenTask,
 		},
 		{
 			name:      "created at today",
-			kind:      KindTask,
-			signifier: SignifierOpen,
+			kind:      domain.KindTask,
+			signifier: domain.SignifierOpen,
 			createdAt: time.Now(),
-			wantErr:   ErrBulletCreatedToday,
+			wantErr:   domain.ErrBulletCreatedToday,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			bullet := Bullet{
+			bullet := domain.Bullet{
 				ID:        uuid.New(),
 				Kind:      tc.kind,
 				Signifier: tc.signifier,
@@ -365,7 +366,7 @@ func TestBullet_Migrate(t *testing.T) {
 			gotErr := bullet.Migrate()
 			if tc.wantErr != nil {
 				require.Error(t, gotErr)
-				var validationErr *ValidationError
+				var validationErr *domain.ValidationError
 				assert.ErrorAs(t, gotErr, &validationErr)
 				assert.ErrorIs(t, validationErr.Err, tc.wantErr)
 				return
@@ -373,7 +374,7 @@ func TestBullet_Migrate(t *testing.T) {
 
 			require.NoError(t, gotErr)
 			assert.Equal(t, initial.ID, bullet.ID)
-			assert.Equal(t, SignifierOpen, bullet.Signifier)
+			assert.Equal(t, domain.SignifierOpen, bullet.Signifier)
 			assert.True(t, bullet.CreatedAt.After(initial.CreatedAt))
 			assert.True(t, bullet.UpdatedAt.After(initial.UpdatedAt))
 		})
@@ -383,33 +384,33 @@ func TestBullet_Migrate(t *testing.T) {
 func TestBullet_Cancel(t *testing.T) {
 	cases := []struct {
 		name    string
-		bullet  Bullet
+		bullet  domain.Bullet
 		wantErr error
 	}{
 		{
 			name:    "task open",
-			bullet:  Bullet{Kind: KindTask, Signifier: SignifierOpen},
+			bullet:  domain.Bullet{Kind: domain.KindTask, Signifier: domain.SignifierOpen},
 			wantErr: nil,
 		},
 		{
 			name:    "event open",
-			bullet:  Bullet{Kind: KindEvent, Signifier: SignifierOpen},
+			bullet:  domain.Bullet{Kind: domain.KindEvent, Signifier: domain.SignifierOpen},
 			wantErr: nil,
 		},
 		{
 			name:    "note open",
-			bullet:  Bullet{Kind: KindNote, Signifier: SignifierOpen},
+			bullet:  domain.Bullet{Kind: domain.KindNote, Signifier: domain.SignifierOpen},
 			wantErr: nil,
 		},
 		{
 			name:    "task cancelled",
-			bullet:  Bullet{Kind: KindTask, Signifier: SignifierCancelled},
-			wantErr: ErrBulletAlreadyCancelled,
+			bullet:  domain.Bullet{Kind: domain.KindTask, Signifier: domain.SignifierCancelled},
+			wantErr: domain.ErrBulletAlreadyCancelled,
 		},
 		{
 			name:    "task completed",
-			bullet:  Bullet{Kind: KindTask, Signifier: SignifierCompleted},
-			wantErr: ErrBulletNotOpen,
+			bullet:  domain.Bullet{Kind: domain.KindTask, Signifier: domain.SignifierCompleted},
+			wantErr: domain.ErrBulletNotOpen,
 		},
 	}
 
@@ -420,14 +421,14 @@ func TestBullet_Cancel(t *testing.T) {
 			err := tc.bullet.Cancel()
 			if tc.wantErr != nil {
 				require.Error(t, err)
-				var validationErr *ValidationError
+				var validationErr *domain.ValidationError
 				assert.ErrorAs(t, err, &validationErr)
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
 
 			require.NoError(t, err)
-			assert.Equal(t, SignifierCancelled, tc.bullet.Signifier)
+			assert.Equal(t, domain.SignifierCancelled, tc.bullet.Signifier)
 			assert.True(t, tc.bullet.UpdatedAt.After(initialUpdatedAt))
 		})
 	}

@@ -4,37 +4,37 @@ import (
 	"fmt"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func ToProtoKind(k entity.Kind) (journalv1.Kind, error) {
+func ToProtoKind(k domain.Kind) (journalv1.Kind, error) {
 	switch k {
-	case entity.KindTask:
+	case domain.KindTask:
 		return journalv1.Kind_KIND_TASK, nil
-	case entity.KindEvent:
+	case domain.KindEvent:
 		return journalv1.Kind_KIND_EVENT, nil
-	case entity.KindNote:
+	case domain.KindNote:
 		return journalv1.Kind_KIND_NOTE, nil
 	default:
 		return journalv1.Kind_KIND_UNSPECIFIED, fmt.Errorf("unknown bullet kind: %v", k)
 	}
 }
 
-func ToProtoSignifier(s entity.Signifier) (journalv1.Signifier, error) {
+func ToProtoSignifier(s domain.Signifier) (journalv1.Signifier, error) {
 	switch s {
-	case entity.SignifierOpen:
+	case domain.SignifierOpen:
 		return journalv1.Signifier_SIGNIFIER_OPEN, nil
-	case entity.SignifierCompleted:
+	case domain.SignifierCompleted:
 		return journalv1.Signifier_SIGNIFIER_COMPLETED, nil
-	case entity.SignifierCancelled:
+	case domain.SignifierCancelled:
 		return journalv1.Signifier_SIGNIFIER_CANCELLED, nil
 	default:
 		return journalv1.Signifier_SIGNIFIER_UNSPECIFIED, fmt.Errorf("unknown signifier: %v", s)
 	}
 }
 
-func ToProtoBullet(bullet *entity.Bullet) (*journalv1.Bullet, error) {
+func ToProtoBullet(bullet *domain.Bullet) (*journalv1.Bullet, error) {
 	kindProto, err := ToProtoKind(bullet.Kind)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func ToProtoBullet(bullet *entity.Bullet) (*journalv1.Bullet, error) {
 	}, nil
 }
 
-func ToProtoBullets(bullets []*entity.Bullet) ([]*journalv1.Bullet, error) {
+func ToProtoBullets(bullets []*domain.Bullet) ([]*journalv1.Bullet, error) {
 	result := make([]*journalv1.Bullet, 0, len(bullets))
 	for _, bullet := range bullets {
 		bulletProto, err := ToProtoBullet(bullet)

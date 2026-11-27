@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -33,7 +33,7 @@ func (s *JournalService) CompleteBullet(
 		UserID: userID,
 	})
 	if err != nil {
-		var validationErr *entity.ValidationError
+		var validationErr *domain.ValidationError
 		if errors.As(err, &validationErr) {
 			s.logger.Warn("invalid complete bullet request", "error", err)
 			return nil, status.Error(codes.InvalidArgument, validationErr.Error())

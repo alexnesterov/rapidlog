@@ -10,7 +10,7 @@ import (
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/pkg/protoenum"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 )
 
@@ -24,7 +24,7 @@ func (s *JournalService) CreateBullet(
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	kind, err := entity.ParseKind(protoenum.ToCleanString(req.GetKind()))
+	kind, err := domain.ParseKind(protoenum.ToCleanString(req.GetKind()))
 	if err != nil {
 		s.logger.Warn("invalid kind", "kind", req.GetKind(), "error", err)
 		return nil, status.Error(codes.InvalidArgument, "invalid kind")
@@ -38,7 +38,7 @@ func (s *JournalService) CreateBullet(
 
 	bullet, err := s.uc.CreateBullet.Execute(ctx, input)
 	if err != nil {
-		var validationErr *entity.ValidationError
+		var validationErr *domain.ValidationError
 		if errors.As(err, &validationErr) {
 			s.logger.Warn("invalid create bullet request", "error", err)
 			return nil, status.Error(codes.InvalidArgument, validationErr.Error())

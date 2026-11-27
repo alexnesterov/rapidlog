@@ -7,7 +7,7 @@ import (
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi/mocks"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +18,7 @@ import (
 )
 
 func TestJournalServer_CompleteBullet(t *testing.T) {
-	bullet, err := entity.NewBullet(uuid.New(), entity.KindTask, "test")
+	bullet, err := domain.NewBullet(uuid.New(), domain.KindTask, "test")
 	require.NoError(t, err)
 
 	err = bullet.Complete()
@@ -92,7 +92,7 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 							UserID: bullet.UserID,
 						},
 					).
-					Return(nil, &entity.ValidationError{Err: assert.AnError}).
+					Return(nil, &domain.ValidationError{Err: assert.AnError}).
 					Once()
 			},
 		},
@@ -113,7 +113,7 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 							UserID: bullet.UserID,
 						},
 					).
-					Return(&entity.Bullet{}, nil).
+					Return(&domain.Bullet{}, nil).
 					Once()
 			},
 		},

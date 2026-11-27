@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase/mocks"
 	"github.com/google/uuid"
@@ -30,7 +30,7 @@ func (s *CancelBulletUseCaseSuite) SetupTest() {
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_NotFound() {
 	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
-		Return(nil, entity.ErrNotFound).
+		Return(nil, domain.ErrNotFound).
 		Once()
 
 	got, gotErr := s.uc.Execute(s.T().Context(), usecase.CancelBulletInput{
@@ -38,14 +38,14 @@ func (s *CancelBulletUseCaseSuite) TestCancelBullet_NotFound() {
 		UserID: uuid.New(),
 	})
 	s.Nil(got)
-	s.ErrorIs(gotErr, entity.ErrNotFound)
+	s.ErrorIs(gotErr, domain.ErrNotFound)
 }
 
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_AlreadyCanceled() {
 	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
-		Return(&entity.Bullet{
-			Signifier: entity.SignifierCancelled,
+		Return(&domain.Bullet{
+			Signifier: domain.SignifierCancelled,
 		}, nil).
 		Once()
 
@@ -54,14 +54,14 @@ func (s *CancelBulletUseCaseSuite) TestCancelBullet_AlreadyCanceled() {
 		UserID: uuid.New(),
 	})
 	s.NoError(gotErr)
-	s.Equal(entity.SignifierCancelled, got.Signifier)
+	s.Equal(domain.SignifierCancelled, got.Signifier)
 }
 
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_NotOpen() {
 	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
-		Return(&entity.Bullet{
-			Signifier: entity.SignifierCompleted,
+		Return(&domain.Bullet{
+			Signifier: domain.SignifierCompleted,
 		}, nil).
 		Once()
 
@@ -70,7 +70,7 @@ func (s *CancelBulletUseCaseSuite) TestCancelBullet_NotOpen() {
 		UserID: uuid.New(),
 	})
 	s.Nil(got)
-	s.ErrorIs(gotErr, entity.ErrBulletNotOpen)
+	s.ErrorIs(gotErr, domain.ErrBulletNotOpen)
 }
 
 func (s *CancelBulletUseCaseSuite) TestCancelBullet_SaveError() {
@@ -78,13 +78,13 @@ func (s *CancelBulletUseCaseSuite) TestCancelBullet_SaveError() {
 
 	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("uuid.UUID")).
-		Return(&entity.Bullet{
-			Signifier: entity.SignifierOpen,
+		Return(&domain.Bullet{
+			Signifier: domain.SignifierOpen,
 		}, nil).
 		Once()
 
 	s.bulletRepoMock.EXPECT().
-		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Save(mock.Anything, mock.AnythingOfType("*domain.Bullet")).
 		Return(wantErr).
 		Once()
 
@@ -104,17 +104,17 @@ func (s *CancelBulletUseCaseSuite) TestCancelBullet_Success() {
 
 	s.bulletRepoMock.EXPECT().
 		Get(mock.Anything, input.ID, input.UserID).
-		Return(&entity.Bullet{
-			Signifier: entity.SignifierOpen,
+		Return(&domain.Bullet{
+			Signifier: domain.SignifierOpen,
 		}, nil).
 		Once()
 
 	s.bulletRepoMock.EXPECT().
-		Save(mock.Anything, mock.AnythingOfType("*entity.Bullet")).
+		Save(mock.Anything, mock.AnythingOfType("*domain.Bullet")).
 		Return(nil).
 		Once()
 
 	got, gotErr := s.uc.Execute(s.T().Context(), input)
 	s.NoError(gotErr)
-	s.Equal(entity.SignifierCancelled, got.Signifier)
+	s.Equal(domain.SignifierCancelled, got.Signifier)
 }

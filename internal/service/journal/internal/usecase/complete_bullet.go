@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/google/uuid"
 )
 
@@ -21,14 +21,14 @@ type CompleteBulletInput struct {
 	UserID uuid.UUID
 }
 
-func (uc *CompleteBullet) Execute(ctx context.Context, in CompleteBulletInput) (*entity.Bullet, error) {
+func (uc *CompleteBullet) Execute(ctx context.Context, in CompleteBulletInput) (*domain.Bullet, error) {
 	bullet, err := uc.repo.Get(ctx, in.ID, in.UserID)
 	if err != nil {
 		return nil, err
 	}
 
 	err = bullet.Complete()
-	if errors.Is(err, entity.ErrBulletAlreadyCompleted) {
+	if errors.Is(err, domain.ErrBulletAlreadyCompleted) {
 		return bullet, nil
 	}
 	if err != nil {

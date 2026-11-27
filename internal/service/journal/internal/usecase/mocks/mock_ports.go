@@ -7,7 +7,7 @@ package mocks
 import (
 	"context"
 
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -49,23 +49,23 @@ func (_m *MockBulletRepository) EXPECT() *MockBulletRepository_Expecter {
 }
 
 // Get provides a mock function for the type MockBulletRepository
-func (_mock *MockBulletRepository) Get(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*entity.Bullet, error) {
+func (_mock *MockBulletRepository) Get(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*domain.Bullet, error) {
 	ret := _mock.Called(ctx, id, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *entity.Bullet
+	var r0 *domain.Bullet
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) (*entity.Bullet, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) (*domain.Bullet, error)); ok {
 		return returnFunc(ctx, id, userID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) *entity.Bullet); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) *domain.Bullet); ok {
 		r0 = returnFunc(ctx, id, userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entity.Bullet)
+			r0 = ret.Get(0).(*domain.Bullet)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID) error); ok {
@@ -112,34 +112,34 @@ func (_c *MockBulletRepository_Get_Call) Run(run func(ctx context.Context, id uu
 	return _c
 }
 
-func (_c *MockBulletRepository_Get_Call) Return(bullet *entity.Bullet, err error) *MockBulletRepository_Get_Call {
+func (_c *MockBulletRepository_Get_Call) Return(bullet *domain.Bullet, err error) *MockBulletRepository_Get_Call {
 	_c.Call.Return(bullet, err)
 	return _c
 }
 
-func (_c *MockBulletRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*entity.Bullet, error)) *MockBulletRepository_Get_Call {
+func (_c *MockBulletRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*domain.Bullet, error)) *MockBulletRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function for the type MockBulletRepository
-func (_mock *MockBulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error) {
+func (_mock *MockBulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*domain.Bullet, error) {
 	ret := _mock.Called(ctx, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 []*entity.Bullet
+	var r0 []*domain.Bullet
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]*entity.Bullet, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]*domain.Bullet, error)); ok {
 		return returnFunc(ctx, userID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) []*entity.Bullet); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) []*domain.Bullet); ok {
 		r0 = returnFunc(ctx, userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*entity.Bullet)
+			r0 = ret.Get(0).([]*domain.Bullet)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
@@ -180,18 +180,18 @@ func (_c *MockBulletRepository_List_Call) Run(run func(ctx context.Context, user
 	return _c
 }
 
-func (_c *MockBulletRepository_List_Call) Return(bullets []*entity.Bullet, err error) *MockBulletRepository_List_Call {
+func (_c *MockBulletRepository_List_Call) Return(bullets []*domain.Bullet, err error) *MockBulletRepository_List_Call {
 	_c.Call.Return(bullets, err)
 	return _c
 }
 
-func (_c *MockBulletRepository_List_Call) RunAndReturn(run func(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error)) *MockBulletRepository_List_Call {
+func (_c *MockBulletRepository_List_Call) RunAndReturn(run func(ctx context.Context, userID uuid.UUID) ([]*domain.Bullet, error)) *MockBulletRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Save provides a mock function for the type MockBulletRepository
-func (_mock *MockBulletRepository) Save(ctx context.Context, bullet *entity.Bullet) error {
+func (_mock *MockBulletRepository) Save(ctx context.Context, bullet *domain.Bullet) error {
 	ret := _mock.Called(ctx, bullet)
 
 	if len(ret) == 0 {
@@ -199,7 +199,7 @@ func (_mock *MockBulletRepository) Save(ctx context.Context, bullet *entity.Bull
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *entity.Bullet) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.Bullet) error); ok {
 		r0 = returnFunc(ctx, bullet)
 	} else {
 		r0 = ret.Error(0)
@@ -214,20 +214,20 @@ type MockBulletRepository_Save_Call struct {
 
 // Save is a helper method to define mock.On call
 //   - ctx context.Context
-//   - bullet *entity.Bullet
+//   - bullet *domain.Bullet
 func (_e *MockBulletRepository_Expecter) Save(ctx any, bullet any) *MockBulletRepository_Save_Call {
 	return &MockBulletRepository_Save_Call{Call: _e.mock.On("Save", ctx, bullet)}
 }
 
-func (_c *MockBulletRepository_Save_Call) Run(run func(ctx context.Context, bullet *entity.Bullet)) *MockBulletRepository_Save_Call {
+func (_c *MockBulletRepository_Save_Call) Run(run func(ctx context.Context, bullet *domain.Bullet)) *MockBulletRepository_Save_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *entity.Bullet
+		var arg1 *domain.Bullet
 		if args[1] != nil {
-			arg1 = args[1].(*entity.Bullet)
+			arg1 = args[1].(*domain.Bullet)
 		}
 		run(
 			arg0,
@@ -242,7 +242,7 @@ func (_c *MockBulletRepository_Save_Call) Return(err error) *MockBulletRepositor
 	return _c
 }
 
-func (_c *MockBulletRepository_Save_Call) RunAndReturn(run func(ctx context.Context, bullet *entity.Bullet) error) *MockBulletRepository_Save_Call {
+func (_c *MockBulletRepository_Save_Call) RunAndReturn(run func(ctx context.Context, bullet *domain.Bullet) error) *MockBulletRepository_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }

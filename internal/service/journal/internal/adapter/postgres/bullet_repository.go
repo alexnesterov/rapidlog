@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/alexnesterov/rapidlog-api/internal/pkg/transactor"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/entity"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -19,7 +19,7 @@ func NewBulletRepository(pool *pgxpool.Pool) *BulletRepository {
 	return &BulletRepository{pool: pool}
 }
 
-func (r *BulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*entity.Bullet, error) {
+func (r *BulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*domain.Bullet, error) {
 	query := `
 		SELECT id, kind, signifier, content, user_id, created_at, updated_at
 		FROM bullets
@@ -28,7 +28,7 @@ func (r *BulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*enti
 
 	row := transactor.GetQueryer(ctx, r.pool).QueryRow(ctx, query, id, userID)
 
-	bullet := &entity.Bullet{}
+	bullet := &domain.Bullet{}
 	err := row.Scan(
 		&bullet.ID,
 		&bullet.Kind,
@@ -40,7 +40,7 @@ func (r *BulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*enti
 	)
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, entity.ErrNotFound
+		return nil, domain.ErrNotFound
 	}
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (r *BulletRepository) Get(ctx context.Context, id, userID uuid.UUID) (*enti
 	return bullet, nil
 }
 
-func (r *BulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*entity.Bullet, error) {
+func (r *BulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*domain.Bullet, error) {
 	query := `
 		SELECT id, kind, signifier, content, user_id, created_at, updated_at
 		FROM bullets
@@ -63,8 +63,8 @@ func (r *BulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*entit
 	defer rows.Close()
 
 	bullets, err := pgx.CollectRows(rows,
-		func(row pgx.CollectableRow) (*entity.Bullet, error) {
-			bullet := &entity.Bullet{}
+		func(row pgx.CollectableRow) (*domain.Bullet, error) {
+			bullet := &domain.Bullet{}
 			err := row.Scan(
 				&bullet.ID,
 				&bullet.Kind,
@@ -87,7 +87,7 @@ func (r *BulletRepository) List(ctx context.Context, userID uuid.UUID) ([]*entit
 	return bullets, nil
 }
 
-func (r *BulletRepository) Save(ctx context.Context, bullet *entity.Bullet) error {
+func (r *BulletRepository) Save(ctx context.Context, bullet *domain.Bullet) error {
 	query := `
 		INSERT INTO bullets (id, kind, signifier, content, user_id, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -114,7 +114,7 @@ func (r *BulletRepository) Save(ctx context.Context, bullet *entity.Bullet) erro
 	}
 
 	if tag.RowsAffected() == 0 {
-		return entity.ErrOwnerMismatch
+		return domain.ErrOwnerMismatch
 	}
 
 	return nil
