@@ -12,9 +12,14 @@ import (
 	"time"
 
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/config"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/adapter/kratos"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi"
-	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/controller/httpapi/middleware"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/handler/cancelbullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/handler/completebullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/handler/createbullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/handler/health"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/handler/listbullets"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/handler/migratebullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/platform/kratos"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/platform/middleware"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/pkg/journalgrpc"
 	"github.com/alexnesterov/rapidlog-api/web"
 )
@@ -45,14 +50,15 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 	defer func() { _ = journalClient.Close() }()
 
 	api := http.NewServeMux()
-	api.Handle("POST /api/bullets", httpapi.NewCreateBullet(journalClient, logger))
-	api.Handle("GET /api/bullets", httpapi.NewListBullets(journalClient))
-	api.Handle("POST /api/bullets/{id}/complete", httpapi.NewCompleteBullet(journalClient, logger))
-	api.Handle("POST /api/bullets/{id}/migrate", httpapi.NewMigrateBullet(journalClient, logger))
-	api.Handle("POST /api/bullets/{id}/cancel", httpapi.NewCancelBullet(journalClient, logger))
+	listbullets.Setup(api, journalClient, logger)
+	createbullet.Setup(api, journalClient, logger)
+	completebullet.Setup(api, journalClient, logger)
+	cancelbullet.Setup(api, journalClient, logger)
+	migratebullet.Setup(api, journalClient, logger)
 
 	router := http.NewServeMux()
-	router.HandleFunc("/health", httpapi.NewHealthHandler())
+	health.Setup(router)
+
 	router.Handle("/", web.Handler())
 	// публичный API Kratos на том же origin, что и SPA: cookie сессии и CSRF без CORS
 	router.Handle("/auth/", http.StripPrefix("/auth", kratosProxy))

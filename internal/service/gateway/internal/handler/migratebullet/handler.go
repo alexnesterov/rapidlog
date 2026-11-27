@@ -1,36 +1,32 @@
-package httpapi
+package migratebullet
 
 import (
-	"context"
 	"log/slog"
 	"net/http"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/platform/server"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/pkg/respond"
 	"github.com/google/uuid"
-	"google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-type CancelBulletClient interface {
-	CancelBullet(
-		ctx context.Context,
-		in *journalv1.CancelBulletRequest,
-		opts ...grpc.CallOption,
-	) (*journalv1.CancelBulletResponse, error)
-}
-
-type CancelBullet struct {
-	api    CancelBulletClient
+type Handler struct {
+	api    journalv1.JournalServiceClient
 	logger *slog.Logger
 }
 
-func NewCancelBullet(api CancelBulletClient, logger *slog.Logger) *CancelBullet {
-	return &CancelBullet{api: api, logger: logger}
+func NewHandler(api journalv1.JournalServiceClient, logger *slog.Logger) *Handler {
+	return &Handler{api: api, logger: logger}
 }
 
-func (h *CancelBullet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	userID, ok := UserIDFromContext(r.Context())
+func Setup(mux *http.ServeMux, api journalv1.JournalServiceClient, logger *slog.Logger) {
+	h := NewHandler(api, logger)
+	mux.HandleFunc("POST /api/bullets/{id}/migrate", h.Handle)
+}
+
+func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
+	userID, ok := server.UserIDFromContext(r.Context())
 	if !ok {
 		h.logger.Error("user id not found in context")
 		respond.Error(w,
@@ -50,14 +46,14 @@ func (h *CancelBullet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := &journalv1.CancelBulletRequest{
+	req := &journalv1.MigrateBulletRequest{
 		Id:     id.String(),
 		UserId: userID.String(),
 	}
 
-	resp, err := h.api.CancelBullet(r.Context(), req)
+	resp, err := h.api.MigrateBullet(r.Context(), req)
 	if err != nil {
-		h.logger.Error("failed to cancel bullet", "error", err)
+		h.logger.Error("failed to migrate bullet", "error", err)
 		respond.Error(w,
 			http.StatusInternalServerError,
 			http.StatusText(http.StatusInternalServerError),

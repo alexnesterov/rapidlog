@@ -1,36 +1,32 @@
-package httpapi
+package createbullet
 
 import (
-	"context"
 	"io"
 	"log/slog"
 	"net/http"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
+	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/internal/platform/server"
 	"github.com/alexnesterov/rapidlog-api/internal/service/gateway/pkg/respond"
-	"google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-type CreateBulletClient interface {
-	CreateBullet(
-		ctx context.Context,
-		in *journalv1.CreateBulletRequest,
-		opts ...grpc.CallOption,
-	) (*journalv1.CreateBulletResponse, error)
-}
-
-type CreateBullet struct {
-	api    CreateBulletClient
+type Handler struct {
+	api    journalv1.JournalServiceClient
 	logger *slog.Logger
 }
 
-func NewCreateBullet(api CreateBulletClient, logger *slog.Logger) *CreateBullet {
-	return &CreateBullet{api: api, logger: logger}
+func NewHandler(api journalv1.JournalServiceClient, logger *slog.Logger) *Handler {
+	return &Handler{api: api, logger: logger}
 }
 
-func (h *CreateBullet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	userID, ok := UserIDFromContext(r.Context())
+func Setup(mux *http.ServeMux, api journalv1.JournalServiceClient, logger *slog.Logger) {
+	h := NewHandler(api, logger)
+	mux.HandleFunc("POST /api/bullets", h.Handle)
+}
+
+func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
+	userID, ok := server.UserIDFromContext(r.Context())
 	if !ok {
 		respond.Error(w, http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))
 		return
@@ -49,7 +45,6 @@ func (h *CreateBullet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		respond.Error(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
-
 	req.UserId = userID.String()
 
 	resp, err := h.api.CreateBullet(r.Context(), &req)
