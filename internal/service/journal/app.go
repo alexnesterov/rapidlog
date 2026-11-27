@@ -12,7 +12,7 @@ import (
 
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/config"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/adapter/postgres"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
+	grpcapi "github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"google.golang.org/grpc"
 )

@@ -1,13 +1,13 @@
-package grpcapi_test
+package handler_test
 
 import (
 	"log/slog"
 	"testing"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
+	handler "github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -20,7 +20,7 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 	bullet, err := domain.NewBullet(uuid.New(), domain.KindTask, "test")
 	require.NoError(t, err)
 
-	protoBullet, err := grpcapi.ToProtoBullet(bullet)
+	protoBullet, err := handler.ToProtoBullet(bullet)
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -136,7 +136,7 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 			createBulletUsecaseMock := mocks.NewMockCreateBulletUsecase(t)
 			tt.setupMock(createBulletUsecaseMock)
 
-			s := grpcapi.NewJournalService(grpcapi.Usecases{
+			s := handler.NewJournalService(handler.Usecases{
 				CreateBullet: createBulletUsecaseMock,
 			}, slog.Default())
 
