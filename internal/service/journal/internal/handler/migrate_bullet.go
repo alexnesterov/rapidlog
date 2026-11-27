@@ -1,4 +1,4 @@
-package grpcapi
+package handler
 
 import (
 	"context"
@@ -12,10 +12,10 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *JournalService) CancelBullet(
+func (s *JournalService) MigrateBullet(
 	ctx context.Context,
-	req *journalv1.CancelBulletRequest,
-) (*journalv1.CancelBulletResponse, error) {
+	req *journalv1.MigrateBulletRequest,
+) (*journalv1.MigrateBulletResponse, error) {
 	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		s.logger.Warn("invalid user id", "user_id", req.GetUserId(), "error", err)
@@ -28,18 +28,18 @@ func (s *JournalService) CancelBullet(
 		return nil, status.Error(codes.InvalidArgument, "invalid bullet id")
 	}
 
-	bullet, err := s.uc.CancelBullet.Execute(ctx, usecase.CancelBulletInput{
+	bullet, err := s.uc.MigrateBullet.Execute(ctx, usecase.MigrateBulletInput{
 		ID:     bulletID,
 		UserID: userID,
 	})
 	if err != nil {
 		var validationErr *domain.ValidationError
 		if errors.As(err, &validationErr) {
-			s.logger.Warn("invalid cancel bullet request", "error", err)
+			s.logger.Warn("invalid migrate bullet request", "error", err)
 			return nil, status.Error(codes.InvalidArgument, validationErr.Error())
 		}
 
-		s.logger.Error("failed to cancel bullet", "error", err)
+		s.logger.Error("failed to migrate bullet", "error", err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
@@ -53,7 +53,7 @@ func (s *JournalService) CancelBullet(
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	return &journalv1.CancelBulletResponse{
+	return &journalv1.MigrateBulletResponse{
 		Data: data,
 	}, nil
 }

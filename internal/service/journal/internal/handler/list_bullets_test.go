@@ -1,13 +1,13 @@
-package grpcapi_test
+package handler_test
 
 import (
 	"log/slog"
 	"testing"
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/controller/grpcapi/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
+	handler "github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/mocks"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -29,13 +29,13 @@ func TestJournalServer_ListBullets(t *testing.T) {
 	note, err := domain.NewBullet(userID, domain.KindNote, "Test note")
 	require.NoError(t, err)
 
-	protoTask, err := grpcapi.ToProtoBullet(task)
+	protoTask, err := handler.ToProtoBullet(task)
 	require.NoError(t, err)
 
-	protoEvent, err := grpcapi.ToProtoBullet(event)
+	protoEvent, err := handler.ToProtoBullet(event)
 	require.NoError(t, err)
 
-	protoNote, err := grpcapi.ToProtoBullet(note)
+	protoNote, err := handler.ToProtoBullet(note)
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -132,7 +132,7 @@ func TestJournalServer_ListBullets(t *testing.T) {
 			listBulletsUsecaseMock := mocks.NewMockListBulletsUsecase(t)
 			tt.setupMock(listBulletsUsecaseMock)
 
-			s := grpcapi.NewJournalService(grpcapi.Usecases{
+			s := handler.NewJournalService(handler.Usecases{
 				ListBullets: listBulletsUsecaseMock,
 			}, slog.Default())
 

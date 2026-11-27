@@ -1,4 +1,4 @@
-package grpcapi
+package handler
 
 import (
 	"fmt"

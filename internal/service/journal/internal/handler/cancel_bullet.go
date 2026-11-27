@@ -1,50 +1,45 @@
-package grpcapi
+package handler
 
 import (
 	"context"
 	"errors"
 
+	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
-	"github.com/alexnesterov/rapidlog-api/internal/pkg/protoenum"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 )
 
-func (s *JournalService) CreateBullet(
+func (s *JournalService) CancelBullet(
 	ctx context.Context,
-	req *journalv1.CreateBulletRequest,
-) (*journalv1.CreateBulletResponse, error) {
+	req *journalv1.CancelBulletRequest,
+) (*journalv1.CancelBulletResponse, error) {
 	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		s.logger.Warn("invalid user id", "user_id", req.GetUserId(), "error", err)
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	kind, err := domain.ParseKind(protoenum.ToCleanString(req.GetKind()))
+	bulletID, err := uuid.Parse(req.GetId())
 	if err != nil {
-		s.logger.Warn("invalid kind", "kind", req.GetKind(), "error", err)
-		return nil, status.Error(codes.InvalidArgument, "invalid kind")
+		s.logger.Warn("invalid bullet id", "bullet_id", req.GetId(), "error", err)
+		return nil, status.Error(codes.InvalidArgument, "invalid bullet id")
 	}
 
-	input := usecase.CreateBulletInput{
-		UserID:  userID,
-		Kind:    kind,
-		Content: req.GetContent(),
-	}
-
-	bullet, err := s.uc.CreateBullet.Execute(ctx, input)
+	bullet, err := s.uc.CancelBullet.Execute(ctx, usecase.CancelBulletInput{
+		ID:     bulletID,
+		UserID: userID,
+	})
 	if err != nil {
 		var validationErr *domain.ValidationError
 		if errors.As(err, &validationErr) {
-			s.logger.Warn("invalid create bullet request", "error", err)
+			s.logger.Warn("invalid cancel bullet request", "error", err)
 			return nil, status.Error(codes.InvalidArgument, validationErr.Error())
 		}
 
-		s.logger.Error("failed to create bullet", "error", err)
+		s.logger.Error("failed to cancel bullet", "error", err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
@@ -58,7 +53,7 @@ func (s *JournalService) CreateBullet(
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	return &journalv1.CreateBulletResponse{
+	return &journalv1.CancelBulletResponse{
 		Data: data,
 	}, nil
 }
