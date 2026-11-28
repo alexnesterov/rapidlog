@@ -1,4 +1,4 @@
-package handler_test
+package migratebullet_test
 
 import (
 	"log/slog"
@@ -6,8 +6,9 @@ import (
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
-	handler "github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/migratebullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/migratebullet/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/platform/server"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +25,7 @@ func TestJournalServer_MigrateBullet(t *testing.T) {
 	migrated, err := domain.NewBullet(uuid.New(), domain.KindTask, "test")
 	require.NoError(t, err)
 
-	protoBullet, err := handler.ToProtoBullet(migrated)
+	protoBullet, err := server.ToProtoBullet(migrated)
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -146,9 +147,10 @@ func TestJournalServer_MigrateBullet(t *testing.T) {
 			migrateBulletUsecaseMock := mocks.NewMockMigrateBulletUsecase(t)
 			tt.setupMock(migrateBulletUsecaseMock)
 
-			s := handler.NewJournalService(handler.Usecases{
-				MigrateBullet: migrateBulletUsecaseMock,
-			}, slog.Default())
+			h := migratebullet.NewHandler(migrateBulletUsecaseMock, slog.Default())
+			s := server.NewJournalService(server.Handlers{
+				MigrateBullet: h,
+			})
 
 			got, gotErr := s.MigrateBullet(t.Context(), tt.req)
 			if tt.wantErr != nil {

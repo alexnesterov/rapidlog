@@ -12,8 +12,12 @@ import (
 
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/config"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/adapter/postgres"
-	grpcapi "github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/cancelbullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/completebullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/createbullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/listbullets"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/migratebullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/platform/server"
 	"google.golang.org/grpc"
 )
 
@@ -38,16 +42,14 @@ func Run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	repository := postgres.NewBulletRepository(pool)
-
 	grpcServer := grpc.NewServer()
-	grpcapi.RegisterJournalService(grpcServer, grpcapi.Usecases{
-		CreateBullet:   usecase.NewCreateBullet(repository),
-		CancelBullet:   usecase.NewCancelBullet(repository),
-		CompleteBullet: usecase.NewCompleteBullet(repository),
-		ListBullets:    usecase.NewListBullets(repository),
-		MigrateBullet:  usecase.NewMigrateBullet(repository),
-	}, logger)
+	server.Register(grpcServer, server.Handlers{
+		CreateBullet:   createbullet.Setup(pool, logger),
+		CancelBullet:   cancelbullet.Setup(pool, logger),
+		CompleteBullet: completebullet.Setup(pool, logger),
+		ListBullets:    listbullets.Setup(pool, logger),
+		MigrateBullet:  migratebullet.Setup(pool, logger),
+	})
 
 	ln, err := net.Listen("tcp", ":"+cfg.Port)
 	if err != nil {

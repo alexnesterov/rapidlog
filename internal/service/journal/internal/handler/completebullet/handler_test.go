@@ -1,4 +1,4 @@
-package handler_test
+package completebullet_test
 
 import (
 	"log/slog"
@@ -6,8 +6,9 @@ import (
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
-	handler "github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/completebullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/completebullet/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/platform/server"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +25,7 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 	err = bullet.Complete()
 	require.NoError(t, err)
 
-	protoBullet, err := handler.ToProtoBullet(bullet)
+	protoBullet, err := server.ToProtoBullet(bullet)
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -146,9 +147,10 @@ func TestJournalServer_CompleteBullet(t *testing.T) {
 			completeBulletUsecaseMock := mocks.NewMockCompleteBulletUsecase(t)
 			tt.setupMock(completeBulletUsecaseMock)
 
-			s := handler.NewJournalService(handler.Usecases{
-				CompleteBullet: completeBulletUsecaseMock,
-			}, slog.Default())
+			h := completebullet.NewHandler(completeBulletUsecaseMock, slog.Default())
+			s := server.NewJournalService(server.Handlers{
+				CompleteBullet: h,
+			})
 
 			got, gotErr := s.CompleteBullet(t.Context(), tt.req)
 			if tt.wantErr != nil {
