@@ -1,4 +1,4 @@
-package handler_test
+package createbullet_test
 
 import (
 	"log/slog"
@@ -6,8 +6,9 @@ import (
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
-	handler "github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/createbullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/createbullet/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/platform/server"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -20,7 +21,7 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 	bullet, err := domain.NewBullet(uuid.New(), domain.KindTask, "test")
 	require.NoError(t, err)
 
-	protoBullet, err := handler.ToProtoBullet(bullet)
+	protoBullet, err := server.ToProtoBullet(bullet)
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -136,9 +137,10 @@ func TestJournalServer_CreateBullet(t *testing.T) {
 			createBulletUsecaseMock := mocks.NewMockCreateBulletUsecase(t)
 			tt.setupMock(createBulletUsecaseMock)
 
-			s := handler.NewJournalService(handler.Usecases{
-				CreateBullet: createBulletUsecaseMock,
-			}, slog.Default())
+			h := createbullet.NewHandler(createBulletUsecaseMock, slog.Default())
+			s := server.NewJournalService(server.Handlers{
+				CreateBullet: h,
+			})
 
 			got, gotErr := s.CreateBullet(t.Context(), tt.req)
 			if tt.wantErr != nil {

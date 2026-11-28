@@ -1,4 +1,4 @@
-package handler_test
+package listbullets_test
 
 import (
 	"log/slog"
@@ -6,8 +6,9 @@ import (
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
-	handler "github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/listbullets"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/listbullets/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/platform/server"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -29,13 +30,13 @@ func TestJournalServer_ListBullets(t *testing.T) {
 	note, err := domain.NewBullet(userID, domain.KindNote, "Test note")
 	require.NoError(t, err)
 
-	protoTask, err := handler.ToProtoBullet(task)
+	protoTask, err := server.ToProtoBullet(task)
 	require.NoError(t, err)
 
-	protoEvent, err := handler.ToProtoBullet(event)
+	protoEvent, err := server.ToProtoBullet(event)
 	require.NoError(t, err)
 
-	protoNote, err := handler.ToProtoBullet(note)
+	protoNote, err := server.ToProtoBullet(note)
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -132,9 +133,10 @@ func TestJournalServer_ListBullets(t *testing.T) {
 			listBulletsUsecaseMock := mocks.NewMockListBulletsUsecase(t)
 			tt.setupMock(listBulletsUsecaseMock)
 
-			s := handler.NewJournalService(handler.Usecases{
-				ListBullets: listBulletsUsecaseMock,
-			}, slog.Default())
+			h := listbullets.NewHandler(listBulletsUsecaseMock, slog.Default())
+			s := server.NewJournalService(server.Handlers{
+				ListBullets: h,
+			})
 
 			got, gotErr := s.ListBullets(t.Context(), tt.req)
 			if tt.wantErr != nil {

@@ -1,4 +1,4 @@
-package handler_test
+package cancelbullet_test
 
 import (
 	"log/slog"
@@ -6,8 +6,9 @@ import (
 
 	journalv1 "github.com/alexnesterov/rapidlog-api/api/gen/journal/v1"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/domain"
-	handler "github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler"
-	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/cancelbullet"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/handler/cancelbullet/mocks"
+	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/platform/server"
 	"github.com/alexnesterov/rapidlog-api/internal/service/journal/internal/usecase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +25,7 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 	err = bullet.Cancel()
 	require.NoError(t, err)
 
-	protoBullet, err := handler.ToProtoBullet(bullet)
+	protoBullet, err := server.ToProtoBullet(bullet)
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -146,9 +147,10 @@ func TestJournalServer_CancelBullet(t *testing.T) {
 			cancelBulletUsecaseMock := mocks.NewMockCancelBulletUsecase(t)
 			tt.setupMock(cancelBulletUsecaseMock)
 
-			s := handler.NewJournalService(handler.Usecases{
-				CancelBullet: cancelBulletUsecaseMock,
-			}, slog.Default())
+			h := cancelbullet.NewHandler(cancelBulletUsecaseMock, slog.Default())
+			s := server.NewJournalService(server.Handlers{
+				CancelBullet: h,
+			})
 
 			got, gotErr := s.CancelBullet(t.Context(), tt.req)
 			if tt.wantErr != nil {
